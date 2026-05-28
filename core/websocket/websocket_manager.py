@@ -4,6 +4,7 @@
 from datetime import datetime
 from threading import Lock
 from typing import Any, Optional
+from threading import Thread
 
 from SmartApi.smartWebSocketV2 import SmartWebSocketV2
 
@@ -40,6 +41,8 @@ class WebSocketManager:
             SmartWebSocketV2
         ] = None
 
+        self.connection_thread: Optional[ Thread ] = None
+        
         self.is_connected = False
 
         self.is_running = False
@@ -133,7 +136,7 @@ class WebSocketManager:
 
             self.websocket.on_error = self.on_error
 
-            self.websocket.on_close = self.on_close
+            self.websocket.on_close = self.on_close # type: ignore
 
             self.is_running = True
 
@@ -141,7 +144,35 @@ class WebSocketManager:
                 "Connecting websocket"
             )
 
-            self.websocket.connect()
+           
+            
+            self.connection_thread = Thread(
+                target=self.websocket.connect,
+                daemon=True,
+                name="SmartAPI-WebSocket-Thread"
+            )
+
+            self.connection_thread.start()
+
+            timeout = 10
+
+            start_time = time.time()
+
+            while (
+                not self.is_connected
+                and
+                (time.time() - start_time) < timeout
+            ):
+
+                time.sleep(0.1)
+
+            if not self.is_connected:
+
+                self.logger.error(
+                    "Websocket connection timeout"
+                )
+
+                return False
 
             return True
 
@@ -268,7 +299,7 @@ class WebSocketManager:
             f"Websocket error: {args}"
         )
 
-    def on_close(self, wsapp: Any) -> None:
+    def on_close( self, *args: Any ) -> None:
         """
         Websocket close callback.
         """

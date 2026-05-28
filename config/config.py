@@ -173,3 +173,9 @@ WEBSOCKET_HEARTBEAT_TIMEOUT = 30
 HEARTBEAT_CHECK_INTERVAL = 5
 
 ENABLE_TICK_LOGGING = False
+
+
+# ============================================ 
+# Instrument Configuration 
+# ============================================ 
+INSTRUMENT_MASTER_PATH = ( "data/instruments/OpenAPIScripMaster.json" )
