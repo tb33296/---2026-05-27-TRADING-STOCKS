@@ -4,14 +4,17 @@ from datetime import datetime, timedelta
 from threading import Lock
 from typing import Optional
 
+
 from config.config import (
     WEBSOCKET_HEARTBEAT_TIMEOUT
 )
 
 from core.logging_manager import LoggingManager
-from core.websocket.websocket_manager import (
-    WebSocketManager
-)
+from typing import Protocol 
+
+class WebSocketProtocol(Protocol): 
+    def get_connection_status(self) -> bool: ... 
+    def get_last_tick_time( self ) -> Optional[datetime]: ...
 
 
 class HeartbeatMonitor:
@@ -21,7 +24,7 @@ class HeartbeatMonitor:
 
     def __init__(
         self,
-        websocket_manager: WebSocketManager
+        websocket_manager: WebSocketProtocol
     ) -> None:
 
         self.logger = LoggingManager.get_logger(__name__)
