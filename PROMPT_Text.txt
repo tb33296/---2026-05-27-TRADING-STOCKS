@@ -1,0 +1,1262 @@
+You are a senior quantitative trading systems architect and principal Python engineer.
+
+Your task is to design and build a COMPLETE PROFESSIONAL-GRADE INTRADAY PAPER TRADING PLATFORM for Indian stock markets using Angel One SmartAPI.
+
+The system must be:
+- production-grade
+- modular
+- low-resource
+- stable
+- plug-and-play
+- easy to maintain
+- easy to expand later into live trading
+
+The target deployment environment is:
+- AWS Ubuntu Server
+- 1 GB RAM
+- 20 GB Storage
+- Python 3.12+
+
+The system MUST be optimized for low memory usage and long-term stability.
+
+VERY IMPORTANT RULES:
+1. DO NOT use emojis anywhere.
+2. DO NOT use icons anywhere.
+3. DO NOT use fancy Unicode decorations.
+4. DO NOT generate unnecessary comments.
+5. DO NOT generate bloated architecture.
+6. DO NOT use Docker.
+7. DO NOT use React/Electron.
+8. DO NOT use Redis/Kafka.
+9. DO NOT use heavy frameworks.
+10. DO NOT use full tick storage.
+11. DO NOT use massive pandas workflows on live ticks.
+12. DO NOT use multiprocessing unless absolutely necessary.
+13. DO NOT create giant monolithic files.
+14. Keep RAM usage extremely low.
+15. The entire system must be designed for continuous daily operation.
+
+==================================================
+PROJECT GOAL
+==================================================
+
+Build a fully automated intraday PAPER TRADING system for Indian equities using:
+- Angel One SmartAPI
+- WebSocket market data
+- VWAP
+- Anchored VWAP
+- Synthetic CVD
+- Relative Volume
+- Opening Range Breakout
+- Market regime filtering
+- Sector strength filtering
+- Risk management
+- Paper execution
+- Analytics
+- Web dashboard
+
+The system must:
+- automatically select stocks
+- generate trade signals
+- simulate fills
+- calculate charges
+- track P&L
+- manage positions
+- force square-off by 03:25 PM IST
+- generate daily reports
+
+NO LIVE TRADING YET.
+
+==================================================
+LOGIN CONFIGURATION
+==================================================
+
+The login file already exists and MUST be used EXACTLY as below:
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+API_KEY = os.getenv("API_KEY")
+Secret_Key = os.getenv("SECRET_KEY")
+CLIENT_ID = os.getenv("CLIENT_ID")
+PIN = os.getenv("PIN")
+TOTP_SECRET = os.getenv("TOTP_SECRET")
+
+appPass = os.getenv("APP_PASS")
+
+The system MUST import from:
+loginInfo.py
+
+DO NOT redesign this login structure.
+
+==================================================
+TECH STACK
+==================================================
+
+MANDATORY TECHNOLOGIES:
+
+Backend:
+- Python 3.12+
+
+Web Framework:
+- Flask
+
+Database:
+- SQLite
+
+Frontend:
+- HTML
+- CSS
+- Vanilla JavaScript
+- AJAX polling
+
+Charts:
+- Chart.js only
+
+Networking:
+- asyncio
+- websockets
+
+Scheduling:
+- APScheduler
+
+Logging:
+- Python logging module with rotating logs
+
+Storage:
+- SQLite only
+
+NO OTHER DATABASES.
+
+==================================================
+ARCHITECTURE REQUIREMENTS
+==================================================
+
+The architecture MUST be modular.
+
+Create proper folder structure.
+
+Suggested structure:
+
+project_root/
+│
+├── core/
+├── indicators/
+├── strategies/
+├── execution/
+├── analytics/
+├── database/
+├── ui/
+├── logs/
+├── reports/
+├── config/
+├── data/
+├── utils/
+├── tests/
+├── loginInfo.py
+├── main.py
+├── requirements.txt
+└── README.md
+
+==================================================
+CORE SYSTEM REQUIREMENTS
+==================================================
+
+CREATE THE FOLLOWING MODULES:
+
+1. Configuration Manager
+2. Market Calendar Engine
+3. SmartAPI Authentication Manager
+4. WebSocket Manager
+5. Tick Processor
+6. Candle Builder
+7. Indicator Engine
+8. Market Regime Engine
+9. Sector Strength Engine
+10. Market Breadth Engine
+11. Relative Strength Engine
+12. Stock Selection Engine
+13. Signal Engine
+14. Risk Management Engine
+15. Paper Execution Engine
+16. Position Management Engine
+17. Trade Tracking Engine
+18. Charges Calculation Engine
+19. Analytics Engine
+20. Reporting Engine
+21. Replay Engine
+22. Screenshot Engine
+23. Logging Engine
+24. Fail-safe Watchdog Engine
+25. Web Dashboard
+
+==================================================
+STOCK UNIVERSE
+==================================================
+
+DO NOT use NIFTY 500.
+
+Use:
+- NIFTY 100
+- Highly liquid F&O stocks
+
+Maximum active watchlist:
+20–40 stocks daily.
+
+The stock selection engine must dynamically filter based on:
+- Relative volume
+- Gap %
+- Sector strength
+- Liquidity
+- Spread quality
+- Relative strength
+
+==================================================
+MARKET HOURS
+==================================================
+
+Trading schedule:
+
+09:15 AM:
+Start market data.
+
+09:20 AM:
+Enable signals.
+
+02:45 PM:
+Disable new entries.
+
+03:25 PM:
+Force close all positions.
+
+03:30 PM:
+Generate reports.
+
+==================================================
+CANDLE REQUIREMENTS
+==================================================
+
+Build:
+- 1-minute candles
+- 5-minute candles
+
+DO NOT STORE RAW TICKS.
+
+Only candles should be persisted.
+
+==================================================
+INDICATOR REQUIREMENTS
+==================================================
+
+IMPLEMENT:
+
+1. Session VWAP
+2. Anchored VWAP
+3. Synthetic CVD
+4. Relative Volume
+5. ATR
+6. Opening Range High/Low
+
+==================================================
+ANCHORED VWAP REQUIREMENTS
+==================================================
+
+Allow anchors:
+- Market open
+- Breakout candle
+- Swing high/low
+
+==================================================
+SYNTHETIC CVD REQUIREMENTS
+==================================================
+
+Use uptick/downtick methodology.
+
+NO true orderflow.
+
+==================================================
+MARKET REGIME ENGINE
+==================================================
+
+Classify:
+- Trend day
+- Range day
+- Volatile day
+- Weak participation day
+
+This regime must affect:
+- position sizing
+- strategy activation
+- aggressiveness
+
+==================================================
+SECTOR ENGINE
+==================================================
+
+Track:
+- BANKNIFTY
+- IT
+- AUTO
+- PHARMA
+- FMCG
+- METAL
+- ENERGY
+
+Only allow trades aligned with sector strength.
+
+==================================================
+SIGNAL ENGINE REQUIREMENTS
+==================================================
+
+IMPLEMENT MULTIPLE STRATEGIES:
+
+1. Trend Continuation
+2. Mean Reversion
+3. Opening Range Breakout
+
+==================================================
+TRADE QUALITY SCORING
+==================================================
+
+Each trade must receive a score.
+
+Example:
+- Above VWAP
+- Above AWVAP
+- Strong sector
+- Strong RVOL
+- Strong CVD
+
+Only execute high-quality setups.
+
+==================================================
+RISK MANAGEMENT REQUIREMENTS
+==================================================
+
+MANDATORY FEATURES:
+
+1. Daily max drawdown
+2. Per trade risk
+3. Max concurrent positions
+4. Cooldown after losses
+5. Adaptive position sizing
+6. Spread filters
+7. Liquidity filters
+8. Time-based risk reduction
+
+==================================================
+PAPER EXECUTION ENGINE
+==================================================
+
+DO NOT SEND REAL ORDERS.
+
+Simulate:
+- fills
+- slippage
+- charges
+
+Include realistic slippage model.
+
+==================================================
+CHARGES ENGINE
+==================================================
+
+Calculate:
+- Brokerage
+- STT
+- Exchange charges
+- GST
+- SEBI charges
+- Stamp duty
+
+Store:
+- gross P&L
+- charges
+- net P&L
+
+==================================================
+POSITION MANAGEMENT
+==================================================
+
+Track:
+- entry
+- stop loss
+- target
+- trailing stop
+- unrealized P&L
+- realized P&L
+
+==================================================
+DATABASE REQUIREMENTS
+==================================================
+
+Use SQLite ONLY.
+
+Create tables:
+- trades
+- open_positions
+- candles
+- logs
+- daily_summary
+- system_health
+
+==================================================
+LOGGING REQUIREMENTS
+==================================================
+
+Use rotating logs.
+
+Track:
+- signals
+- reconnects
+- errors
+- fills
+- exits
+- API failures
+- memory warnings
+
+==================================================
+FAILSAFE REQUIREMENTS
+==================================================
+
+Implement:
+- websocket reconnect
+- API retry
+- heartbeat monitoring
+- internet disconnect detection
+- forced square-off watchdog
+- memory monitoring
+
+The forced square-off system MUST work even if the strategy engine crashes.
+
+==================================================
+LOW RESOURCE REQUIREMENTS
+==================================================
+
+CRITICAL:
+
+The system MUST remain stable under:
+- 1 GB RAM
+- low CPU
+- long runtime
+
+Optimization requirements:
+- use deque where appropriate
+- avoid giant DataFrames
+- avoid storing full history in RAM
+- use fixed-size buffers
+- use garbage collection carefully
+- use lightweight polling
+
+==================================================
+WEB DASHBOARD REQUIREMENTS
+==================================================
+
+Build a lightweight Flask dashboard.
+
+NO HEAVY FRONTEND FRAMEWORKS.
+
+Create pages:
+
+1. Dashboard
+2. Open Positions
+3. Trades
+4. Analytics
+5. Logs
+6. System Health
+
+==================================================
+DASHBOARD FEATURES
+==================================================
+
+Dashboard must show:
+- websocket status
+- active watchlist
+- open trades
+- realized P&L
+- unrealized P&L
+- gross P&L
+- charges
+- net P&L
+- win rate
+- memory usage
+- CPU usage
+- strategy status
+
+==================================================
+ANALYTICS REQUIREMENTS
+==================================================
+
+Calculate:
+- win rate
+- profit factor
+- expectancy
+- max drawdown
+- average winner
+- average loser
+- time-of-day performance
+- sector performance
+
+==================================================
+REPORTING ENGINE
+==================================================
+
+Generate end-of-day report automatically.
+
+Include:
+- trades
+- P&L
+- charges
+- performance metrics
+- drawdown
+- system health
+- best/worst trade
+
+==================================================
+REPLAY ENGINE
+==================================================
+
+Allow replaying:
+- candles
+- signals
+- entries
+- exits
+
+==================================================
+SCREENSHOT ENGINE
+==================================================
+
+Save chart screenshots:
+- at entry
+- at exit
+
+==================================================
+SYSTEM HEALTH ENGINE
+==================================================
+
+Track:
+- websocket latency
+- reconnect count
+- API failures
+- memory usage
+- CPU usage
+- processing lag
+
+==================================================
+UI DESIGN REQUIREMENTS
+==================================================
+
+Keep UI:
+- clean
+- simple
+- low-resource
+- dark theme
+- table-focused
+
+DO NOT use:
+- animations
+- fancy effects
+- gradients
+- heavy charting
+
+==================================================
+OUTPUT REQUIREMENTS
+==================================================
+
+Generate:
+1. Full project architecture
+2. Folder structure
+3. requirements.txt
+4. SQLite schema
+5. All source files
+6. Flask UI
+7. CSS
+8. JavaScript
+9. README
+10. Installation guide
+11. AWS deployment guide
+12. .env example
+13. Logging configuration
+14. Daily workflow explanation
+15. Memory optimization explanation
+
+==================================================
+IMPORTANT CODING RULES
+==================================================
+
+1. Every module must be production quality.
+2. Use proper class-based architecture where needed.
+3. Use typing hints.
+4. Use docstrings.
+5. Use clean naming conventions.
+6. Avoid unnecessary abstractions.
+7. Avoid overengineering.
+8. Keep startup simple.
+9. Ensure plug-and-play operation.
+10. Every file must be complete.
+11. No placeholders.
+12. No TODO comments.
+13. No pseudo-code.
+14. No partial implementations.
+15. No missing imports.
+
+==================================================
+FINAL REQUIREMENT
+==================================================
+
+Generate the project incrementally and systematically.
+
+Start with:
+1. folder structure
+2. requirements
+3. configuration
+4. database schema
+5. websocket layer
+6. candle engine
+7. indicators
+8. strategy engine
+9. execution engine
+10. dashboard
+11. analytics
+12. deployment
+
+Ensure every step is complete before moving to the next. and test every code in depth for errors and edge cases
+
+==================================================
+ADDITIONAL MANDATORY REQUIREMENTS
+==================================================
+
+==================================================
+CENTRALIZED CONFIGURATION SYSTEM
+==================================================
+
+ABSOLUTE RULE:
+
+NO hardcoded constants are allowed anywhere in the project except:
+- config.py
+- .env
+
+ALL constants MUST be centralized.
+
+Every module MUST import constants from:
+config/config.py
+
+NO individual script may declare:
+- market timings
+- timezone
+- risk parameters
+- drawdown limits
+- slippage values
+- cooldown settings
+- polling intervals
+- dashboard refresh rates
+- strategy thresholds
+- database paths
+- logging paths
+- websocket retry counts
+- memory thresholds
+- force square-off timings
+- active watchlist limits
+- or ANY configurable value
+
+==================================================
+CONFIGURATION FILE REQUIREMENTS
+==================================================
+
+Create:
+config/config.py
+
+The config system must contain:
+
+1. Market Configuration
+2. Trading Configuration
+3. Risk Management Configuration
+4. Indicator Configuration
+5. Database Configuration
+6. Logging Configuration
+7. Dashboard Configuration
+8. WebSocket Configuration
+9. AWS Server Configuration
+10. System Health Configuration
+11. Replay Engine Configuration
+12. Screenshot Engine Configuration
+
+==================================================
+EXAMPLE CONFIG VARIABLES
+==================================================
+
+Examples include:
+
+TIMEZONE
+MARKET_OPEN_TIME
+MARKET_CLOSE_TIME
+SIGNAL_START_TIME
+NEW_ENTRY_CUTOFF_TIME
+FORCE_EXIT_TIME
+
+MAX_DAILY_DRAWDOWN
+PER_TRADE_RISK
+MAX_CONCURRENT_POSITIONS
+
+VWAP_SETTINGS
+AWVAP_SETTINGS
+CVD_SETTINGS
+RVOL_SETTINGS
+
+SQLITE_DB_PATH
+LOG_FOLDER
+REPORT_FOLDER
+
+WEBSOCKET_RETRY_LIMIT
+HEARTBEAT_TIMEOUT
+
+DASHBOARD_REFRESH_INTERVAL
+
+MEMORY_WARNING_THRESHOLD
+CPU_WARNING_THRESHOLD
+
+ALL such values MUST come ONLY from config.py
+
+==================================================
+CONFIGURATION DESIGN REQUIREMENTS
+==================================================
+
+The config system must:
+- be modular
+- easy to edit
+- easy to expand
+- human-readable
+
+The codebase must NEVER require hunting through scripts to modify parameters.
+
+==================================================
+FILE STRUCTURE GENERATOR
+==================================================
+
+After generating the full folder architecture:
+
+Create a Windows batch file:
+generate_project_structure.bat
+
+Purpose:
+Automatically create:
+- all folders
+- subfolders
+- empty files
+- starter files
+
+The batch file must:
+- work on Windows 10/11
+- be plug-and-play
+- create complete project structure
+- avoid overwriting existing files accidentally
+
+==================================================
+BATCH FILE REQUIREMENTS
+==================================================
+
+The .bat file must:
+- create every directory
+- create placeholder __init__.py files where needed
+- create logs/reports/data folders
+- create starter config files
+- create starter SQLite DB location
+- create starter .env.example
+
+The batch file must include:
+- comments
+- validation
+- success/failure messages
+
+==================================================
+AWS FREE TIER DEPLOYMENT GUIDE
+==================================================
+
+The project MUST include a COMPLETE beginner-friendly deployment guide for:
+
+AWS Free Tier deployment.
+
+The guide must assume:
+- beginner Linux knowledge
+- beginner AWS knowledge
+
+The guide must be step-by-step.
+
+==================================================
+AWS GUIDE REQUIREMENTS
+==================================================
+
+Include:
+
+1. AWS account creation
+2. Free tier EC2 selection
+3. Ubuntu server setup
+4. Security groups
+5. SSH access
+6. Python installation
+7. Virtual environment setup
+8. Git installation
+9. SQLite setup
+10. Flask deployment
+11. Firewall setup
+12. Systemd service setup
+13. Automatic restart configuration
+14. Log monitoring
+15. Memory monitoring
+16. CPU monitoring
+17. Daily restart recommendations
+18. Backup recommendations
+
+==================================================
+DUCK DNS REQUIREMENTS
+==================================================
+
+The project MUST include a COMPLETE guide for:
+
+DuckDNS integration.
+
+Include:
+
+1. DuckDNS account creation
+2. Domain setup
+3. Subdomain creation
+4. Dynamic IP update setup
+5. Linux DuckDNS updater setup
+6. Cron job configuration
+7. Flask binding configuration
+8. Browser access using DuckDNS domain
+
+==================================================
+HTTPS REQUIREMENTS
+==================================================
+
+Also include OPTIONAL HTTPS setup using:
+- Nginx
+- Certbot
+- Let's Encrypt
+
+Provide:
+- installation steps
+- configuration examples
+- SSL renewal setup
+
+==================================================
+AWS OPTIMIZATION REQUIREMENTS
+==================================================
+
+The deployment guide must include:
+
+LOW MEMORY optimization specifically for:
+- 1 GB RAM
+- AWS free tier
+
+Include:
+- swap file setup
+- log rotation
+- lightweight services only
+- disabling unnecessary Ubuntu services
+- SQLite optimization
+- Flask optimization
+- memory-safe startup sequence
+
+==================================================
+SERVER STARTUP REQUIREMENTS
+==================================================
+
+The deployment guide must include:
+
+1. How to start manually
+2. How to start automatically after reboot
+3. How to restart after crash
+4. How to check logs
+5. How to monitor health
+6. How to stop safely
+
+==================================================
+PROJECT DOCUMENTATION REQUIREMENTS
+==================================================
+
+The generated project MUST include:
+
+README.md containing:
+- full setup guide
+- local development setup
+- AWS deployment
+- DuckDNS setup
+- troubleshooting
+- common errors
+- performance optimization
+- RAM optimization
+- backup strategy
+
+==================================================
+FINAL ABSOLUTE RULE
+==================================================
+
+The project must be:
+
+- beginner deployable
+- modular
+- stable
+- maintainable
+- low resource
+- production structured
+- future-ready for live trading
+
+Everything must work as a cohesive plug-and-play system.
+
+
+==================================================
+DEVELOPMENT METHODOLOGY REQUIREMENTS
+====================================
+
+This project MUST be developed using a PROFESSIONAL ITERATIVE ENGINEERING APPROACH.
+
+DO NOT attempt to generate the entire project in one shot.
+
+The project MUST be generated incrementally, module-by-module, with strict architecture consistency.
+
+==================================================
+ABSOLUTE DEVELOPMENT RULES
+==========================
+
+1. NEVER generate the full system at once.
+2. Generate ONE complete module at a time.
+3. Every module must be fully testable before continuing.
+4. Every generated module must integrate with the existing architecture.
+5. Architecture consistency is mandatory.
+6. DO NOT redesign previously approved architecture.
+7. DO NOT introduce random frameworks or dependencies later.
+8. DO NOT change naming conventions midway.
+9. DO NOT introduce hidden constants.
+10. DO NOT generate placeholder implementations.
+11. DO NOT generate pseudo-code.
+12. DO NOT skip imports or setup steps.
+13. DO NOT generate partial files.
+14. DO NOT assume undefined structures.
+15. ALWAYS follow previously established architecture.
+
+==================================================
+MANDATORY DEVELOPMENT SEQUENCE
+==============================
+
+The project MUST be generated in the following order:
+
+PHASE 1:
+Infrastructure Layer
+
+* folder structure
+* requirements.txt
+* config system
+* logger
+* SQLite manager
+* utility helpers
+
+PHASE 2:
+Connectivity Layer
+
+* SmartAPI authentication
+* session handling
+* websocket manager
+* reconnect manager
+* heartbeat monitor
+
+PHASE 3:
+Market Data Layer
+
+* tick normalization
+* tick queue
+* candle builder
+* market clock
+* trading session manager
+
+PHASE 4:
+Indicator Layer
+
+* VWAP
+* Anchored VWAP
+* Synthetic CVD
+* RVOL
+* ATR
+* Opening Range
+
+PHASE 5:
+Market Intelligence Layer
+
+* market regime engine
+* sector strength engine
+* breadth engine
+* relative strength engine
+
+PHASE 6:
+Risk Management Layer
+
+* risk engine
+* cooldown engine
+* drawdown controls
+* position sizing engine
+* spread filters
+* liquidity filters
+
+PHASE 7:
+Signal Layer
+
+* strategy engine
+* signal scoring
+* signal filtering
+* setup validation
+
+PHASE 8:
+Execution Layer
+
+* paper execution engine
+* slippage simulation
+* trade lifecycle management
+* order state tracking
+
+PHASE 9:
+Position Management Layer
+
+* live position tracking
+* stop management
+* target management
+* forced exit engine
+
+PHASE 10:
+Analytics Layer
+
+* trade tracking
+* performance metrics
+* expectancy calculations
+* profit factor
+* drawdown analysis
+
+PHASE 11:
+Dashboard Layer
+
+* Flask dashboard
+* AJAX updates
+* analytics pages
+* logs page
+* system health page
+
+PHASE 12:
+Deployment Layer
+
+* AWS deployment
+* DuckDNS setup
+* systemd services
+* nginx
+* SSL
+* monitoring
+
+==================================================
+MODULE GENERATION RULES
+=======================
+
+Every module generation MUST include:
+
+1. File path
+2. Full source code
+3. Required imports
+4. Integration instructions
+5. Dependencies
+6. Config requirements
+7. Database dependencies
+8. Test instructions
+9. Error handling
+10. Memory optimization notes
+
+==================================================
+INTERFACE CONSISTENCY RULES
+===========================
+
+Before generating modules:
+
+* define inputs
+* define outputs
+* define classes
+* define methods
+* define dependencies
+
+The system must maintain stable interfaces.
+
+DO NOT randomly rename:
+
+* methods
+* classes
+* files
+* configs
+
+==================================================
+CONFIG INTEGRATION RULES
+========================
+
+EVERY module MUST:
+
+* import constants from config/config.py
+* NEVER hardcode values
+* NEVER duplicate settings
+
+ALL configurable values MUST remain centralized.
+
+==================================================
+MEMORY OPTIMIZATION RULES
+=========================
+
+The generated code MUST always prioritize:
+
+* low RAM usage
+* low CPU usage
+* async-safe design
+* minimal object duplication
+* lightweight data structures
+* fixed-size queues
+* efficient logging
+
+DO NOT generate:
+
+* giant DataFrames
+* unnecessary caching
+* memory-heavy architectures
+* giant in-memory history
+
+==================================================
+CODE QUALITY RULES
+==================
+
+The generated code MUST:
+
+* use typing hints
+* use proper docstrings
+* use modular architecture
+* use clean naming
+* follow PEP8
+* include exception handling
+* include graceful shutdown handling
+
+==================================================
+TESTING REQUIREMENTS
+====================
+
+Every generated module MUST include:
+
+* local testing instructions
+* integration testing instructions
+* expected outputs
+* debugging recommendations
+
+==================================================
+DEBUGGING REQUIREMENTS
+======================
+
+When debugging:
+
+* focus only on relevant files
+* avoid rewriting unrelated modules
+* preserve architecture
+* avoid unnecessary refactors
+
+==================================================
+VERSION CONTROL REQUIREMENTS
+============================
+
+The project documentation MUST strongly recommend:
+
+Git usage from day one.
+
+Include:
+
+* git init
+* commit workflow
+* rollback workflow
+* branching recommendations
+
+==================================================
+ARCHITECTURE DOCUMENTATION
+==========================
+
+Generate and maintain:
+
+MASTER_ARCHITECTURE.md
+
+This file must contain:
+
+* folder structure
+* module responsibilities
+* event flow
+* database schema
+* config architecture
+* naming conventions
+* development rules
+
+==================================================
+TECHNICAL DEBT TRACKING
+=======================
+
+Generate:
+
+TECH_DEBT.md
+
+Track:
+
+* shortcuts taken
+* future optimizations
+* known limitations
+* future improvements
+
+==================================================
+INTEGRATION CHECKPOINTS
+=======================
+
+The development process MUST define checkpoints.
+
+Example:
+
+Checkpoint 1:
+
+* config system operational
+* logger operational
+* SQLite operational
+
+Checkpoint 2:
+
+* SmartAPI login operational
+* websocket stable
+* reconnect stable
+
+Checkpoint 3:
+
+* candle generation validated
+* indicators validated
+
+Each checkpoint MUST:
+
+* be testable
+* be stable
+* be validated before continuing
+
+==================================================
+FINAL DEVELOPMENT PHILOSOPHY
+============================
+
+The project must prioritize:
+
+1. Stability
+2. Risk management
+3. Data correctness
+4. Reliability
+5. Modularity
+6. Maintainability
+7. Resource efficiency
+
+OVER:
+
+* flashy UI
+* overengineering
+* excessive indicators
+* unnecessary complexity
+
+The goal is to create a stable, professional-grade intraday trading platform suitable for long-term development and eventual live trading migration.
