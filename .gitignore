@@ -1,0 +1,9 @@
+.venv/
+**pycache**/
+*.pyc
+logs/*.log
+reports/*
+screenshots/*
+data/*.db
+.env
+.vscode/
