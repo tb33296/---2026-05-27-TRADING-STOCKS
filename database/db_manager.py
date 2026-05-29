@@ -1,3 +1,18 @@
+# OPTIONAL FUTURE IMPROVEMENT (LATER)
+
+# Eventually you MAY add helpers:
+
+# fetchone()
+# fetchall()
+# executemany()
+# transaction()
+
+# But NOT required now.
+
+# Your current implementation is sufficient.
+
+
+
 import sqlite3
 from pathlib import Path
 from typing import Optional
@@ -55,18 +70,17 @@ class DatabaseManager:
             volume INTEGER NOT NULL
         );
 
-        CREATE TABLE IF NOT EXISTS trades (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            symbol TEXT NOT NULL,
-            side TEXT NOT NULL,
-            quantity INTEGER NOT NULL,
-            entry_price REAL NOT NULL,
-            exit_price REAL,
-            pnl REAL,
-            status TEXT NOT NULL,
-            entry_time TEXT NOT NULL,
-            exit_time TEXT
-        );
+        CREATE TABLE IF NOT EXISTS trades ( 
+            id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            symbol TEXT NOT NULL, 
+            side TEXT NOT NULL, 
+            quantity INTEGER NOT NULL, 
+            entry_price REAL NOT NULL, 
+            exit_price REAL NOT NULL, 
+            pnl REAL NOT NULL, 
+            entry_time TEXT NOT NULL, 
+            exit_time TEXT NOT NULL, 
+            duration_seconds REAL NOT NULL );
 
         CREATE TABLE IF NOT EXISTS system_health (
             id INTEGER PRIMARY KEY AUTOINCREMENT,

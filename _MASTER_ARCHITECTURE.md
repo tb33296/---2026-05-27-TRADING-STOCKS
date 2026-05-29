@@ -340,3 +340,24 @@ Future live trading migration:
 * multi-strategy framework
 
 Architecture must remain stable during migration.
+
+
+# Current Implementation Status
+
+Note:
+
+The current implementation differs from the target folder structure.
+
+At present, the following modules reside under core/:
+
+- execution
+- indicators
+- strategy
+- instruments
+- market_data
+
+This is intentional during development.
+
+Folder restructuring will occur only after the runtime engine, risk engine and portfolio engine are completed and validated.
+
+Current priority is functional stability rather than package reorganization.

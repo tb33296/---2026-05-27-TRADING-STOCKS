@@ -5,6 +5,12 @@ from datetime import time
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# ============================================ 
+# Calendar Configuration 
+# ============================================ 
+MARKET_HOLIDAY_FILE = ( "data/calendar/market_holidays.txt" )
+
+
 # ============================================
 # Market Configuration
 # ============================================
@@ -179,3 +185,17 @@ ENABLE_TICK_LOGGING = False
 # Instrument Configuration 
 # ============================================ 
 INSTRUMENT_MASTER_PATH = ( "data/instruments/OpenAPIScripMaster.json" )
+
+
+
+# ============================================ 
+# Timeframe Configuration 
+# ============================================ 
+ACTIVE_TIMEFRAMES = [ "1m", "5m", "15m" ]
+
+
+# ============================================ 
+# Slippage Configuration 
+# ============================================ 
+SIMULATED_SLIPPAGE_PERCENT = 0.001
+DEFAULT_ORDER_QUANTITY = 1
