@@ -306,10 +306,7 @@ class SymbolRegistry:
 
             return sorted(symbols)
 
-    def get_subscription_tokens(
-        self,
-        exchange: str = "NSE"
-    ) -> list[str]:
+    def get_subscription_tokens( self, exchange: str = "NSE") -> list[str]:
         """
         Return subscription-ready tokens.
         """
@@ -349,6 +346,53 @@ class SymbolRegistry:
 
             return []
 
+    def get_token_symbol_map(self, exchange: str = "NSE") -> dict[str, str]:
+        """
+        Return token -> symbol mapping.
+
+        Example:
+        {
+            "2885": "RELIANCE",
+            "1594": "INFY"
+        }
+        """
+
+        mapping: dict[str, str] = {}
+
+        try:
+
+            with self.lock:
+
+                symbols = list(
+                    self.active_symbols
+                )
+
+            for symbol in symbols:
+
+                token = (
+                    self.token_resolver
+                    .get_token(
+                        symbol=symbol,
+                        exchange=exchange
+                    )
+                )
+
+                if token is not None:
+
+                    mapping[token] = symbol
+
+            return mapping
+
+        except Exception as error:
+
+            self.logger.error(
+                f"Token-symbol map generation "
+                f"failed: {error}"
+            )
+
+            return {}
+    
+    
     def clear(self) -> None:
         """
         Clear registry state.

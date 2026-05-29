@@ -1,34 +1,69 @@
-# MASTER_ARCHITECTURE.md
+Last Updated: 2026-05-29
+Architecture Version: 2.0
+Runtime Version: 1.1
+Current Phase: Market Data Processing Layer
 
-## Project Name
+# _MASTER_ARCHITECTURE.md
 
-Intraday Paper Trading Platform
+# Intraday Trading Platform
 
-## Primary Goal
+## Master Architecture Document
 
-A low-resource, production-grade intraday paper trading platform for Indian markets using Angel One SmartAPI.
-
-The system is designed for:
-
-* AWS Free Tier deployment
-* Long-running stability
-* Modular architecture
-* Future migration to live trading
+### Version 2.0
 
 ---
 
-# Core Architectural Principles
+# Project Overview
 
-1. Stability first
-2. Risk-first engineering
-3. Low RAM usage
-4. Modular development
-5. Centralized configuration
-6. SQLite-only persistence
-7. No heavy frameworks
-8. Async market data ingestion
-9. Candle-based persistence only
-10. Plug-and-play deployment
+## Project Name
+
+Intraday Trading Platform
+
+## Objective
+
+Build a production-grade, event-driven intraday paper trading platform for Indian markets using Angel One SmartAPI.
+
+The platform is designed to:
+
+* Run on low-resource hardware
+* Operate continuously throughout market hours
+* Support future live-trading migration
+* Provide modular development and testing
+* Maintain high reliability and recoverability
+
+---
+
+# Design Philosophy
+
+The platform follows five primary principles:
+
+## 1. Stability First
+
+System stability is more important than feature count.
+
+## 2. Event Driven Architecture
+
+Market events drive system behavior.
+
+No polling-based trading logic.
+
+## 3. Low Resource Usage
+
+Designed for:
+
+* AWS Free Tier
+* Small VPS deployments
+* Personal servers
+
+## 4. Modular Design
+
+Every component must be independently testable.
+
+## 5. Broker Independence
+
+Broker-specific code must remain isolated.
+
+Future migration should require minimal changes.
 
 ---
 
@@ -36,135 +71,641 @@ The system is designed for:
 
 ## Backend
 
-* Python 3.12+
-
-## Web Framework
-
-* Flask
+Python 3.10+
 
 ## Database
 
-* SQLite
+SQLite
+
+## Market Data
+
+Angel One SmartAPI
+
+## Dashboard
+
+Flask
 
 ## Frontend
 
 * HTML
 * CSS
-* Vanilla JavaScript
-* AJAX polling
+* JavaScript
+* AJAX
 
-## Charts
+## Charting
 
-* Chart.js
-
-## Scheduling
-
-* APScheduler
-
-## Networking
-
-* asyncio
-* websockets
+Chart.js
 
 ---
 
-# Folder Structure
+# Architectural Layers
 
-project_root/
-│
-├── analytics/
-├── config/
-├── core/
-├── data/
-├── database/
-├── execution/
-├── indicators/
-├── logs/
-├── reports/
-├── replay/
-├── screenshots/
-├── strategies/
-├── tests/
-├── ui/
-├── utils/
-│
-├── loginInfo.py
-├── main.py
-├── requirements.txt
-├── README.md
-├── MASTER_ARCHITECTURE.md
-├── TECH_DEBT.md
-└── generate_project_structure.bat
+The platform is divided into the following layers.
+
+```text
+Infrastructure Layer
+        ↓
+Market Data Layer
+        ↓
+Indicator Layer
+        ↓
+Signal Layer
+        ↓
+Risk Layer
+        ↓
+Execution Layer
+        ↓
+Portfolio Layer
+        ↓
+Analytics Layer
+        ↓
+UI Layer
+```
 
 ---
 
-# Module Responsibilities
+# Infrastructure Layer
 
-## config/
+Purpose:
 
-Centralized configuration system.
+Provide connectivity and runtime services.
 
-No constants allowed elsewhere.
+## Components
 
----
-
-## core/
-
-Core infrastructure:
-
-* authentication
-* websocket manager
-* scheduler
-* session manager
-* watchdogs
-
----
-
-## indicators/
-
-All indicator calculations:
-
-* VWAP
-* AWVAP
-* CVD
-* ATR
-* RVOL
+```text
+Config
+Logging
+Database
+Authentication
+Session Management
+WebSocket Management
+Reconnect Management
+Heartbeat Monitoring
+Runtime Engine
+```
 
 ---
 
-## strategies/
+# Current Folder Structure
 
-Signal generation layer.
-
----
-
-## execution/
-
-Paper execution simulation.
-
----
-
-## analytics/
-
-Performance calculations and reports.
+```text
+config/
+database/
+core/
+data/
+analytics/
+ui/
+utils/
+tests/
+runtime/
+```
 
 ---
 
-## database/
+# Core Infrastructure Components
 
-SQLite management and schema handling.
+## AuthManager
+
+Responsibilities:
+
+```text
+Login
+Logout
+JWT Management
+Feed Token Management
+Profile Loading
+Session Validation
+```
+
+Status:
+
+```text
+COMPLETE
+```
 
 ---
 
-## ui/
+## SessionManager
 
-Flask dashboard.
+Responsibilities:
+
+```text
+Session Startup
+Session Refresh
+Session Health Validation
+Session Timeout Handling
+```
+
+Status:
+
+```text
+COMPLETE
+```
 
 ---
 
-## utils/
+## WebSocketManager
 
-Shared reusable helpers.
+Responsibilities:
+
+```text
+WebSocket Connection
+Subscription Handling
+Tick Reception
+Tick Normalization
+Tick Queue Delivery
+```
+
+Status:
+
+```text
+COMPLETE
+```
+
+---
+
+## ReconnectManager
+
+Responsibilities:
+
+```text
+Connection Recovery
+Automatic Reconnect
+Recovery Validation
+```
+
+Status:
+
+```text
+COMPLETE
+```
+
+---
+
+## HeartbeatMonitor
+
+Responsibilities:
+
+```text
+Connection Health Monitoring
+Heartbeat Validation
+Recovery Triggering
+```
+
+Status:
+
+```text
+COMPLETE
+```
+
+---
+
+## TickQueue
+
+Responsibilities:
+
+```text
+Thread-Safe Tick Buffer
+Bounded Queue
+Producer / Consumer Decoupling
+```
+
+Status:
+
+```text
+COMPLETE
+```
+
+---
+
+# Instrument Layer
+
+Purpose:
+
+Manage all instrument and token resolution.
+
+---
+
+## InstrumentUpdater
+
+Responsibilities:
+
+```text
+Download Instrument Master
+Validate Instrument Master
+Persist Instrument Master
+```
+
+Status:
+
+```text
+COMPLETE
+```
+
+---
+
+## InstrumentManager
+
+Responsibilities:
+
+```text
+Load Instrument Master
+Build Indexes
+Token Lookup
+Symbol Lookup
+Name Lookup
+Exchange Lookup
+```
+
+Status:
+
+```text
+COMPLETE
+```
+
+---
+
+## TokenResolver
+
+Responsibilities:
+
+```text
+Name → Token
+Token → Name
+Exchange Filtering
+Instrument Filtering
+```
+
+Status:
+
+```text
+COMPLETE
+```
+
+---
+
+# Watchlist Layer
+
+Purpose:
+
+Manage active trading universe.
+
+---
+
+## WatchlistLoader
+
+Responsibilities:
+
+```text
+Load Watchlist Files
+Normalize Symbols
+Validation
+```
+
+Status:
+
+```text
+COMPLETE
+```
+
+---
+
+## SymbolRegistry
+
+Responsibilities:
+
+```text
+Register Symbols
+Manage Active Universe
+Generate Subscription Tokens
+```
+
+Status:
+
+```text
+COMPLETE
+```
+
+---
+
+# Subscription Layer
+
+## SubscriptionManager
+
+Responsibilities:
+
+```text
+Exchange Mapping
+Subscription Payload Generation
+SmartAPI Payload Formatting
+```
+
+Status:
+
+```text
+COMPLETE
+```
+
+---
+
+# Runtime Engine
+
+Purpose:
+
+Single orchestration point for runtime startup.
+
+---
+
+## RuntimeEngine Startup Flow
+
+```text
+RuntimeEngine
+        ↓
+SessionManager
+        ↓
+AuthManager
+        ↓
+InstrumentManager
+        ↓
+WatchlistLoader
+        ↓
+SymbolRegistry
+        ↓
+SubscriptionManager
+        ↓
+WebSocketManager
+        ↓
+TickQueue
+```
+
+Status:
+
+```text
+COMPLETE
+```
+
+---
+
+# Current Runtime Flow
+
+Validated runtime flow:
+
+```text
+RuntimeEngine
+        ↓
+SessionManager.start_session()
+        ↓
+AuthManager.login()
+        ↓
+InstrumentManager.load_instruments()
+        ↓
+WatchlistLoader.load()
+        ↓
+SymbolRegistry.register()
+        ↓
+SubscriptionManager.build_payload()
+        ↓
+WebSocketManager.connect()
+        ↓
+WebSocketManager.subscribe()
+        ↓
+TickQueue.enqueue()
+```
+
+Status:
+
+```text
+VALIDATED
+```
+
+---
+
+# Market Data Layer
+
+Purpose:
+
+Convert raw ticks into candles.
+
+Current status:
+
+```text
+IN DEVELOPMENT
+```
+
+---
+
+## TickProcessor
+
+Responsibilities:
+
+```text
+Consume TickQueue
+Route Market Data
+Validate Tick Streams
+Forward To Candle Builder
+```
+
+Status:
+
+```text
+NOT STARTED
+```
+
+---
+
+## CandleBuilder
+
+Responsibilities:
+
+```text
+Build 1 Minute Candles
+Update Active Candles
+Emit Completed Candles
+```
+
+Status:
+
+```text
+PARTIALLY COMPLETE
+```
+
+---
+
+## TimeframeManager
+
+Responsibilities:
+
+```text
+1m → 5m Aggregation
+1m → 15m Aggregation
+Future Timeframes
+```
+
+Status:
+
+```text
+PARTIALLY COMPLETE
+```
+
+---
+
+## CandleStore
+
+Responsibilities:
+
+```text
+Store Active Candles
+Store Historical Candles
+Provide Candle Access
+```
+
+Status:
+
+```text
+NOT STARTED
+```
+
+---
+
+# Indicator Layer
+
+Purpose:
+
+Generate market indicators.
+
+Planned indicators:
+
+```text
+VWAP
+VWMA
+Moving Average
+ATR
+RVOL
+AWVAP
+CVD
+```
+
+Status:
+
+```text
+FRAMEWORK COMPLETE
+RUNTIME INTEGRATION PENDING
+```
+
+---
+
+# Signal Layer
+
+Purpose:
+
+Convert indicators into trading signals.
+
+Components:
+
+```text
+Signal
+SignalManager
+CrossoverSignal
+VWAPSignal
+```
+
+Status:
+
+```text
+PARTIALLY COMPLETE
+```
+
+---
+
+# Risk Layer
+
+Purpose:
+
+Protect trading capital.
+
+Planned components:
+
+```text
+RiskManager
+PositionSizer
+DailyLossGuard
+ExposureManager
+```
+
+Status:
+
+```text
+NOT STARTED
+```
+
+---
+
+# Execution Layer
+
+Purpose:
+
+Execute paper trades.
+
+Components:
+
+```text
+PaperBroker
+Order
+Position
+TradeBook
+```
+
+Status:
+
+```text
+PARTIALLY COMPLETE
+```
+
+---
+
+# Portfolio Layer
+
+Purpose:
+
+Track portfolio state.
+
+Planned:
+
+```text
+PortfolioManager
+Equity Tracking
+Drawdown Tracking
+PnL Tracking
+```
+
+Status:
+
+```text
+NOT STARTED
+```
+
+---
+
+# Analytics Layer
+
+Purpose:
+
+Performance measurement.
+
+Planned:
+
+```text
+Performance Analyzer
+Trade Statistics
+Equity Curve
+Reports
+```
+
+Status:
+
+```text
+NOT STARTED
+```
 
 ---
 
@@ -172,192 +713,167 @@ Shared reusable helpers.
 
 SQLite only.
 
-Persistence targets:
+Persist:
 
-* candles
-* trades
-* summaries
-* logs
-* system health
+```text
+Candles
+Trades
+Positions
+Signals
+Performance
+System Events
+```
 
-No raw tick persistence.
+Do NOT persist:
 
----
-
-# Event Flow
-
-WebSocket
-→ Tick Normalizer
-→ Tick Queue
-→ Candle Builder
-→ Indicator Engine
-→ Signal Engine
-→ Risk Engine
-→ Execution Engine
-→ Position Manager
-→ Database
-→ Dashboard
+```text
+Raw Ticks
+```
 
 ---
 
 # Configuration Rules
 
-ALL configurable values MUST exist ONLY in:
+All configurable values must exist in:
 
+```text
 config/config.py
+```
 
 or
 
+```text
 .env
+```
 
-NO hidden constants allowed anywhere else.
+No hidden constants are allowed elsewhere.
 
 ---
 
-# Memory Optimization Rules
+# Memory Management Rules
 
-1. No full tick storage
-2. Fixed-size deque usage
-3. Avoid large DataFrames
-4. Use lightweight structures
-5. SQLite WAL mode
-6. Bounded queues only
-7. Lightweight logging
-8. Lazy loading where possible
+```text
+No Tick Persistence
+Bounded Queues
+Fixed Size Buffers
+Minimal DataFrames
+SQLite WAL Mode
+Lazy Loading
+```
 
 ---
 
 # Logging Standards
 
-Rotating logs:
+Required logs:
 
-* system.log
-* error.log
-* websocket.log
-* trades.log
+```text
+system.log
+error.log
+```
 
----
+Optional future logs:
 
-# Naming Conventions
-
-## Files
-
-snake_case.py
-
-## Classes
-
-PascalCase
-
-## Functions
-
-snake_case
-
-## Constants
-
-UPPER_CASE
-
----
-
-# Development Methodology
-
-Strict iterative development.
-
-One phase at a time.
-
-Every phase must:
-
-* compile
-* integrate
-* pass tests
-* remain backward compatible
-
----
-
-# Checkpoint System
-
-## Checkpoint 1
-
-Infrastructure operational:
-
-* config
-* logging
-* SQLite
-* utilities
-
-## Checkpoint 2
-
-Connectivity operational:
-
-* authentication
-* websocket
-* reconnects
-
-## Checkpoint 3
-
-Market data operational:
-
-* candles
-* aggregation
-* session management
+```text
+trades.log
+risk.log
+performance.log
+```
 
 ---
 
 # Git Workflow
 
-Recommended:
+Rules:
 
-git init
-
-Feature branch workflow mandatory.
-
-Never develop directly on main.
-
----
-
-# Deployment Philosophy
-
-Target:
-
-* Ubuntu AWS Free Tier
-* 1 GB RAM
-* 20 GB storage
-
-Optimized for:
-
-* long uptime
-* low CPU
-* low RAM
+```text
+Never develop directly on main
+Feature branches mandatory
+Commit after every validated milestone
+```
 
 ---
 
-# Future Expansion
+# Current Project Status
 
-Future live trading migration:
+## Runtime Engine v1.1
 
-* execution adapter abstraction
-* broker abstraction layer
-* risk policy layer
-* multi-strategy framework
+Completed and Validated:
 
-Architecture must remain stable during migration.
+```text
+AuthManager
+SessionManager
+WebSocketManager
+ReconnectManager
+HeartbeatMonitor
+TickQueue
 
+InstrumentUpdater
+InstrumentManager
+TokenResolver
 
-# Current Implementation Status
+WatchlistLoader
+SymbolRegistry
 
-Note:
+SubscriptionManager
 
-The current implementation differs from the target folder structure.
+RuntimeEngine
+```
 
-At present, the following modules reside under core/:
+---
 
-- execution
-- indicators
-- strategy
-- instruments
-- market_data
+# Next Development Phase
 
-This is intentional during development.
+## Phase 5
 
-Folder restructuring will occur only after the runtime engine, risk engine and portfolio engine are completed and validated.
+Market Data Processing Layer
 
-Current priority is functional stability rather than package reorganization.
+```text
+TickQueue
+        ↓
+TickProcessor
+        ↓
+CandleBuilder
+        ↓
+TimeframeManager
+        ↓
+CandleStore
+```
+
+Primary Objective:
+
+Convert live market ticks into validated multi-timeframe candle streams.
+
+---
+
+# Long-Term Architecture
+
+Final trading pipeline:
+
+```text
+WebSocket
+        ↓
+TickQueue
+        ↓
+TickProcessor
+        ↓
+CandleBuilder
+        ↓
+TimeframeManager
+        ↓
+Indicator Engine
+        ↓
+Signal Engine
+        ↓
+Risk Engine
+        ↓
+Execution Engine
+        ↓
+Portfolio Engine
+        ↓
+Analytics Engine
+        ↓
+Dashboard
+```
+
+This architecture shall remain the governing design document for future development.

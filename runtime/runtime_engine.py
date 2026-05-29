@@ -181,7 +181,10 @@ class RuntimeEngine:
                 f"Registered "
                 f"{added} symbols"
             )
+            token_symbol_map = ( self.symbol_registry.get_token_symbol_map(exchange="NSE")
+            )
 
+            self.websocket_manager.register_token_mappings(token_symbol_map)
             # -------------------------
             # Subscription Payload
             # -------------------------

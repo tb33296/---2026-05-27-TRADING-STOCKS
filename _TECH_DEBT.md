@@ -306,3 +306,35 @@ WEBSOCKET_RECONNECT_DELAY
 MAX_WEBSOCKET_RETRIES
 
 appear multiple times.
+
+[COMPLETED]
+InstrumentUpdater missing
+
+[COMPLETED]
+Runtime startup orchestration missing
+
+[COMPLETED]
+Watchlist → SymbolRegistry integration missing
+
+[COMPLETED]
+Subscription payload generation missing
+
+
+HIGH PRIORITY
+
+1. TickProcessor not implemented
+2. Runtime loop manager not implemented
+3. Candle persistence layer missing
+4. Tick replay framework missing
+
+MEDIUM PRIORITY
+
+1. Instrument master backup/versioning
+2. Subscription batching for large watchlists
+3. Automatic instrument refresh scheduling
+
+LOW PRIORITY
+
+1. Runtime metrics dashboard
+2. Memory usage monitoring
+3. Tick statistics reporting

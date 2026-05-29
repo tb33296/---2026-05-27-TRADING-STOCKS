@@ -56,6 +56,7 @@ class WebSocketManager:
         self.last_tick_time: Optional[
             datetime
         ] = None
+        self.token_symbol_map: dict[str, str] = {}
 
     def connect(self) -> bool:
         """
@@ -312,6 +313,28 @@ class WebSocketManager:
             "Websocket disconnected"
         )
 
+    def register_token_mapping(self, token: str, symbol: str) -> None:
+        """
+        Register token → symbol mapping.
+        """
+        self.token_symbol_map[
+            str(token)
+        ] = symbol.upper()
+    
+
+    def register_token_mappings(self, mappings: dict[str, str] ) -> None:
+        """
+        Register token -> symbol mappings.
+        """
+
+        self.token_symbol_map.update(  mappings )
+
+        self.logger.info(
+            f"Registered "
+            f"{len(mappings)} "
+            f"token mappings"
+        )
+            
     def normalize_tick(
         self,
         raw_tick: dict[str, Any]
@@ -338,8 +361,10 @@ class WebSocketManager:
                 "exchange_timestamp"
             )
 
+            symbol = ( self.token_symbol_map.get( token, token))
+
             normalized_tick = {
-                "symbol": token,
+                "symbol": symbol,
                 "token": token,
                 "ltp": ltp,
                 "volume": volume,
