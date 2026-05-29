@@ -288,10 +288,21 @@ Ask:
 2. Is it intentionally imperfect?
 3. Will we revisit it later?
 
-If all answers are yes:
 
-Record it here.
 
-Otherwise:
 
-It is either a bug or a roadmap item.
+One Important Observation
+
+Your config has some duplication:
+
+MAX_TICK_QUEUE_SIZE = 5000
+
+appears twice.
+
+and
+
+WEBSOCKET_PING_INTERVAL
+WEBSOCKET_RECONNECT_DELAY
+MAX_WEBSOCKET_RETRIES
+
+appear multiple times.

@@ -46,7 +46,7 @@ class TokenResolver:
 
             instruments = (
                 self.instrument_manager
-                .get_instruments_by_symbol(
+                .get_instruments_by_name(
                     symbol
                 )
             )
@@ -234,7 +234,7 @@ class TokenResolver:
 
         instruments = (
             self.instrument_manager
-            .get_instruments_by_symbol(
+            .get_instruments_by_name(
                 symbol
             )
         )

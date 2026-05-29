@@ -8,11 +8,11 @@ from typing import Any, Optional
 
 from core.logging_manager import LoggingManager
 
-
 class InstrumentManager:
     """
     Handles instrument master loading and indexing.
 
+    ```
     Responsibilities:
     - load instrument master
     - normalize records
@@ -45,6 +45,11 @@ class InstrumentManager:
         ] = {}
 
         self.symbol_index: dict[
+            str,
+            list[dict[str, Any]]
+        ] = {}
+
+        self.name_index: dict[
             str,
             list[dict[str, Any]]
         ] = {}
@@ -100,6 +105,8 @@ class InstrumentManager:
 
                 self.symbol_index.clear()
 
+                self.name_index.clear()
+
                 self.exchange_index.clear()
 
                 for record in raw_data:
@@ -121,6 +128,10 @@ class InstrumentManager:
 
                     symbol = normalized["symbol"]
 
+                    name = normalized[
+                        "name"
+                    ].upper()
+
                     exchange = normalized[
                         "exchange"
                     ]
@@ -140,6 +151,19 @@ class InstrumentManager:
 
                     self.symbol_index[
                         symbol
+                    ].append(normalized)
+
+                    if (
+                        name
+                        not in self.name_index
+                    ):
+
+                        self.name_index[
+                            name
+                        ] = []
+
+                    self.name_index[
+                        name
                     ].append(normalized)
 
                     if (
@@ -198,7 +222,9 @@ class InstrumentManager:
 
             instrument = {
                 "token": token,
+
                 "symbol": symbol,
+
                 "name": str(
                     record.get("name", "")
                 ).strip(),
@@ -206,19 +232,31 @@ class InstrumentManager:
                 "exchange": exchange,
 
                 "instrument_type": str(
-                    record.get("instrumenttype", "")
+                    record.get(
+                        "instrumenttype",
+                        ""
+                    )
                 ).strip(),
 
                 "expiry": str(
-                    record.get("expiry", "")
+                    record.get(
+                        "expiry",
+                        ""
+                    )
                 ).strip(),
 
                 "strike": float(
-                    record.get("strike", 0)
+                    record.get(
+                        "strike",
+                        0
+                    )
                 ),
 
                 "lot_size": int(
-                    record.get("lotsize", 0)
+                    record.get(
+                        "lotsize",
+                        0
+                    )
                 )
             }
 
@@ -249,20 +287,37 @@ class InstrumentManager:
 
         with self.lock:
 
-            return self.token_index.get(token)
+            return self.token_index.get(
+                token
+            )
 
     def get_instruments_by_symbol(
         self,
         symbol: str
     ) -> list[dict[str, Any]]:
         """
-        Return instruments for symbol.
+        Return instruments for trading symbol.
         """
 
         with self.lock:
 
             return self.symbol_index.get(
                 symbol.upper(),
+                []
+            )
+
+    def get_instruments_by_name(
+        self,
+        name: str
+    ) -> list[dict[str, Any]]:
+        """
+        Return instruments for company name.
+        """
+
+        with self.lock:
+
+            return self.name_index.get(
+                name.upper(),
                 []
             )
 
@@ -288,7 +343,9 @@ class InstrumentManager:
 
         with self.lock:
 
-            return len(self.instruments)
+            return len(
+                self.instruments
+            )
 
     def is_instrument_loaded(self) -> bool:
         """
@@ -309,6 +366,8 @@ class InstrumentManager:
             self.token_index.clear()
 
             self.symbol_index.clear()
+
+            self.name_index.clear()
 
             self.exchange_index.clear()
 

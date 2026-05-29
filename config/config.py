@@ -199,3 +199,7 @@ ACTIVE_TIMEFRAMES = [ "1m", "5m", "15m" ]
 # ============================================ 
 SIMULATED_SLIPPAGE_PERCENT = 0.001
 DEFAULT_ORDER_QUANTITY = 1
+
+
+
+DEFAULT_WATCHLIST_FILE = "data/watchlists/nifty100.txt"
