@@ -1,10 +1,14 @@
 # runtime/runtime_engine.py
 
-from __future__ import annotations
+from config.config import (
+    INSTRUMENT_MASTER_PATH,
+    DEFAULT_WATCHLIST_FILE,
+    MAX_TICK_QUEUE_SIZE
+)
 
-from typing import Optional
-
-from config.config import MAX_TICK_QUEUE_SIZE
+from core.logging_manager import (
+    LoggingManager
+)
 
 from core.session.session_manager import (
     SessionManager
@@ -18,35 +22,38 @@ from core.websocket.websocket_manager import (
     WebSocketManager
 )
 
-from core.watchdog.heartbeat_monitor import (
-    HeartbeatMonitor
+from core.instruments.instrument_manager import (
+    InstrumentManager
 )
 
-from core.logging_manager import (
-    LoggingManager
+from core.instruments.token_resolver import (
+    TokenResolver
+)
+
+from core.instruments.symbol_registry import (
+    SymbolRegistry
+)
+
+from core.websocket.subscription_manager import (
+    SubscriptionManager
+)
+
+from utils.watchlist_loader import (
+    WatchlistLoader
 )
 
 
 class RuntimeEngine:
     """
-    Runtime Engine v1
+    Main runtime orchestrator.
 
     Responsibilities:
-
-    Session
-    → Auth
-    → WebSocket
-    → Tick Queue
-    → Heartbeat Monitor
-
-    Future Versions:
-
-    Tick Queue
-    → Candle Builder
-    → Indicators
-    → Signals
-    → Strategy
-    → Paper Broker
+    - session startup
+    - instrument loading
+    - watchlist loading
+    - symbol registration
+    - subscription generation
+    - websocket startup
     """
 
     def __init__(self) -> None:
@@ -55,92 +62,152 @@ class RuntimeEngine:
             __name__
         )
 
-        self.session_manager: Optional[
-            SessionManager
-        ] = None
+        self.session_manager = (
+            SessionManager()
+        )
 
-        self.tick_queue: Optional[
-            TickQueue
-        ] = None
+        self.tick_queue = TickQueue(
+            MAX_TICK_QUEUE_SIZE
+        )
 
-        self.websocket_manager: Optional[
-            WebSocketManager
-        ] = None
+        self.websocket_manager = (
+            WebSocketManager(
+                self.session_manager,
+                self.tick_queue
+            )
+        )
 
-        self.heartbeat_monitor: Optional[
-            HeartbeatMonitor
-        ] = None
+        self.instrument_manager = (
+            InstrumentManager(
+                INSTRUMENT_MASTER_PATH
+            )
+        )
 
-        self.running = False
+        self.token_resolver = (
+            TokenResolver(
+                self.instrument_manager
+            )
+        )
+
+        self.symbol_registry = (
+            SymbolRegistry(
+                self.token_resolver
+            )
+        )
+
+        self.subscription_manager = (
+            SubscriptionManager(
+                self.symbol_registry
+            )
+        )
+
+        self.watchlist_loader = (
+            WatchlistLoader()
+        )
+
+        self.is_running = False
 
     def start(self) -> bool:
         """
-        Start runtime engine.
+        Start trading runtime.
         """
 
         try:
 
             self.logger.info(
-                "Starting Runtime Engine"
+                "Starting runtime engine"
             )
 
             # -------------------------
-            # Session + Authentication
+            # Session
             # -------------------------
 
-            self.session_manager = (
-                SessionManager()
-            )
-
-            auth_manager = (
-                self.session_manager.get_auth_manager()
-            )
-
-            if not auth_manager.login():
+            if not (
+                self.session_manager
+                .start_session()
+            ):
 
                 self.logger.error(
-                    "Authentication failed"
+                    "Session startup failed"
                 )
 
                 return False
 
             # -------------------------
-            # Tick Queue
+            # Instruments
             # -------------------------
 
-            self.tick_queue = TickQueue(
-                max_size=MAX_TICK_QUEUE_SIZE
+            if not (
+                self.instrument_manager
+                .load_instruments()
+            ):
+
+                self.logger.error(
+                    "Instrument loading failed"
+                )
+
+                return False
+
+            # -------------------------
+            # Watchlist
+            # -------------------------
+
+            symbols = (
+                self.watchlist_loader.load(
+                    DEFAULT_WATCHLIST_FILE
+                )
             )
+
+            if not symbols:
+
+                self.logger.error(
+                    "Watchlist empty"
+                )
+
+                return False
+
+            added = 0
+
+            for symbol in symbols:
+
+                if (
+                    self.symbol_registry
+                    .add_symbol(symbol)
+                ):
+
+                    added += 1
+
+            self.logger.info(
+                f"Registered "
+                f"{added} symbols"
+            )
+
+            # -------------------------
+            # Subscription Payload
+            # -------------------------
+
+            payload = (
+                self.subscription_manager
+                .build_subscription_payload(
+                    exchange="NSE"
+                )
+            )
+
+            if payload is None:
+
+                self.logger.error(
+                    "Subscription payload failed"
+                )
+
+                return False
 
             # -------------------------
             # WebSocket
             # -------------------------
 
-            self.websocket_manager = (
-                WebSocketManager(
-                    session_manager=
-                    self.session_manager,
-                    tick_queue=
-                    self.tick_queue
-                )
-            )
-
-            # -------------------------
-            # Heartbeat Monitor
-            # -------------------------
-
-            self.heartbeat_monitor = (
-                HeartbeatMonitor(
-                    self.websocket_manager
-                )
-            )
-
-            # -------------------------
-            # Connect WebSocket
-            # -------------------------
-
             if not (
-                self.websocket_manager.connect()
+                self.websocket_manager
+                .connect()
             ):
 
                 self.logger.error(
@@ -149,17 +216,36 @@ class RuntimeEngine:
 
                 return False
 
-            self.running = True
+            # -------------------------
+            # Subscribe
+            # -------------------------
+
+            if not (
+                self.websocket_manager
+                .subscribe(
+                    correlation_id="runtime_engine",
+                    mode=1,
+                    token_list=payload
+                )
+            ):
+
+                self.logger.error(
+                    "Subscription failed"
+                )
+
+                return False
+
+            self.is_running = True
 
             self.logger.info(
-                "Runtime Engine started"
+                "Runtime engine started successfully"
             )
 
             return True
 
         except Exception as error:
 
-            self.logger.exception(
+            self.logger.error(
                 f"Runtime startup failed: "
                 f"{error}"
             )
@@ -168,38 +254,62 @@ class RuntimeEngine:
 
     def stop(self) -> None:
         """
-        Stop runtime engine.
+        Stop runtime.
         """
 
         try:
 
-            self.logger.info(
-                "Stopping Runtime Engine"
-            )
+            self.is_running = False
 
-            self.running = False
+            self.websocket_manager.disconnect()
 
-            if (
-                self.websocket_manager
-                is not None
-            ):
-
-                self.websocket_manager.disconnect()
+            self.session_manager.logout()
 
             self.logger.info(
-                "Runtime Engine stopped"
+                "Runtime engine stopped"
             )
 
         except Exception as error:
 
-            self.logger.exception(
+            self.logger.error(
                 f"Runtime shutdown failed: "
                 f"{error}"
             )
 
-    def is_running(self) -> bool:
+    def is_alive(self) -> bool:
         """
-        Runtime status.
+        Runtime health status.
         """
 
-        return self.running
+        if not self.is_running:
+            return False
+
+        return (
+            self.session_manager
+            .is_session_alive()
+        )
+
+    def get_tick_queue(self) -> TickQueue:
+        """
+        Return tick queue.
+        """
+
+        return self.tick_queue
+
+    def get_websocket_manager(
+        self
+    ) -> WebSocketManager:
+        """
+        Return websocket manager.
+        """
+
+        return self.websocket_manager
+
+    def get_symbol_registry(
+        self
+    ) -> SymbolRegistry:
+        """
+        Return symbol registry.
+        """
+
+        return self.symbol_registry
