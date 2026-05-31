@@ -10,7 +10,7 @@ from core.indicators.indicator_base import (
 from core.logging_manager import LoggingManager
 
 from core.signals.signal import Signal
-
+from typing import Optional
 
 class CrossoverSignal:
     """
@@ -32,7 +32,13 @@ class CrossoverSignal:
         name: str,
         fast_indicator: IndicatorBase,
         slow_indicator: IndicatorBase,
-        signal_strength: float = 1.0
+        signal_strength: float = 1.0,
+
+        rvol_indicator: Optional[
+            IndicatorBase
+        ] = None,
+
+        min_rvol: float = 0.0
     ) -> None:
 
         self.logger = LoggingManager.get_logger(
@@ -52,7 +58,12 @@ class CrossoverSignal:
         self.signal_strength = (
             signal_strength
         )
+        self.rvol_indicator = (rvol_indicator)
 
+
+        self.min_rvol = (
+            min_rvol
+        )
         self.previous_state = (
             "NEUTRAL"
         )
@@ -91,7 +102,36 @@ class CrossoverSignal:
                 self.fast_indicator
                 .get_value()
             )
+            # ================================
+            # RVOL FILTER
+            # ================================
 
+            if (
+                self.rvol_indicator
+                is not None
+            ):
+
+                if not (
+                    self.rvol_indicator
+                    .is_ready()
+                ):
+
+                    return None
+
+                rvol_value = (
+                    self.rvol_indicator
+                    .get_value()
+                )
+
+                if (
+                    rvol_value
+                    < self.min_rvol
+                ):
+
+                    return None
+            
+            
+            
             slow_value = (
                 self.slow_indicator
                 .get_value()
@@ -241,6 +281,12 @@ class CrossoverSignal:
 
                 "state": (
                     self.previous_state
+                ),
+
+                "rvol": (
+                    self.rvol_indicator.get_value()
+                    if self.rvol_indicator
+                    else None
                 )
             }
         )
