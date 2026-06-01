@@ -54,7 +54,7 @@
         "full_size_score": 90,
         "seventy_five_percent_score": 70,
         "fifty_percent_score": 50,
-        "minimum_trade_score": 40
+        "minimum_trade_score": 50
     },
     "minimum_conditions": {
         "trend_required": true,
