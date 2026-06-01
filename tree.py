@@ -60,7 +60,7 @@ def generate_tree_lines(directory, prefix="", ignore_set=None):
             
     return lines
 
-def save_tree_to_markdown(root_dir, output_filename="folderTree.md"):
+def save_tree_to_markdown(root_dir, output_filename="_folderTree.md"):
     path = Path(root_dir)
     ignore_set = {".venv", "__pycache__", ".git", ".pytest_cache", ".egg-info", "build", "dist"}
     

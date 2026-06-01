@@ -1,0 +1,31 @@
+{
+    "version": 1,
+
+    "last_updated": "2026-06-01",
+
+    "account": {
+        "max_drawdown_percent": 10.0
+    },
+
+    "daily": {
+        "max_loss_percent": 2.0
+    },
+
+    "trade": {
+        "base_risk_percent": 0.5,
+        "max_risk_percent": 0.75
+    },
+
+    "position_sizing": {
+        "score_40_to_60_multiplier": 0.50,
+        "score_60_to_80_multiplier": 1.00,
+        "score_80_to_90_multiplier": 1.25,
+        "score_90_plus_multiplier": 1.50
+    },
+
+    "partial_exit": {
+        "enabled": true,
+        "first_target_percent": 50.0,
+        "runner_percent": 50.0
+    }
+}
