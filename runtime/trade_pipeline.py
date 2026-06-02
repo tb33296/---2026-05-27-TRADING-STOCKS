@@ -126,7 +126,7 @@ class TradePipeline:
                     None
                 )
 
-            if direction.upper() == "LONG":
+            if decision.is_long():
 
                 execution = (
                     self.execution_engine
