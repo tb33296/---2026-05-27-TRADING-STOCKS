@@ -46,85 +46,121 @@ class DatabaseManager:
 
         self.connection.execute("PRAGMA journal_mode=WAL;")
         self.connection.execute("PRAGMA synchronous=NORMAL;")
-
     def initialize_schema(self) -> None:
         """
         Initialize database schema.
         """
 
         if self.connection is None:
-            raise RuntimeError("Database not connected")
+            raise RuntimeError(
+                "Database not connected"
+            )
 
         cursor = self.connection.cursor()
 
-        cursor.executescript("""
-        CREATE TABLE IF NOT EXISTS trades (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            symbol TEXT NOT NULL,
-            side TEXT NOT NULL,
-            quantity INTEGER NOT NULL,
-            entry_price REAL NOT NULL,
-            exit_price REAL NOT NULL,
-            pnl REAL NOT NULL,
-            entry_time TEXT NOT NULL,
-            exit_time TEXT NOT NULL,
-            duration_seconds REAL NOT NULL
-        );
-        
-        CREATE TABLE IF NOT EXISTS trade_reasons (
+        cursor.executescript(
+            """
+            CREATE TABLE IF NOT EXISTS trades (
 
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                trade_id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-            trade_id INTEGER NOT NULL,
+                symbol TEXT NOT NULL,
 
-            reason TEXT NOT NULL
-        );
+                segment TEXT NOT NULL,
 
-        CREATE TABLE IF NOT EXISTS trade_metrics_snapshot (
+                strategy_name TEXT NOT NULL,
 
-            trade_id INTEGER PRIMARY KEY,
+                direction TEXT NOT NULL,
 
-            atr REAL,
+                entry_time TEXT NOT NULL,
 
-            rvol REAL,
+                exit_time TEXT,
 
-            vwap REAL,
+                quantity INTEGER NOT NULL,
 
-            awvap REAL,
+                entry_price REAL NOT NULL,
 
-            vwma REAL,
+                exit_price REAL,
 
-            liquidity_ratio REAL,
+                stop_loss REAL NOT NULL,
 
-            liquidity_delta REAL,
+                target REAL NOT NULL,
 
-            cvd REAL
-        );
+                score REAL NOT NULL,
 
-        CREATE TABLE IF NOT EXISTS trade_feature_snapshot (
+                confidence TEXT NOT NULL,
 
-            trade_id INTEGER PRIMARY KEY,
+                risk_amount REAL NOT NULL,
 
-            trend_state TEXT,
+                risk_percent REAL NOT NULL,
 
-            vwap_state TEXT,
+                gross_pnl REAL DEFAULT 0,
 
-            awvap_state TEXT,
+                net_pnl REAL DEFAULT 0,
 
-            vwma_state TEXT,
+                charges REAL DEFAULT 0,
 
-            rvol_state TEXT,
+                exit_reason TEXT,
 
-            atr_state TEXT,
+                trade_duration_seconds INTEGER,
 
-            liquidity_state TEXT,
+                status TEXT NOT NULL
+            );
 
-            cvd_state TEXT
-        );
-        """)
+            CREATE TABLE IF NOT EXISTS trade_reasons (
+
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+                trade_id INTEGER NOT NULL,
+
+                reason TEXT NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS trade_metrics_snapshot (
+
+                trade_id INTEGER PRIMARY KEY,
+
+                atr REAL,
+
+                rvol REAL,
+
+                vwap REAL,
+
+                awvap REAL,
+
+                vwma REAL,
+
+                liquidity_ratio REAL,
+
+                liquidity_delta REAL,
+
+                cvd REAL
+            );
+
+            CREATE TABLE IF NOT EXISTS trade_feature_snapshot (
+
+                trade_id INTEGER PRIMARY KEY,
+
+                trend_state TEXT,
+
+                vwap_state TEXT,
+
+                awvap_state TEXT,
+
+                vwma_state TEXT,
+
+                rvol_state TEXT,
+
+                atr_state TEXT,
+
+                liquidity_state TEXT,
+
+                cvd_state TEXT
+            );
+            """
+        )
 
         self.connection.commit()
-
     def execute(
         self,
         query: str,
