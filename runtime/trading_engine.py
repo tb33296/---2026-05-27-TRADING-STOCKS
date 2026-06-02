@@ -1,5 +1,7 @@
 # runtime/trading_engine.py
 
+from typing import Any
+
 from core.logging_manager import (
     LoggingManager
 )
@@ -8,10 +10,10 @@ from runtime.trade_pipeline import (
     TradePipeline
 )
 
-from core.strategy.multifactor_strategy import (
-    MultiFactorStrategy
+from core.strategy.trade_context import (
+    TradeContext
 )
-from typing import Any
+
 
 class TradingEngine:
     """
@@ -25,11 +27,11 @@ class TradingEngine:
     """
 
     def __init__(
-    self,
-    strategy: Any,
-    trade_pipeline: TradePipeline,
-    account_size: float
-) -> None:
+        self,
+        strategy: Any,
+        trade_pipeline: TradePipeline,
+        account_size: float
+    ) -> None:
 
         self.logger = (
             LoggingManager.get_logger(
@@ -37,7 +39,9 @@ class TradingEngine:
             )
         )
 
-        self.strategy = strategy
+        self.strategy = (
+            strategy
+        )
 
         self.trade_pipeline = (
             trade_pipeline
@@ -75,20 +79,13 @@ class TradingEngine:
 
                 return None
 
-            return (
-                self.trade_pipeline
-                .execute_trade(
+            trade_context = (
+                TradeContext(
                     symbol=symbol,
 
                     segment=segment,
 
-                    account_size=(
-                        self.account_size
-                    ),
-
-                    score=(
-                        decision.score
-                    ),
+                    score=decision.score,
 
                     direction=(
                         decision.direction
@@ -96,6 +93,10 @@ class TradingEngine:
 
                     confidence=(
                         decision.confidence
+                    ),
+
+                    reasons=(
+                        decision.reasons
                     ),
 
                     entry_price=(
@@ -106,8 +107,19 @@ class TradingEngine:
                         stop_loss
                     ),
 
-                    target=(
-                        target
+                    target=target
+                )
+            )
+
+            return (
+                self.trade_pipeline
+                .execute_trade(
+                    trade_context=(
+                        trade_context
+                    ),
+
+                    account_size=(
+                        self.account_size
                     )
                 )
             )

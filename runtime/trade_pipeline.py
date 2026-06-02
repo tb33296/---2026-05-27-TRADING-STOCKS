@@ -16,8 +16,8 @@ from core.risk.risk_engine import (
     RiskEngine
 )
 
-from core.strategy.trade_decision import (
-    TradeDecision
+from core.strategy.trade_context import (
+    TradeContext
 )
 
 from core.strategy.trade_decision_engine import (
@@ -67,15 +67,8 @@ class TradePipeline:
 
     def execute_trade(
         self,
-        symbol: str,
-        segment: str,
-        account_size: float,
-        score: float,
-        direction: str,
-        confidence: str,
-        entry_price: float,
-        stop_loss: float,
-        target: float
+        trade_context: TradeContext,
+        account_size: float
     ):
         """
         Execute full trade workflow.
@@ -87,19 +80,39 @@ class TradePipeline:
                 self.position_sizing_engine
                 .calculate(
                     account_size=account_size,
-                    score=score,
-                    entry_price=entry_price,
-                    stop_loss=stop_loss
+
+                    score=(
+                        trade_context.score
+                    ),
+
+                    entry_price=(
+                        trade_context.entry_price
+                    ),
+
+                    stop_loss=(
+                        trade_context.stop_loss
+                    )
                 )
             )
 
             decision = (
                 self.trade_decision_engine
                 .evaluate(
-                    score=score,
-                    direction=direction,
-                    confidence=confidence,
-                    quantity=sizing.quantity
+                    score=(
+                        trade_context.score
+                    ),
+
+                    direction=(
+                        trade_context.direction
+                    ),
+
+                    confidence=(
+                        trade_context.confidence
+                    ),
+
+                    quantity=(
+                        sizing.quantity
+                    )
                 )
             )
 
@@ -131,12 +144,29 @@ class TradePipeline:
                 execution = (
                     self.execution_engine
                     .execute_buy(
-                        symbol=symbol,
-                        segment=segment,
-                        quantity=sizing.quantity,
-                        ltp=entry_price,
-                        stop_loss=stop_loss,
-                        target=target
+                        symbol=(
+                            trade_context.symbol
+                        ),
+
+                        segment=(
+                            trade_context.segment
+                        ),
+
+                        quantity=(
+                            sizing.quantity
+                        ),
+
+                        ltp=(
+                            trade_context.entry_price
+                        ),
+
+                        stop_loss=(
+                            trade_context.stop_loss
+                        ),
+
+                        target=(
+                            trade_context.target
+                        )
                     )
                 )
 
