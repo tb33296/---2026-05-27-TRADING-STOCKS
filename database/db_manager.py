@@ -58,36 +58,68 @@ class DatabaseManager:
         cursor = self.connection.cursor()
 
         cursor.executescript("""
-        CREATE TABLE IF NOT EXISTS candles (
+        CREATE TABLE IF NOT EXISTS trades (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             symbol TEXT NOT NULL,
-            timeframe TEXT NOT NULL,
-            timestamp TEXT NOT NULL,
-            open REAL NOT NULL,
-            high REAL NOT NULL,
-            low REAL NOT NULL,
-            close REAL NOT NULL,
-            volume INTEGER NOT NULL
+            side TEXT NOT NULL,
+            quantity INTEGER NOT NULL,
+            entry_price REAL NOT NULL,
+            exit_price REAL NOT NULL,
+            pnl REAL NOT NULL,
+            entry_time TEXT NOT NULL,
+            exit_time TEXT NOT NULL,
+            duration_seconds REAL NOT NULL
+        );
+        
+        CREATE TABLE IF NOT EXISTS trade_reasons (
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            trade_id INTEGER NOT NULL,
+
+            reason TEXT NOT NULL
         );
 
-        CREATE TABLE IF NOT EXISTS trades ( 
-            id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            symbol TEXT NOT NULL, 
-            side TEXT NOT NULL, 
-            quantity INTEGER NOT NULL, 
-            entry_price REAL NOT NULL, 
-            exit_price REAL NOT NULL, 
-            pnl REAL NOT NULL, 
-            entry_time TEXT NOT NULL, 
-            exit_time TEXT NOT NULL, 
-            duration_seconds REAL NOT NULL );
+        CREATE TABLE IF NOT EXISTS trade_metrics_snapshot (
 
-        CREATE TABLE IF NOT EXISTS system_health (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT NOT NULL,
-            cpu_usage REAL,
-            memory_usage REAL,
-            websocket_latency REAL
+            trade_id INTEGER PRIMARY KEY,
+
+            atr REAL,
+
+            rvol REAL,
+
+            vwap REAL,
+
+            awvap REAL,
+
+            vwma REAL,
+
+            liquidity_ratio REAL,
+
+            liquidity_delta REAL,
+
+            cvd REAL
+        );
+
+        CREATE TABLE IF NOT EXISTS trade_feature_snapshot (
+
+            trade_id INTEGER PRIMARY KEY,
+
+            trend_state TEXT,
+
+            vwap_state TEXT,
+
+            awvap_state TEXT,
+
+            vwma_state TEXT,
+
+            rvol_state TEXT,
+
+            atr_state TEXT,
+
+            liquidity_state TEXT,
+
+            cvd_state TEXT
         );
         """)
 
