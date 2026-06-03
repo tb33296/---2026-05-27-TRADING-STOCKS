@@ -25,7 +25,7 @@ def test_runtime_engine() -> None:
     )
 
     assert (
-        engine.is_running()
+        engine.is_running
         is True
     )
 
@@ -52,7 +52,7 @@ def test_runtime_engine() -> None:
     engine.stop()
 
     assert (
-        engine.is_running()
+        engine.is_running
         is False
     )
 

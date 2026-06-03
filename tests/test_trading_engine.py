@@ -1,5 +1,7 @@
 # tests/test_trading_engine.py
 
+from typing import Any
+
 from runtime.trading_engine import (
     TradingEngine
 )
@@ -24,11 +26,16 @@ from core.strategy.multifactor_decision import (
     MultiFactorDecision
 )
 
-from typing import Any
+from database.db_manager import (
+    DatabaseManager
+)
+
+from core.journal.trade_journal_manager import (
+    TradeJournalManager
+)
 
 
 class MockStrategy:
-    
 
     def evaluate(
         self,
@@ -54,6 +61,26 @@ def test_trading_engine() -> None:
         "\n=== TRADING ENGINE TEST ===\n"
     )
 
+    # =====================================
+    # Database
+    # =====================================
+
+    db = DatabaseManager()
+
+    db.connect()
+
+    db.initialize_schema()
+
+    journal_manager = (
+        TradeJournalManager(
+            db
+        )
+    )
+
+    # =====================================
+    # Core Components
+    # =====================================
+
     position_manager = (
         PositionManager()
     )
@@ -72,13 +99,23 @@ def test_trading_engine() -> None:
 
     trade_pipeline = (
         TradePipeline(
-            risk_engine=risk_engine,
+            risk_engine=(
+                risk_engine
+            ),
 
             execution_engine=(
                 execution_engine
+            ),
+
+            journal_manager=(
+                journal_manager
             )
         )
     )
+
+    # =====================================
+    # Strategy
+    # =====================================
 
     strategy = (
         MockStrategy()
@@ -96,6 +133,10 @@ def test_trading_engine() -> None:
         )
     )
 
+    # =====================================
+    # Execute
+    # =====================================
+
     result = (
         engine.evaluate_trade(
             symbol="RELIANCE",
@@ -112,14 +153,24 @@ def test_trading_engine() -> None:
 
     assert result is not None
 
-    decision, risk, execution = result
+    # Pipeline now returns sizing too
+
+    decision, risk, execution, sizing = (
+        result
+    )
 
     assert decision is not None
     assert risk is not None
     assert execution is not None
+    assert sizing is not None
+
+    # =====================================
+    # Output
+    # =====================================
 
     print(
-        f"Score={decision.score}"
+        f"Score="
+        f"{decision.score}"
     )
 
     print(
@@ -138,5 +189,36 @@ def test_trading_engine() -> None:
     )
 
     print(
+        f"Risk Amount="
+        f"{sizing.risk_amount}"
+    )
+
+    print(
+        f"Risk Percent="
+        f"{sizing.risk_percent}"
+    )
+
+    # =====================================
+    # Assertions
+    # =====================================
+
+    assert (
+        decision.approved
+        is True
+    )
+
+    assert (
+        risk.approved
+        is True
+    )
+
+    assert (
+        execution.success
+        is True
+    )
+
+    print(
         "\n=== TEST COMPLETE ==="
     )
+
+    db.close()

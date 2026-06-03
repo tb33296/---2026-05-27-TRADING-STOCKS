@@ -346,9 +346,9 @@ def test_end_to_end_runtime() -> None:
     query = """
     SELECT
         symbol,
-        side,
+        direction,
         quantity,
-        pnl
+        net_pnl
     FROM trades
     """
 

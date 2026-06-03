@@ -18,7 +18,7 @@ class Tradebook:
     and trade analytics.
     """
 
-    TABLE_NAME = "trades"
+    TABLE_NAME = "legacy_trades"
 
     def __init__(
         self,
