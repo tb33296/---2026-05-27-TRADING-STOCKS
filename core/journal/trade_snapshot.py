@@ -1,3 +1,4 @@
+# core\journal\trade_snapshot.py
 from dataclasses import dataclass
 
 

@@ -7,6 +7,9 @@ from core.execution.paper_execution_engine import PaperExecutionEngine
 from core.positions.position_manager import PositionManager
 
 from core.risk.risk_engine import RiskEngine
+from database.db_manager import DatabaseManager
+
+from core.journal.trade_journal_manager import TradeJournalManager
 
 
 def test_trade_pipeline() -> None:
@@ -19,7 +22,20 @@ def test_trade_pipeline() -> None:
 
     execution_engine = PaperExecutionEngine(position_manager)
 
-    pipeline = TradePipeline(risk_engine=risk_engine, execution_engine=execution_engine)
+    db = DatabaseManager()
+
+    db.connect()
+
+    db.initialize_schema()
+
+    journal_manager = TradeJournalManager(db)
+
+    pipeline = TradePipeline(
+        risk_engine=risk_engine,
+        execution_engine=execution_engine,
+        journal_manager=journal_manager,
+    )
+
     # -----------------------------------------------------------------
     trade_context = TradeContext(
         symbol="RELIANCE",
@@ -60,8 +76,7 @@ def test_trade_pipeline() -> None:
     print(f"Quantity: {execution.quantity}")
 
     print(f"Fill Price: {execution.fill_price}")
-    
-    
+
     print(f"Risk Amount: {sizing.risk_amount}")
 
     print(f"Risk Percent:{sizing.risk_percent}")

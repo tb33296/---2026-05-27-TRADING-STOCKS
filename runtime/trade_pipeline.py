@@ -12,6 +12,10 @@ from core.strategy.trade_context import TradeContext
 
 from core.strategy.trade_decision_engine import TradeDecisionEngine
 
+from core.journal.trade_journal_manager import TradeJournalManager
+
+from core.journal.trade_snapshot import TradeSnapshot
+
 
 class TradePipeline:
     """
@@ -26,7 +30,10 @@ class TradePipeline:
     """
 
     def __init__(
-        self, risk_engine: RiskEngine, execution_engine: PaperExecutionEngine
+        self,
+        risk_engine: RiskEngine,
+        execution_engine: PaperExecutionEngine,
+        journal_manager: TradeJournalManager,
     ) -> None:
 
         self.logger = LoggingManager.get_logger(__name__)
@@ -34,10 +41,44 @@ class TradePipeline:
         self.risk_engine = risk_engine
 
         self.execution_engine = execution_engine
+        self.journal_manager = journal_manager
 
         self.trade_decision_engine = TradeDecisionEngine()
 
         self.position_sizing_engine = PositionSizingEngine()
+
+    # -------------------------------------------------------------------------------------
+    def _create_journal_entry(
+        self, trade_context: TradeContext, execution, sizing
+    ) -> None:
+        """
+        Persist newly opened trade.
+        """
+
+        trade_id = self.journal_manager.create_trade(
+            TradeSnapshot(
+                trade_id=None,
+                symbol=(trade_context.symbol),
+                segment=(trade_context.segment),
+                strategy_name=("MultiFactor"),
+                direction=(trade_context.direction),
+                entry_time=(execution.timestamp.isoformat()),
+                quantity=(execution.quantity),
+                entry_price=(execution.fill_price),
+                stop_loss=(trade_context.stop_loss),
+                target=(trade_context.target),
+                score=(trade_context.score),
+                confidence=(trade_context.confidence),
+                risk_amount=(sizing.risk_amount),
+                risk_percent=(sizing.risk_percent),
+                status="OPEN",
+            )
+        )
+
+        for reason in trade_context.reasons:
+            self.journal_manager.add_reason(trade_id, reason)
+
+    # `````````````````````````````````````````````````````~~~~~~~~~~~~~~~~~~~~~~~~~```````
 
     def execute_trade(self, trade_context: TradeContext, account_size: float):
         """
@@ -76,6 +117,8 @@ class TradePipeline:
                     stop_loss=(trade_context.stop_loss),
                     target=(trade_context.target),
                 )
+                if execution.success and execution.position_opened:
+                    self._create_journal_entry(trade_context, execution, sizing)
 
                 return (decision, risk, execution, sizing)
 

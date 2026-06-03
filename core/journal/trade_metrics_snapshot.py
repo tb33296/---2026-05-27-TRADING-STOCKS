@@ -1,3 +1,5 @@
+# core\journal\trade_metrics_snapshot.py
+
 from dataclasses import dataclass
 
 
