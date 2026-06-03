@@ -3,7 +3,9 @@
 from runtime.trade_pipeline import (
     TradePipeline
 )
-
+from core.strategy.trade_context import (
+    TradeContext
+)
 from core.execution.paper_execution_engine import (
     PaperExecutionEngine
 )
@@ -45,31 +47,67 @@ def test_trade_pipeline() -> None:
             execution_engine=execution_engine
         )
     )
+    # -----------------------------------------------------------------
+    trade_context = (
+    TradeContext(
+        symbol="RELIANCE",
+
+        segment="EQUITY",
+
+        score=85.0,
+
+        direction="LONG",
+
+        confidence="HIGH",
+
+        reasons=[
+            "EMA Bullish",
+            "Above VWAP"
+        ],
+
+        entry_price=100.0,
+
+        stop_loss=95.0,
+
+        target=110.0
+    )
+)
 
     decision, risk, execution = (
         pipeline.execute_trade(
-            symbol="RELIANCE",
+            trade_context=(
+                trade_context
+            ),
 
-            segment="EQUITY",
-
-            account_size=100000,
-
-            score=85,
-
-            direction="LONG",
-
-            confidence="HIGH",
-
-            entry_price=100,
-
-            stop_loss=95,
-
-            target=110
+            account_size=100000
         )
     )
+    #------------------------------------------------------------------
     assert decision is not None
     assert risk is not None
     assert execution is not None
+    print(
+    f"Symbol: "
+    f"{trade_context.symbol}"
+)
+
+    print(
+        f"Direction: "
+        f"{trade_context.direction}"
+    )
+
+    print(
+        f"Score: "
+        f"{trade_context.score}"
+    )
+
+    print(
+        f"Reasons: "
+        f"{len(trade_context.reasons)}"
+    )
+
+    print()
+
     print(
         f"Decision Approved: "
         f"{decision.approved}"

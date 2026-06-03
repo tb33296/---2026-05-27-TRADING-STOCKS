@@ -41,6 +41,7 @@ class TradePipeline:
         self,
         risk_engine: RiskEngine,
         execution_engine: PaperExecutionEngine
+        
     ) -> None:
 
         self.logger = (
