@@ -43,7 +43,7 @@ class PositionManager:
 
             return False
 
-    def close_position(self, symbol: str, exit_price: float) -> bool:
+    def close_position(self, symbol: str, exit_price: float) -> Position | None:
         """
         Close existing position.
         """
@@ -52,12 +52,14 @@ class PositionManager:
             position = self.open_positions.get(symbol)
 
             if position is None:
-                return False
+                return None
 
             position.exit_price = exit_price
 
             position.exit_time = datetime.now()
-
+            position.duration_seconds = int(
+                (position.exit_time - position.entry_time).total_seconds()
+            )
             position.status = "CLOSED"
 
             if position.side == "LONG":
@@ -84,12 +86,12 @@ class PositionManager:
 
             del self.open_positions[symbol]
 
-            return True
+            return position
 
         except Exception as error:
             self.logger.error(f"Close position failed: {error}")
 
-            return False
+            return None
 
     def get_open_positions(self) -> dict[str, Position]:
 

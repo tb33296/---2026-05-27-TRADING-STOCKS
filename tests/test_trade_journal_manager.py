@@ -1,3 +1,4 @@
+# tests/test_trade_journal_manager.py
 from datetime import datetime
 
 from database.db_manager import (

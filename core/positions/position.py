@@ -12,7 +12,7 @@ class Position:
     """
 
     symbol: str
-    
+
     segment: str
 
     side: str
@@ -27,6 +27,8 @@ class Position:
 
     target: float
 
+    trade_id: int | None = None
+
     status: str = "OPEN"
 
     exit_price: Optional[float] = None
@@ -38,3 +40,5 @@ class Position:
     charges: float = 0.0
 
     net_pnl: float = 0.0
+    
+    duration_seconds: int = 0

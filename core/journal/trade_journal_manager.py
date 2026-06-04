@@ -1,3 +1,5 @@
+#core/journal/trade_journal_manager.py
+
 from database.db_manager import (
     DatabaseManager
 )

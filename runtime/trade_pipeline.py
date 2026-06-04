@@ -50,7 +50,7 @@ class TradePipeline:
     # -------------------------------------------------------------------------------------
     def _create_journal_entry(
         self, trade_context: TradeContext, execution, sizing
-    ) -> None:
+    ) -> int:
         """
         Persist newly opened trade.
         """
@@ -77,6 +77,8 @@ class TradePipeline:
 
         for reason in trade_context.reasons:
             self.journal_manager.add_reason(trade_id, reason)
+
+        return trade_id
 
     # `````````````````````````````````````````````````````~~~~~~~~~~~~~~~~~~~~~~~~~```````
 
@@ -118,7 +120,21 @@ class TradePipeline:
                     target=(trade_context.target),
                 )
                 if execution.success and execution.position_opened:
-                    self._create_journal_entry(trade_context, execution, sizing)
+                    trade_id = self._create_journal_entry(
+                        trade_context, execution, sizing
+                    )
+
+                    position = (
+                        self.execution_engine.position_manager.open_positions.get(
+                            trade_context.symbol
+                        )
+                    )
+
+                    if position is not None:
+                        position.trade_id = trade_id
+                        self.logger.info(
+                            f"Trade ID {trade_id} linked to {trade_context.symbol}"
+                        )
 
                 return (decision, risk, execution, sizing)
 
@@ -128,3 +144,51 @@ class TradePipeline:
             self.logger.error(f"Trade pipeline failed: {error}")
 
             return (None, None, None, None)
+
+    def close_trade(self, symbol: str, exit_price: float, exit_reason: str) -> bool:
+        """
+        Close trade and update journal.
+        """
+
+        try:
+            closed_position = self.execution_engine.execute_sell(
+                symbol=symbol, exit_price=exit_price
+            )
+
+            if closed_position is None:
+                return False
+
+            if closed_position.trade_id is None:
+                self.logger.error(f"No trade_id found for {symbol}")
+
+                return False
+
+            if closed_position.exit_time is None:
+                self.logger.error(f"Missing exit_time for {symbol}")
+
+                return False
+
+            if closed_position.exit_price is None:
+                self.logger.error(f"Missing exit_price for {symbol}")
+
+                return False
+            self.journal_manager.close_trade(
+                trade_id=(closed_position.trade_id),
+                exit_time=(closed_position.exit_time.isoformat()),
+                exit_price=(closed_position.exit_price),
+                gross_pnl=(closed_position.gross_pnl),
+                net_pnl=(closed_position.net_pnl),
+                charges=(closed_position.charges),
+                exit_reason=(exit_reason),
+                duration_seconds=(closed_position.duration_seconds),
+            )
+
+            self.logger.info(
+                f"Trade closed: {symbol} (trade_id={closed_position.trade_id})"
+            )
+            return True
+
+        except Exception as error:
+            self.logger.error(f"Trade close failed: {error}")
+
+            return False

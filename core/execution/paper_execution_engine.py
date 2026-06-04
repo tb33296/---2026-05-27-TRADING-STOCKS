@@ -134,8 +134,7 @@ class PaperExecutionEngine:
     def execute_sell(
         self,
         symbol: str,
-        exit_price: float
-    ) -> bool:
+        exit_price: float):
         """
         Close existing position.
         """
