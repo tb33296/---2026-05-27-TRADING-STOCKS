@@ -1,0 +1,11 @@
+Potential Orphan Files
+============================================================
+
+core.indicators.vwma
+core.strategy.strategy_manager
+core.websocket.reconnect_manager
+loginInfo
+runtime.signal_runtime
+utils.helpers
+utils.market_time
+utils.system_monitor

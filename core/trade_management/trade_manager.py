@@ -1,11 +1,15 @@
 # core/trade_management/trade_manager.py
 
-from core.execution.paper_execution_engine import (
-    PaperExecutionEngine
-)
-
 from core.logging_manager import (
     LoggingManager
+)
+
+from core.trade_management.exit_decision import (
+    ExitDecision
+)
+
+from runtime.trade_pipeline import (
+    TradePipeline
 )
 
 from core.positions.position_manager import (
@@ -15,122 +19,145 @@ from core.positions.position_manager import (
 
 class TradeManager:
     """
-    Handles open trade lifecycle.
+    Manages open trade exits.
 
     Responsibilities:
-    - stop loss monitoring
-    - target monitoring
-    - exit execution
 
-    Does NOT:
-    - generate entries
-    - generate signals
-    - manage risk
+    - stop loss exits
+    - target exits
+
+    Future:
+
+    - trailing stop
+    - time exit
+    - EOD exit
     """
 
     def __init__(
         self,
         position_manager: PositionManager,
-        execution_engine: PaperExecutionEngine
+        trade_pipeline: TradePipeline
     ) -> None:
 
-        self.logger = LoggingManager.get_logger(
-            __name__
+        self.logger = (
+            LoggingManager.get_logger(
+                __name__
+            )
         )
 
         self.position_manager = (
             position_manager
         )
 
-        self.execution_engine = (
-            execution_engine
+        self.trade_pipeline = (
+            trade_pipeline
         )
 
     def evaluate_position(
         self,
         symbol: str,
         current_price: float
+    ) -> ExitDecision:
+        """
+        Evaluate exit conditions.
+        """
+
+        position = (
+            self.position_manager
+            .get_open_positions()
+            .get(symbol)
+        )
+
+        if position is None:
+
+            return ExitDecision(
+                should_exit=False,
+                reason="POSITION_NOT_FOUND"
+            )
+
+        # ----------------------------------
+        # LONG POSITIONS
+        # ----------------------------------
+
+        if position.side == "LONG":
+
+            if (
+                current_price
+                <= position.stop_loss
+            ):
+
+                return ExitDecision(
+                    should_exit=True,
+                    reason="STOP_LOSS"
+                )
+
+            if (
+                current_price
+                >= position.target
+            ):
+
+                return ExitDecision(
+                    should_exit=True,
+                    reason="TARGET"
+                )
+
+        return ExitDecision(
+            should_exit=False,
+            reason="HOLD"
+        )
+
+    def process_position(
+        self,
+        symbol: str,
+        current_price: float
     ) -> bool:
         """
-        Evaluate a single position.
-
-        Returns:
-            True if position was closed.
+        Process a single position.
         """
 
         try:
 
-            position = (
-                self.position_manager
-                .get_open_positions()
-                .get(symbol)
+            decision = (
+                self.evaluate_position(
+                    symbol=symbol,
+                    current_price=current_price
+                )
             )
 
-            if position is None:
+            if not decision.should_exit:
 
                 return False
 
-            # -------------------------
-            # LONG POSITION
-            # -------------------------
+            self.logger.info(
+                f"Exit Triggered: "
+                f"{symbol} "
+                f"({decision.reason})"
+            )
 
-            if position.side == "LONG":
-
-                # Stop Loss
-
-                if (
-                    current_price
-                    <= position.stop_loss
-                ):
-
-                    self.logger.info(
-                        f"SL hit: {symbol}"
-                    )
-
-                    return (
-                        self.execution_engine
-                        .execute_sell(
-                            symbol=symbol,
-                            exit_price=current_price
-                        )
-                    )
-
-                # Target
-
-                if (
-                    current_price
-                    >= position.target
-                ):
-
-                    self.logger.info(
-                        f"Target hit: {symbol}"
-                    )
-
-                    return (
-                        self.execution_engine
-                        .execute_sell(
-                            symbol=symbol,
-                            exit_price=current_price
-                        )
-                    )
-
-            return False
+            return (
+                self.trade_pipeline
+                .close_trade(
+                    symbol=symbol,
+                    exit_price=current_price,
+                    exit_reason=decision.reason
+                )
+            )
 
         except Exception as error:
 
             self.logger.error(
-                f"Trade evaluation failed: "
+                f"Position processing failed: "
                 f"{error}"
             )
 
             return False
 
-    def evaluate_all_positions(
+    def process_all_positions(
         self,
         price_map: dict[str, float]
     ) -> int:
         """
-        Evaluate all open positions.
+        Process all open positions.
 
         Returns:
             Number of positions closed.
@@ -140,13 +167,13 @@ class TradeManager:
 
         try:
 
-            open_symbols = list(
+            symbols = list(
                 self.position_manager
                 .get_open_positions()
                 .keys()
             )
 
-            for symbol in open_symbols:
+            for symbol in symbols:
 
                 current_price = (
                     price_map.get(symbol)
@@ -157,7 +184,7 @@ class TradeManager:
                     continue
 
                 closed = (
-                    self.evaluate_position(
+                    self.process_position(
                         symbol=symbol,
                         current_price=current_price
                     )
@@ -172,7 +199,7 @@ class TradeManager:
         except Exception as error:
 
             self.logger.error(
-                f"Trade evaluation failed: "
+                f"Process all positions failed: "
                 f"{error}"
             )
 

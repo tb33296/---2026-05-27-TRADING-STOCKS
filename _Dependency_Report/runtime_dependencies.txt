@@ -1,0 +1,73 @@
+runtime.__init__
+
+
+------------------------------------------------------------
+
+runtime.candle_runtime
+
+    config.config
+    core.market_data.candle_builder
+    core.market_data.market_clock
+    runtime.tick_processor
+
+------------------------------------------------------------
+
+runtime.indicator_runtime
+
+    core.indicators.indicator_manager
+    core.market_data.candle
+
+------------------------------------------------------------
+
+runtime.runtime_engine
+
+    config.config
+    core.instruments.instrument_manager
+    core.instruments.symbol_registry
+    core.instruments.token_resolver
+    core.logging_manager
+    core.session.session_manager
+    core.websocket.subscription_manager
+    core.websocket.tick_queue
+    core.websocket.websocket_manager
+    utils.watchlist_loader
+
+------------------------------------------------------------
+
+runtime.signal_runtime
+
+    core.logging_manager
+    core.signals.crossover_signal
+    core.signals.signal
+    core.signals.signal_manager
+
+------------------------------------------------------------
+
+runtime.tick_processor
+
+    core.logging_manager
+    core.websocket.tick_queue
+
+------------------------------------------------------------
+
+runtime.trade_pipeline
+
+    core.execution.paper_execution_engine
+    core.journal.trade_journal_manager
+    core.journal.trade_snapshot
+    core.logging_manager
+    core.risk.position_sizing_engine
+    core.risk.risk_engine
+    core.strategy.trade_context
+    core.strategy.trade_decision_engine
+
+------------------------------------------------------------
+
+runtime.trading_engine
+
+    core.logging_manager
+    core.strategy.trade_context
+    runtime.trade_pipeline
+
+------------------------------------------------------------
+

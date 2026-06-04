@@ -1,0 +1,10 @@
+Project Statistics
+============================================================
+
+Python Files: 156
+Internal Imports: 332
+External Imports: 160
+Orphan Files: 8
+
+Generated:
+2026-06-04 12:51:01
