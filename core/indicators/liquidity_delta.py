@@ -1,12 +1,8 @@
 # core/indicators/liquidity_delta.py
 
-from core.indicators.indicator_base import (
-    IndicatorBase
-)
+from core.indicators.indicator_base import IndicatorBase
 
-from core.logging_manager import (
-    LoggingManager
-)
+from core.logging_manager import LoggingManager
 
 
 class LiquidityDelta(IndicatorBase):
@@ -28,22 +24,11 @@ class LiquidityDelta(IndicatorBase):
             Bearish
     """
 
-    def __init__(
-        self,
-        name: str,
-        symbol: str,
-        timeframe: str
-    ) -> None:
+    def __init__(self, name: str, symbol: str, timeframe: str) -> None:
 
-        super().__init__(
-            name=name,
-            symbol=symbol,
-            timeframe=timeframe
-        )
+        super().__init__(name=name, symbol=symbol, timeframe=timeframe)
 
-        self.logger = LoggingManager.get_logger(
-            __name__
-        )
+        self.logger = LoggingManager.get_logger(__name__)
 
         self.bid_quantity = 0
 
@@ -53,10 +38,7 @@ class LiquidityDelta(IndicatorBase):
 
         self.ratio = 0.5
 
-    def update(
-        self,
-        depth_data: dict
-    ) -> None:
+    def update(self, depth_data: dict) -> None:
         """
         Update liquidity metrics.
 
@@ -69,119 +51,59 @@ class LiquidityDelta(IndicatorBase):
         """
 
         try:
+            buy_levels = depth_data.get("buy", [])
 
-            buy_levels = (
-                depth_data.get(
-                    "buy",
-                    []
-                )
-            )
+            sell_levels = depth_data.get("sell", [])
 
-            sell_levels = (
-                depth_data.get(
-                    "sell",
-                    []
-                )
-            )
+            self.bid_quantity = sum(level.get("quantity", 0) for level in buy_levels)
 
-            self.bid_quantity = sum(
-                level.get(
-                    "quantity",
-                    0
-                )
-                for level in buy_levels
-            )
+            self.ask_quantity = sum(level.get("quantity", 0) for level in sell_levels)
 
-            self.ask_quantity = sum(
-                level.get(
-                    "quantity",
-                    0
-                )
-                for level in sell_levels
-            )
+            self.delta = self.bid_quantity - self.ask_quantity
 
-            self.delta = (
-                self.bid_quantity
-                -
-                self.ask_quantity
-            )
-
-            total = (
-                self.bid_quantity
-                +
-                self.ask_quantity
-            )
+            total = self.bid_quantity + self.ask_quantity
 
             if total > 0:
-
-                self.ratio = (
-                    self.bid_quantity
-                    / total
-                )
+                self.ratio = self.bid_quantity / total
 
             else:
-
                 self.ratio = 0.5
 
-            self.current_value = (
-                self.delta
-            )
+            self.current_value = self.delta
 
             self.increment_updates()
 
             if not self.ready:
-
                 self.mark_ready()
 
         except Exception as error:
+            self.logger.error(f"LiquidityDelta update failed: {error}")
 
-            self.logger.error(
-                f"LiquidityDelta update failed: "
-                f"{error}"
-            )
-
-    def get_delta(
-        self
-    ) -> int:
+    def get_delta(self) -> int:
 
         return self.delta
 
-    def get_ratio(
-        self
-    ) -> float:
+    def get_ratio(self) -> float:
 
-        return round(
-            self.ratio,
-            4
-        )
+        return round(self.ratio, 4)
 
-    def get_bid_quantity(
-        self
-    ) -> int:
+    def get_bid_quantity(self) -> int:
 
         return self.bid_quantity
 
-    def get_ask_quantity(
-        self
-    ) -> int:
+    def get_ask_quantity(self) -> int:
 
         return self.ask_quantity
 
-    def is_bullish(
-        self
-    ) -> bool:
+    def is_bullish(self) -> bool:
 
         return self.ratio > 0.50
 
-    def is_bearish(
-        self
-    ) -> bool:
+    def is_bearish(self) -> bool:
 
         return self.ratio < 0.50
 
-    def reset(
-        self
-    ) -> None:
+    def reset(self) -> None:
 
         self.bid_quantity = 0
 

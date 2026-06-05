@@ -3,9 +3,7 @@
 from collections import deque
 from typing import Deque
 
-from core.indicators.indicator_base import (
-    IndicatorBase
-)
+from core.indicators.indicator_base import IndicatorBase
 
 from core.logging_manager import LoggingManager
 
@@ -23,46 +21,26 @@ class VWMA(IndicatorBase):
             sum(volume)
     """
 
-    def __init__(
-        self,
-        name: str,
-        symbol: str,
-        timeframe: str,
-        period: int
-    ) -> None:
+    def __init__(self, name: str, symbol: str, timeframe: str, period: int) -> None:
 
-        super().__init__(
-            name=name,
-            symbol=symbol,
-            timeframe=timeframe
-        )
+        super().__init__(name=name, symbol=symbol, timeframe=timeframe)
 
-        self.logger = LoggingManager.get_logger(
-            __name__
-        )
+        self.logger = LoggingManager.get_logger(__name__)
 
         self.period = period
 
-        self.values: Deque[
-            tuple[float, int]
-        ] = deque(
-            maxlen=period
-        )
+        self.values: Deque[tuple[float, int]] = deque(maxlen=period)
 
         self.price_volume_sum = 0.0
 
         self.volume_sum = 0
 
-    def update(
-        self,
-        candle: Candle
-    ) -> None:
+    def update(self, candle: Candle) -> None:
         """
         Update VWMA using closed candle.
         """
 
         try:
-
             close_price = candle.close
 
             volume = candle.volume
@@ -73,37 +51,20 @@ class VWMA(IndicatorBase):
             # REMOVE OLDEST VALUE
             # ================================
 
-            if (
-                len(self.values)
-                == self.period
-            ):
+            if len(self.values) == self.period:
+                old_price, old_volume = self.values[0]
 
-                old_price, old_volume = (
-                    self.values[0]
-                )
+                self.price_volume_sum -= old_price * old_volume
 
-                self.price_volume_sum -= (
-                    old_price * old_volume
-                )
-
-                self.volume_sum -= (
-                    old_volume
-                )
+                self.volume_sum -= old_volume
 
             # ================================
             # ADD NEW VALUE
             # ================================
 
-            self.values.append(
-                (
-                    close_price,
-                    volume
-                )
-            )
+            self.values.append((close_price, volume))
 
-            self.price_volume_sum += (
-                close_price * volume
-            )
+            self.price_volume_sum += close_price * volume
 
             self.volume_sum += volume
 
@@ -111,37 +72,21 @@ class VWMA(IndicatorBase):
             # READINESS CHECK
             # ================================
 
-            if (
-                len(self.values)
-                < self.period
-            ):
-
+            if len(self.values) < self.period:
                 return
 
             if self.volume_sum == 0:
-
-                self.logger.warning(
-                    f"{self.name} volume sum "
-                    f"is zero"
-                )
+                self.logger.warning(f"{self.name} volume sum is zero")
 
                 return
 
-            self.current_value = (
-                self.price_volume_sum
-                / self.volume_sum
-            )
+            self.current_value = self.price_volume_sum / self.volume_sum
 
             if not self.ready:
-
                 self.mark_ready()
 
         except Exception as error:
-
-            self.logger.error(
-                f"VWMA update failed: "
-                f"{error}"
-            )
+            self.logger.error(f"VWMA update failed: {error}")
 
     def reset(self) -> None:
         """
@@ -160,9 +105,7 @@ class VWMA(IndicatorBase):
 
         self.total_updates = 0
 
-        self.logger.info(
-            f"{self.name} reset"
-        )
+        self.logger.info(f"{self.name} reset")
 
     def get_period(self) -> int:
         """

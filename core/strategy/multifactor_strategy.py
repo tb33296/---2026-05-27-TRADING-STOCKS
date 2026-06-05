@@ -1,10 +1,7 @@
-from config.scoring_config_loader import (
-    ScoringConfigLoader
-)
+# core/strategy/multifactor_strategy.py
+from config.scoring_config_loader import ScoringConfigLoader
 
-from core.strategy.multifactor_decision import (
-    MultiFactorDecision
-)
+from core.strategy.multifactor_decision import MultiFactorDecision
 
 
 class MultiFactorStrategy:
@@ -21,21 +18,10 @@ class MultiFactorStrategy:
     """
 
     def __init__(
-        self,
-        ema_fast,
-        ema_slow,
-        vwap,
-        awvap,
-        rvol,
-        vwma,
-        atr,
-        liquidity,
-        cvd
+        self, ema_fast, ema_slow, vwap, awvap, rvol, vwma, atr, liquidity, cvd
     ) -> None:
 
-        self.loader = (
-            ScoringConfigLoader()
-        )
+        self.loader = ScoringConfigLoader()
 
         self.ema_fast = ema_fast
 
@@ -55,10 +41,7 @@ class MultiFactorStrategy:
 
         self.cvd = cvd
 
-    def evaluate(
-        self,
-        current_price: float
-    ) -> MultiFactorDecision:
+    def evaluate(self, current_price: float) -> MultiFactorDecision:
 
         score = 0.0
 
@@ -68,322 +51,143 @@ class MultiFactorStrategy:
         # TREND
         # ===================================
 
-        if (
-            self.ema_fast.get_value()
-            >
-            self.ema_slow.get_value()
-        ):
+        if self.ema_fast.get_value() > self.ema_slow.get_value():
+            score += self.loader.get_weight("trend", "ema_bullish")
 
-            score += (
-                self.loader.get_weight(
-                    "trend",
-                    "ema_bullish"
-                )
-            )
-
-            reasons.append(
-                "EMA Bullish"
-            )
+            reasons.append("EMA Bullish")
 
         else:
+            score += self.loader.get_weight("trend", "ema_bearish")
 
-            score += (
-                self.loader.get_weight(
-                    "trend",
-                    "ema_bearish"
-                )
-            )
-
-            reasons.append(
-                "EMA Bearish"
-            )
+            reasons.append("EMA Bearish")
 
         # ===================================
         # VWAP
         # ===================================
 
-        if (
-            current_price
-            >
-            self.vwap.get_value()
-        ):
+        if current_price > self.vwap.get_value():
+            score += self.loader.get_weight("fair_value", "vwap_bullish")
 
-            score += (
-                self.loader.get_weight(
-                    "fair_value",
-                    "vwap_bullish"
-                )
-            )
-
-            reasons.append(
-                "Above VWAP"
-            )
+            reasons.append("Above VWAP")
 
         else:
+            score += self.loader.get_weight("fair_value", "vwap_bearish")
 
-            score += (
-                self.loader.get_weight(
-                    "fair_value",
-                    "vwap_bearish"
-                )
-            )
-
-            reasons.append(
-                "Below VWAP"
-            )
+            reasons.append("Below VWAP")
 
         # ===================================
         # AWVAP
         # ===================================
 
-        if (
-            current_price
-            >
-            self.awvap.get_value()
-        ):
+        if current_price > self.awvap.get_value():
+            score += self.loader.get_weight("fair_value", "awvap_bullish")
 
-            score += (
-                self.loader.get_weight(
-                    "fair_value",
-                    "awvap_bullish"
-                )
-            )
-
-            reasons.append(
-                "Above AWVAP"
-            )
+            reasons.append("Above AWVAP")
 
         else:
+            score += self.loader.get_weight("fair_value", "awvap_bearish")
 
-            score += (
-                self.loader.get_weight(
-                    "fair_value",
-                    "awvap_bearish"
-                )
-            )
-
-            reasons.append(
-                "Below AWVAP"
-            )
+            reasons.append("Below AWVAP")
 
         # ===================================
         # RVOL
         # ===================================
 
-        rvol_value = (
-            self.rvol.get_value()
-        )
+        rvol_value = self.rvol.get_value()
 
         if rvol_value >= 1.5:
+            score += self.loader.get_weight("volume", "rvol_bullish")
 
-            score += (
-                self.loader.get_weight(
-                    "volume",
-                    "rvol_bullish"
-                )
-            )
-
-            reasons.append(
-                f"RVOL={rvol_value}"
-            )
+            reasons.append(f"RVOL={rvol_value}")
 
         elif rvol_value < 1.0:
+            score += self.loader.get_weight("volume", "rvol_bearish")
 
-            score += (
-                self.loader.get_weight(
-                    "volume",
-                    "rvol_bearish"
-                )
-            )
-
-            reasons.append(
-                f"Weak RVOL={rvol_value}"
-            )
+            reasons.append(f"Weak RVOL={rvol_value}")
 
         # ===================================
         # VWMA
         # ===================================
 
-        if (
-            current_price
-            >
-            self.vwma.get_value()
-        ):
+        if current_price > self.vwma.get_value():
+            score += self.loader.get_weight("volume", "vwma_bullish")
 
-            score += (
-                self.loader.get_weight(
-                    "volume",
-                    "vwma_bullish"
-                )
-            )
-
-            reasons.append(
-                "Above VWMA"
-            )
+            reasons.append("Above VWMA")
 
         else:
+            score += self.loader.get_weight("volume", "vwma_bearish")
 
-            score += (
-                self.loader.get_weight(
-                    "volume",
-                    "vwma_bearish"
-                )
-            )
-
-            reasons.append(
-                "Below VWMA"
-            )
+            reasons.append("Below VWMA")
 
         # ===================================
         # ATR
         # ===================================
 
-        if (
-            self.atr.get_value()
-            > 0
-        ):
+        if self.atr.get_value() > 0:
+            score += self.loader.get_weight("volatility", "atr_active")
 
-            score += (
-                self.loader.get_weight(
-                    "volatility",
-                    "atr_active"
-                )
-            )
-
-            reasons.append(
-                "ATR Active"
-            )
+            reasons.append("ATR Active")
 
         # ===================================
         # LIQUIDITY
         # ===================================
 
-        if (
-            self.liquidity.is_bullish()
-        ):
+        if self.liquidity.is_bullish():
+            score += self.loader.get_weight("orderflow", "liquidity_bullish")
 
-            score += (
-                self.loader.get_weight(
-                    "orderflow",
-                    "liquidity_bullish"
-                )
-            )
+            reasons.append("Liquidity Bullish")
 
-            reasons.append(
-                "Liquidity Bullish"
-            )
+        elif self.liquidity.is_bearish():
+            score += self.loader.get_weight("orderflow", "liquidity_bearish")
 
-        elif (
-            self.liquidity.is_bearish()
-        ):
-
-            score += (
-                self.loader.get_weight(
-                    "orderflow",
-                    "liquidity_bearish"
-                )
-            )
-
-            reasons.append(
-                "Liquidity Bearish"
-            )
+            reasons.append("Liquidity Bearish")
 
         # ===================================
         # CVD
         # ===================================
 
-        if (
-            self.cvd.is_bullish()
-        ):
+        if self.cvd.is_bullish():
+            score += self.loader.get_weight("orderflow", "cvd_bullish")
 
-            score += (
-                self.loader.get_weight(
-                    "orderflow",
-                    "cvd_bullish"
-                )
-            )
+            reasons.append("CVD Bullish")
 
-            reasons.append(
-                "CVD Bullish"
-            )
+        elif self.cvd.is_bearish():
+            score += self.loader.get_weight("orderflow", "cvd_bearish")
 
-        elif (
-            self.cvd.is_bearish()
-        ):
-
-            score += (
-                self.loader.get_weight(
-                    "orderflow",
-                    "cvd_bearish"
-                )
-            )
-
-            reasons.append(
-                "CVD Bearish"
-            )
+            reasons.append("CVD Bearish")
 
         # ===================================
         # DECISION
         # ===================================
 
-        if score >= (
-            self.loader.get_threshold(
-                "strong_long"
-            )
-        ):
-
-            direction = (
-                "STRONG_LONG"
-            )
+        if score >= (self.loader.get_threshold("strong_long")):
+            direction = "STRONG_LONG"
 
             confidence = "HIGH"
 
-        elif score >= (
-            self.loader.get_threshold(
-                "long"
-            )
-        ):
-
+        elif score >= (self.loader.get_threshold("long")):
             direction = "LONG"
 
             confidence = "MEDIUM"
 
-        elif score <= (
-            self.loader.get_threshold(
-                "strong_short"
-            )
-        ):
-
-            direction = (
-                "STRONG_SHORT"
-            )
+        elif score <= (self.loader.get_threshold("strong_short")):
+            direction = "STRONG_SHORT"
 
             confidence = "HIGH"
 
-        elif score <= (
-            self.loader.get_threshold(
-                "short"
-            )
-        ):
-
+        elif score <= (self.loader.get_threshold("short")):
             direction = "SHORT"
 
             confidence = "MEDIUM"
 
         else:
-
-            direction = (
-                "NO_TRADE"
-            )
+            direction = "NO_TRADE"
 
             confidence = "LOW"
 
         return MultiFactorDecision(
             score=round(score, 2),
-
             direction=direction,
-
             confidence=confidence,
-
-            reasons=reasons
+            reasons=reasons,
         )

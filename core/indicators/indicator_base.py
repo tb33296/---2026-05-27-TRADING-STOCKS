@@ -1,4 +1,3 @@
-
 # core/indicators/indicator_base.py
 
 from abc import ABC, abstractmethod
@@ -17,12 +16,7 @@ class IndicatorBase(ABC):
     - value retrieval
     """
 
-    def __init__(
-        self,
-        name: str,
-        symbol: str,
-        timeframe: str
-    ) -> None:
+    def __init__(self, name: str, symbol: str, timeframe: str) -> None:
 
         self.name = name
 
@@ -37,10 +31,7 @@ class IndicatorBase(ABC):
         self.total_updates = 0
 
     @abstractmethod
-    def update(
-        self,
-        candle: Candle
-    ) -> None:
+    def update(self, candle: Candle) -> None:
         """
         Update indicator using closed candle.
         """
