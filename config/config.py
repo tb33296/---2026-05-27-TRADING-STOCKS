@@ -203,3 +203,12 @@ DEFAULT_ORDER_QUANTITY = 1
 
 
 DEFAULT_WATCHLIST_FILE = "data/watchlists/nifty100.txt"
+
+
+# ==================================================
+# TRADE SETUP
+# ==================================================
+
+ATR_STOP_MULTIPLIER = 1.5
+
+RISK_REWARD_RATIO = 2.0

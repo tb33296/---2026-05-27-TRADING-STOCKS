@@ -32,14 +32,7 @@ class TradingEngine:
 
         self.account_size = account_size
 
-    def evaluate_trade(
-        self,
-        symbol: str,
-        segment: str,
-        current_price: float,
-        stop_loss: float,
-        target: float,
-    ):
+    def evaluate_trade(self, symbol: str, segment: str, current_price: float):
         """
         Evaluate trade opportunity.
         """
@@ -52,8 +45,6 @@ class TradingEngine:
                 symbol=symbol,
                 segment=segment,
                 current_price=current_price,
-                stop_loss=stop_loss,
-                target=target,
             )
 
         except Exception as error:
@@ -67,8 +58,6 @@ class TradingEngine:
         symbol: str,
         segment: str,
         current_price: float,
-        stop_loss: float,
-        target: float,
     ):
         """
         Execute already-evaluated strategy decision.
@@ -88,8 +77,8 @@ class TradingEngine:
                 confidence=(decision.confidence),
                 reasons=(decision.reasons),
                 entry_price=(current_price),
-                stop_loss=(stop_loss),
-                target=target,
+                stop_loss=(decision.stop_loss),
+                target=(decision.target),
             )
 
             return self.trade_pipeline.execute_trade(

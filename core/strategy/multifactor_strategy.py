@@ -3,6 +3,8 @@ from config.scoring_config_loader import ScoringConfigLoader
 
 from core.strategy.multifactor_decision import MultiFactorDecision
 
+from config.config import ATR_STOP_MULTIPLIER, RISK_REWARD_RATIO
+
 
 class MultiFactorStrategy:
     """
@@ -184,10 +186,23 @@ class MultiFactorStrategy:
             direction = "NO_TRADE"
 
             confidence = "LOW"
+        # ===================================
+        # TRADE SETUP
+        # ===================================
 
+        atr_value = self.atr.get_value()
+
+        risk_distance = atr_value * ATR_STOP_MULTIPLIER
+
+        stop_loss = round(current_price - risk_distance, 2)
+
+        target = round(current_price + (risk_distance * RISK_REWARD_RATIO), 2)
+        
         return MultiFactorDecision(
             score=round(score, 2),
             direction=direction,
             confidence=confidence,
             reasons=reasons,
+            stop_loss=stop_loss,
+            target=target,
         )

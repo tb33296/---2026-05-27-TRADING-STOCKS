@@ -118,7 +118,19 @@ def test_strategy_trading_engine_runtime() -> None:
     print(f"Direction: {decision.direction}")
 
     print(f"Confidence: {decision.confidence}")
+    print(
+    f"Stop Loss: "
+    f"{decision.stop_loss}"
+)
 
+    print(
+        f"Target: "
+        f"{decision.target}"
+    )
+
+    assert decision.stop_loss > 0
+
+    assert decision.target > 0
     assert decision.direction == "STRONG_LONG"
 
     # ------------------------------------------------
@@ -129,8 +141,6 @@ def test_strategy_trading_engine_runtime() -> None:
         symbol="RELIANCE",
         segment="EQUITY",
         current_price=110.0,
-        stop_loss=105.0,
-        target=120.0,
     )
 
     assert result is not None

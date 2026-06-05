@@ -14,3 +14,7 @@ class MultiFactorDecision:
     confidence: str
 
     reasons: list[str]
+
+    stop_loss: float
+
+    target: float
