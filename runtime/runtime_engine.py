@@ -43,9 +43,15 @@ from core.market_data.market_clock import MarketClock
 
 from core.market_data.timeframe_manager import TimeframeManager
 
-from core.market_data.market_clock import MarketClock
-
 from runtime.indicator_runtime import IndicatorRuntime
+
+from runtime.signal_runtime import SignalRuntime
+
+from runtime.indicator_registration import IndicatorRegistration
+
+from runtime.orderflow_registration import OrderFlowRegistration
+
+from runtime.signal_registration import SignalRegistration
 
 
 class RuntimeEngine:
@@ -71,20 +77,24 @@ class RuntimeEngine:
         self.depth_queue = DepthQueue(MAX_DEPTH_QUEUE_SIZE)
 
         self.orderflow_runtime = OrderFlowRuntime()
-        
+
         self.indicator_runtime = IndicatorRuntime()
+
+        self.signal_runtime = SignalRuntime()
 
         self.market_clock = MarketClock()
 
         self.timeframe_manager = TimeframeManager(self.market_clock)
-        self.indicator_runtime = IndicatorRuntime()
+
+        self.signal_runtime = SignalRuntime()
         self.tick_processor = TickProcessor(
             self.tick_queue,
             self.orderflow_runtime,
             self.timeframe_manager,
             self.indicator_runtime,
-            
+            self.signal_runtime,
         )
+
         self.depth_processor = DepthProcessor(
             self.depth_queue,
             self.orderflow_runtime,
@@ -99,6 +109,27 @@ class RuntimeEngine:
         self.token_resolver = TokenResolver(self.instrument_manager)
 
         self.symbol_registry = SymbolRegistry(self.token_resolver)
+
+        # =====================================
+        # REGISTRATIONS
+        # =====================================
+
+        self.indicator_registration = IndicatorRegistration(
+            indicator_runtime=self.indicator_runtime,
+            symbol_registry=self.symbol_registry,
+            market_clock=self.market_clock,
+        )
+
+        self.orderflow_registration = OrderFlowRegistration(
+            symbol_registry=self.symbol_registry,
+            orderflow_runtime=self.orderflow_runtime,
+        )
+
+        self.signal_registration = SignalRegistration(
+            signal_runtime=self.signal_runtime,
+            indicator_runtime=self.indicator_runtime,
+            symbol_registry=self.symbol_registry,
+        )
 
         self.subscription_manager = SubscriptionManager(self.symbol_registry)
 
@@ -143,6 +174,7 @@ class RuntimeEngine:
 
         try:
             self.logger.info("Starting runtime engine")
+           
 
             # -------------------------
             # Session
@@ -180,6 +212,31 @@ class RuntimeEngine:
                     added += 1
 
             self.logger.info(f"Registered {added} symbols")
+             # =====================================
+            # INDICATOR REGISTRATION
+            # =====================================
+
+            indicator_count = self.indicator_registration.register_all()
+
+            self.logger.info(f"Registered {indicator_count} indicators")
+
+            # =====================================
+            # ORDERFLOW REGISTRATION
+            # =====================================
+
+            orderflow_count = self.orderflow_registration.register_all()
+
+            self.logger.info(f"Registered {orderflow_count} orderflow indicators")
+
+            # =====================================
+            # SIGNAL REGISTRATION
+            # =====================================
+
+            signal_count = self.signal_registration.register_all()
+
+            self.logger.info(f"Registered {signal_count} signals")
+            
+            
             token_symbol_map = self.symbol_registry.get_token_symbol_map(exchange="NSE")
 
             self.websocket_manager.register_token_mappings(token_symbol_map)
@@ -344,7 +401,11 @@ class RuntimeEngine:
         """
 
         return self.depth_processor
-    
+
     def get_indicator_runtime(self) -> IndicatorRuntime:
 
         return self.indicator_runtime
+
+    def get_signal_runtime(self) -> SignalRuntime:
+
+        return self.signal_runtime

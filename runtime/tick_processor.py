@@ -12,6 +12,9 @@ from core.market_data.timeframe_manager import TimeframeManager
 
 from runtime.indicator_runtime import IndicatorRuntime
 
+from runtime.signal_runtime import SignalRuntime
+
+
 class TickProcessor:
     """
     Consumes ticks from TickQueue and maintains
@@ -35,6 +38,7 @@ class TickProcessor:
         orderflow_runtime: OrderFlowRuntime,
         timeframe_manager: TimeframeManager,
         indicator_runtime: IndicatorRuntime,
+        signal_runtime: SignalRuntime,
     ) -> None:
 
         self.logger = LoggingManager.get_logger(__name__)
@@ -52,8 +56,10 @@ class TickProcessor:
         self.total_processed = 0
 
         self.invalid_ticks = 0
-        
+
         self.indicator_runtime = indicator_runtime
+
+        self.signal_runtime = signal_runtime
 
     def process_next_tick(self) -> bool:
         """
@@ -85,6 +91,7 @@ class TickProcessor:
 
             for candle in closed_candles:
                 self.indicator_runtime.process_closed_candle(candle)
+                self.signal_runtime.evaluate_signals(candle)
 
             # #! Logger for ticks has to be deleted after test #TEMPLOGGER
             # self.logger.info(f"Processed Tick: {symbol} {tick.get('ltp')}")
