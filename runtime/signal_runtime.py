@@ -1,3 +1,4 @@
+# runtime/signal_runtime.py
 from typing import Optional
 
 from core.logging_manager import LoggingManager
@@ -23,170 +24,92 @@ class SignalRuntime:
 
     def __init__(self) -> None:
 
-        self.logger = LoggingManager.get_logger(
-            __name__
-        )
+        self.logger = LoggingManager.get_logger(__name__)
 
         self.signal_manager = SignalManager()
 
-        self.crossover_signals: dict[
-            str,
-            CrossoverSignal
-        ] = {}
+        self.crossover_signals: dict[str, CrossoverSignal] = {}
 
-        self.vwap_signals: dict[
-            str,
-            VWAPSignal
-        ] = {}
+        self.vwap_signals: dict[str, VWAPSignal] = {}
 
     def register_crossover_signal(
-        self,
-        signal_name: str,
-        signal_generator: CrossoverSignal
+        self, signal_name: str, signal_generator: CrossoverSignal
     ) -> bool:
 
         if signal_name in self.crossover_signals:
-
-            self.logger.warning(
-                f"Signal already registered: "
-                f"{signal_name}"
-            )
+            self.logger.warning(f"Signal already registered: {signal_name}")
 
             return False
 
-        self.crossover_signals[
-            signal_name
-        ] = signal_generator
+        self.crossover_signals[signal_name] = signal_generator
 
         return True
 
     def register_vwap_signal(
-        self,
-        signal_name: str,
-        signal_generator: VWAPSignal
+        self, signal_name: str, signal_generator: VWAPSignal
     ) -> bool:
 
         if signal_name in self.vwap_signals:
-
-            self.logger.warning(
-                f"Signal already registered: "
-                f"{signal_name}"
-            )
+            self.logger.warning(f"Signal already registered: {signal_name}")
 
             return False
 
-        self.vwap_signals[
-            signal_name
-        ] = signal_generator
+        self.vwap_signals[signal_name] = signal_generator
+        self.logger.info(f"Registered VWAP signal: {signal_name}")
 
         return True
 
-    def evaluate_signals(
-        self,
-        candle: Candle
-    ) -> list[Signal]:
+    def evaluate_signals(self, candle: Candle) -> list[Signal]:
 
-        generated_signals: list[
-            Signal
-        ] = []
+        generated_signals: list[Signal] = []
 
         try:
-
             # ==========================
             # CROSSOVER SIGNALS
             # ==========================
 
-            for signal_generator in (
-                self.crossover_signals.values()
-            ):
-
-                signal = (
-                    signal_generator.evaluate()
-                )
+            for signal_generator in self.crossover_signals.values():
+                signal = signal_generator.evaluate()
 
                 if signal is None:
                     continue
 
-                self.signal_manager.publish_signal(
-                    signal
-                )
+                self.signal_manager.publish_signal(signal)
 
-                generated_signals.append(
-                    signal
-                )
+                generated_signals.append(signal)
 
             # ==========================
             # VWAP SIGNALS
             # ==========================
 
-            for signal_generator in (
-                self.vwap_signals.values()
-            ):
-
-                signal = (
-                    signal_generator.evaluate(
-                        candle
-                    )
-                )
+            for signal_generator in self.vwap_signals.values():
+                signal = signal_generator.evaluate(candle)
 
                 if signal is None:
                     continue
 
-                self.signal_manager.publish_signal(
-                    signal
-                )
+                self.signal_manager.publish_signal(signal)
 
-                generated_signals.append(
-                    signal
-                )
+                generated_signals.append(signal)
 
             return generated_signals
 
         except Exception as error:
-
-            self.logger.error(
-                f"Signal evaluation failed: "
-                f"{error}"
-            )
+            self.logger.error(f"Signal evaluation failed: {error}")
 
             return generated_signals
 
-    def get_latest_signal(
-        self,
-        symbol: str,
-        timeframe: str
-    ) -> Optional[Signal]:
+    def get_latest_signal(self, symbol: str, timeframe: str) -> Optional[Signal]:
 
-        return (
-            self.signal_manager
-            .get_latest_signal(
-                symbol,
-                timeframe
-            )
-        )
+        return self.signal_manager.get_latest_signal(symbol, timeframe)
 
-    def get_signal_history(
-        self,
-        symbol: str,
-        timeframe: str
-    ) -> list[Signal]:
+    def get_signal_history(self, symbol: str, timeframe: str) -> list[Signal]:
 
-        return (
-            self.signal_manager
-            .get_signal_history(
-                symbol,
-                timeframe
-            )
-        )
+        return self.signal_manager.get_signal_history(symbol, timeframe)
 
-    def get_total_signal_count(
-        self
-    ) -> int:
+    def get_total_signal_count(self) -> int:
 
-        return (
-            self.signal_manager
-            .get_total_signal_count()
-        )
+        return self.signal_manager.get_total_signal_count()
 
     def clear(self) -> None:
 
@@ -196,6 +119,4 @@ class SignalRuntime:
 
         self.vwap_signals.clear()
 
-        self.logger.info(
-            "Signal runtime cleared"
-        )
+        self.logger.info("Signal runtime cleared")
