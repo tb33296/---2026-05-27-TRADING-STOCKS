@@ -27,7 +27,7 @@ class MarketClock:
 
     from config.config import ( MARKET_OPEN_TIME, MARKET_CLOSE_TIME )
 
-    def __init__(self, holiday_file: str) -> None:
+    def __init__(self) -> None:
 
         self.logger = LoggingManager.get_logger(__name__)
 

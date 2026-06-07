@@ -1,0 +1,89 @@
+{
+    "subscription_mode": 3,
+    "exchange_type": 1,
+    "token": "11536",
+    "sequence_number": 17839989,
+    "exchange_timestamp": 1780655883000,
+    "last_traded_price": 219890,
+    "subscription_mode_val": "SNAP_QUOTE",
+    "last_traded_quantity": 4,
+    "average_traded_price": 221987,
+    "volume_trade_for_the_day": 5019717,
+    "total_buy_quantity": 206.0,
+    "total_sell_quantity": 0.0,
+    "open_price_of_the_day": 226290,
+    "high_price_of_the_day": 227180,
+    "low_price_of_the_day": 219200,
+    "closed_price": 224100,
+    "last_traded_timestamp": 1780655384,
+    "open_interest": 87173000,
+    "open_interest_change_percentage": -4662826496740167583,
+    "upper_circuit_limit": 246510,
+    "lower_circuit_limit": 201690,
+    "52_week_high_price": 353800,
+    "52_week_low_price": 219200,
+    "best_5_buy_data": [
+        {
+            "flag": 1,
+            "quantity": 206,
+            "price": 219890,
+            "no of orders": 15
+        },
+        {
+            "flag": 1,
+            "quantity": 0,
+            "price": 0,
+            "no of orders": 0
+        },
+        {
+            "flag": 1,
+            "quantity": 0,
+            "price": 0,
+            "no of orders": 0
+        },
+        {
+            "flag": 1,
+            "quantity": 0,
+            "price": 0,
+            "no of orders": 0
+        },
+        {
+            "flag": 1,
+            "quantity": 0,
+            "price": 0,
+            "no of orders": 0
+        }
+    ],
+    "best_5_sell_data": [
+        {
+            "flag": 0,
+            "quantity": 0,
+            "price": 0,
+            "no of orders": 0
+        },
+        {
+            "flag": 0,
+            "quantity": 0,
+            "price": 0,
+            "no of orders": 0
+        },
+        {
+            "flag": 0,
+            "quantity": 0,
+            "price": 0,
+            "no of orders": 0
+        },
+        {
+            "flag": 0,
+            "quantity": 0,
+            "price": 0,
+            "no of orders": 0
+        },
+        {
+            "flag": 0,
+            "quantity": 0,
+            "price": 0,
+            "no of orders": 0
+        }
+    ]
+}

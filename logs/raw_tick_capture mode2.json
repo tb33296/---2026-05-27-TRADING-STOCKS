@@ -1,0 +1,18 @@
+{
+    "subscription_mode": 2,
+    "exchange_type": 1,
+    "token": "11536",
+    "sequence_number": 27404,
+    "exchange_timestamp": 1780709106330,
+    "last_traded_price": 219890,
+    "subscription_mode_val": "QUOTE",
+    "last_traded_quantity": 4,
+    "average_traded_price": 221987,
+    "volume_trade_for_the_day": 5019717,
+    "total_buy_quantity": 206.0,
+    "total_sell_quantity": 0.0,
+    "open_price_of_the_day": 226290,
+    "high_price_of_the_day": 227180,
+    "low_price_of_the_day": 219200,
+    "closed_price": 224100
+}

@@ -1,0 +1,211 @@
+{
+    "subscription_mode": 4,
+    "exchange_type": 1,
+    "token": "11536",
+    "exchange_timestamp": 0,
+    "packet_received_time": 0,
+    "depth_20_buy_data": [
+        {
+            "quantity": 226,
+            "price": 346450,
+            "num_of_orders": 4
+        },
+        {
+            "quantity": 11,
+            "price": 346440,
+            "num_of_orders": 1
+        },
+        {
+            "quantity": 417,
+            "price": 346430,
+            "num_of_orders": 10
+        },
+        {
+            "quantity": 225,
+            "price": 346420,
+            "num_of_orders": 10
+        },
+        {
+            "quantity": 294,
+            "price": 346410,
+            "num_of_orders": 4
+        },
+        {
+            "quantity": 156,
+            "price": 346400,
+            "num_of_orders": 3
+        },
+        {
+            "quantity": 2,
+            "price": 346390,
+            "num_of_orders": 1
+        },
+        {
+            "quantity": 1,
+            "price": 346380,
+            "num_of_orders": 1
+        },
+        {
+            "quantity": 70,
+            "price": 346370,
+            "num_of_orders": 4
+        },
+        {
+            "quantity": 10,
+            "price": 346360,
+            "num_of_orders": 2
+        },
+        {
+            "quantity": 12,
+            "price": 346350,
+            "num_of_orders": 2
+        },
+        {
+            "quantity": 172,
+            "price": 346340,
+            "num_of_orders": 5
+        },
+        {
+            "quantity": 63,
+            "price": 346330,
+            "num_of_orders": 3
+        },
+        {
+            "quantity": 17,
+            "price": 346320,
+            "num_of_orders": 1
+        },
+        {
+            "quantity": 66,
+            "price": 346310,
+            "num_of_orders": 5
+        },
+        {
+            "quantity": 19,
+            "price": 346300,
+            "num_of_orders": 2
+        },
+        {
+            "quantity": 63,
+            "price": 346290,
+            "num_of_orders": 4
+        },
+        {
+            "quantity": 50,
+            "price": 346280,
+            "num_of_orders": 3
+        },
+        {
+            "quantity": 74,
+            "price": 346270,
+            "num_of_orders": 2
+        },
+        {
+            "quantity": 41,
+            "price": 346260,
+            "num_of_orders": 3
+        }
+    ],
+    "depth_20_sell_data": [
+        {
+            "quantity": 180,
+            "price": 346500,
+            "num_of_orders": 2
+        },
+        {
+            "quantity": 2,
+            "price": 346510,
+            "num_of_orders": 2
+        },
+        {
+            "quantity": 308,
+            "price": 346520,
+            "num_of_orders": 4
+        },
+        {
+            "quantity": 431,
+            "price": 346530,
+            "num_of_orders": 5
+        },
+        {
+            "quantity": 580,
+            "price": 346540,
+            "num_of_orders": 4
+        },
+        {
+            "quantity": 2,
+            "price": 346550,
+            "num_of_orders": 1
+        },
+        {
+            "quantity": 240,
+            "price": 346560,
+            "num_of_orders": 7
+        },
+        {
+            "quantity": 36,
+            "price": 346570,
+            "num_of_orders": 3
+        },
+        {
+            "quantity": 72,
+            "price": 346580,
+            "num_of_orders": 8
+        },
+        {
+            "quantity": 162,
+            "price": 346590,
+            "num_of_orders": 10
+        },
+        {
+            "quantity": 103,
+            "price": 346600,
+            "num_of_orders": 9
+        },
+        {
+            "quantity": 137,
+            "price": 346610,
+            "num_of_orders": 9
+        },
+        {
+            "quantity": 63,
+            "price": 346620,
+            "num_of_orders": 5
+        },
+        {
+            "quantity": 51,
+            "price": 346630,
+            "num_of_orders": 4
+        },
+        {
+            "quantity": 170,
+            "price": 346640,
+            "num_of_orders": 6
+        },
+        {
+            "quantity": 184,
+            "price": 346650,
+            "num_of_orders": 7
+        },
+        {
+            "quantity": 82,
+            "price": 346660,
+            "num_of_orders": 6
+        },
+        {
+            "quantity": 74,
+            "price": 346670,
+            "num_of_orders": 3
+        },
+        {
+            "quantity": 83,
+            "price": 346680,
+            "num_of_orders": 6
+        },
+        {
+            "quantity": 295,
+            "price": 346690,
+            "num_of_orders": 9
+        }
+    ]
+}

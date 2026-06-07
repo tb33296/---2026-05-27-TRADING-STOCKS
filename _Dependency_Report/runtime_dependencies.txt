@@ -6,6 +6,7 @@ runtime.__init__
 runtime.candle_runtime
 
     config.config
+    core.market_data.candle
     core.market_data.candle_builder
     core.market_data.market_clock
     runtime.tick_processor
@@ -16,6 +17,14 @@ runtime.indicator_runtime
 
     core.indicators.indicator_manager
     core.market_data.candle
+
+------------------------------------------------------------
+
+runtime.orderflow_runtime
+
+    core.indicators.cvd
+    core.indicators.liquidity_delta
+    core.logging_manager
 
 ------------------------------------------------------------
 
@@ -43,6 +52,36 @@ runtime.signal_runtime
 
 ------------------------------------------------------------
 
+runtime.signal_trading_runtime
+
+
+------------------------------------------------------------
+
+runtime.strategy_factory
+
+    config.config
+    core.indicators.atr
+    core.indicators.awvap
+    core.indicators.cvd
+    core.indicators.liquidity_delta
+    core.indicators.moving_average
+    core.indicators.rvol
+    core.indicators.vwap
+    core.indicators.vwma
+    core.market_data.market_clock
+    core.strategy.multifactor_strategy
+    runtime.indicator_runtime
+    runtime.strategy_runtime
+
+------------------------------------------------------------
+
+runtime.strategy_runtime
+
+    core.strategy.multifactor_decision
+    core.strategy.multifactor_strategy
+
+------------------------------------------------------------
+
 runtime.tick_processor
 
     core.logging_manager
@@ -63,11 +102,29 @@ runtime.trade_pipeline
 
 ------------------------------------------------------------
 
+runtime.trading_cycle_engine
+
+    core.logging_manager
+    runtime.candle_runtime
+    runtime.indicator_runtime
+    runtime.tick_processor
+    runtime.trading_runtime
+
+------------------------------------------------------------
+
 runtime.trading_engine
 
     core.logging_manager
     core.strategy.trade_context
     runtime.trade_pipeline
+
+------------------------------------------------------------
+
+runtime.trading_runtime
+
+    core.logging_manager
+    core.trade_management.trade_manager
+    runtime.tick_processor
 
 ------------------------------------------------------------
 

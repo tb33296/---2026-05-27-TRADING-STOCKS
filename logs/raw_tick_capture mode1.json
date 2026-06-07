@@ -1,0 +1,9 @@
+{
+    "subscription_mode": 1,
+    "exchange_type": 1,
+    "token": "3045",
+    "sequence_number": 25266,
+    "exchange_timestamp": 1780709106251,
+    "last_traded_price": 97770,
+    "subscription_mode_val": "LTP"
+}

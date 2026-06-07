@@ -1,14 +1,22 @@
 # Folder Tree
 
 ```text
-!! 2026-05-27 TRADING STOCKS (38 folders, 182 files)/
+!! 2026-05-27 TRADING STOCKS (38 folders, 203 files)/
+├── _Dependency_Report (0 folders, 7 files)/
+│   ├── architecture_report.md (213 lines)
+│   ├── high_risk_modules.txt (76 lines)
+│   ├── import_summary.csv (413 lines)
+│   ├── orphan_files.txt (10 lines)
+│   ├── reverse_dependencies.csv (413 lines)
+│   ├── runtime_dependencies.txt (122 lines)
+│   └── statistics.txt (10 lines)
 ├── analytics (0 folders, 1 files)/
 │   └── __init__.py (0 lines)
 ├── broker (1 folders, 0 files)/
 │   └── websocket (0 folders, 0 files)/
 ├── config (0 folders, 6 files)/
 │   ├── __init__.py (0 lines)
-│   ├── config.py (205 lines)
+│   ├── config.py (214 lines)
 │   ├── risk_config_loader.py (271 lines)
 │   ├── risk_parameters.json (31 lines)
 │   ├── scoring_config_loader.py (232 lines)
@@ -26,16 +34,16 @@
 │   │   ├── position.py (203 lines)
 │   │   └── tradebook.py (355 lines)
 │   ├── indicators (0 folders, 10 files)/
-│   │   ├── atr.py (160 lines)
-│   │   ├── awvap.py (148 lines)
-│   │   ├── cvd.py (188 lines)
-│   │   ├── indicator_base.py (112 lines)
-│   │   ├── indicator_manager.py (242 lines)
-│   │   ├── liquidity_delta.py (198 lines)
-│   │   ├── moving_average.py (237 lines)
-│   │   ├── rvol.py (120 lines)
-│   │   ├── vwap.py (203 lines)
-│   │   └── vwma.py (172 lines)
+│   │   ├── atr.py (93 lines)
+│   │   ├── awvap.py (89 lines)
+│   │   ├── cvd.py (118 lines)
+│   │   ├── indicator_base.py (103 lines)
+│   │   ├── indicator_manager.py (149 lines)
+│   │   ├── liquidity_delta.py (120 lines)
+│   │   ├── moving_average.py (151 lines)
+│   │   ├── rvol.py (73 lines)
+│   │   ├── vwap.py (132 lines)
+│   │   └── vwma.py (115 lines)
 │   ├── instruments (0 folders, 4 files)/
 │   │   ├── instrument_manager.py (378 lines)
 │   │   ├── instrument_updater.py (181 lines)
@@ -58,7 +66,7 @@
 │   │   ├── position_size_decision.py (18 lines)
 │   │   ├── position_sizing_engine.py (101 lines)
 │   │   ├── risk_decision.py (14 lines)
-│   │   └── risk_engine.py (109 lines)
+│   │   └── risk_engine.py (64 lines)
 │   ├── session (0 folders, 2 files)/
 │   │   ├── __init__.py (0 lines)
 │   │   └── session_manager.py (269 lines)
@@ -70,8 +78,8 @@
 │   │   └── vwap_signal.py (233 lines)
 │   ├── strategy (0 folders, 9 files)/
 │   │   ├── crossover_strategy.py (219 lines)
-│   │   ├── multifactor_decision.py (16 lines)
-│   │   ├── multifactor_strategy.py (389 lines)
+│   │   ├── multifactor_decision.py (20 lines)
+│   │   ├── multifactor_strategy.py (208 lines)
 │   │   ├── orderflow_strategy.py (23 lines)
 │   │   ├── strategy_base.py (219 lines)
 │   │   ├── strategy_manager.py (263 lines)
@@ -99,14 +107,12 @@
 │   │   └── OpenAPIScripMaster.json (1 lines)
 │   ├── watchlists (0 folders, 1 files)/
 │   │   └── nifty100.txt (4 lines)
-│   └── market_data.db (133 lines)
+│   └── market_data.db (136 lines)
 ├── database (0 folders, 3 files)/
 │   ├── __init__.py (0 lines)
 │   ├── db_manager.py (190 lines)
 │   └── schema.sql (0 lines)
 ├── execution (0 folders, 1 files)/
-│   └── __init__.py (0 lines)
-├── indicators (0 folders, 1 files)/
 │   └── __init__.py (0 lines)
 ├── instruments (0 folders, 0 files)/
 ├── logs (3 folders, 5 files)/
@@ -121,17 +127,22 @@
 ├── replay (0 folders, 1 files)/
 │   └── __init__.py (0 lines)
 ├── reports (0 folders, 0 files)/
-├── runtime (0 folders, 8 files)/
+├── runtime (0 folders, 13 files)/
 │   ├── __init__.py (0 lines)
-│   ├── candle_runtime.py (71 lines)
+│   ├── candle_runtime.py (44 lines)
 │   ├── indicator_runtime.py (57 lines)
 │   ├── runtime_engine.py (318 lines)
 │   ├── signal_runtime.py (202 lines)
-│   ├── tick_processor.py (193 lines)
+│   ├── signal_trading_runtime.py (0 lines)
+│   ├── strategy_factory.py (90 lines)
+│   ├── strategy_runtime.py (28 lines)
+│   ├── tick_processor.py (139 lines)
 │   ├── trade_pipeline.py (194 lines)
-│   └── trading_engine.py (134 lines)
+│   ├── trading_cycle_engine.py (64 lines)
+│   ├── trading_engine.py (91 lines)
+│   └── trading_runtime.py (85 lines)
 ├── screenshots (0 folders, 0 files)/
-├── tests (0 folders, 64 files)/
+├── tests (0 folders, 73 files)/
 │   ├── __init__.py (0 lines)
 │   ├── TEMP_GETNAMEs.py (34 lines)
 │   ├── TEMP_test_auth.py (24 lines)
@@ -140,6 +151,7 @@
 │   ├── test_auth_runtime.py (27 lines)
 │   ├── test_awvap.py (100 lines)
 │   ├── test_awvap_runtime.py (89 lines)
+│   ├── test_candle_indicator_runtime.py (165 lines)
 │   ├── test_candle_rollover.py (168 lines)
 │   ├── test_config.py (9 lines)
 │   ├── test_crossover_signal.py (102 lines)
@@ -150,6 +162,7 @@
 │   ├── test_end_to_end_v2.py (276 lines)
 │   ├── test_heartbeat_monitor.py (72 lines)
 │   ├── test_indicator_runtime.py (121 lines)
+│   ├── test_indicator_signal_runtime.py (112 lines)
 │   ├── test_instrument_lookup.py (47 lines)
 │   ├── test_instrument_updater.py (29 lines)
 │   ├── test_liquidity_delta.py (52 lines)
@@ -159,7 +172,7 @@
 │   ├── test_live_subscription_runtime.py (219 lines)
 │   ├── test_logger.py (11 lines)
 │   ├── test_moving_average.py (58 lines)
-│   ├── test_multifactor_strategy.py (170 lines)
+│   ├── test_multifactor_strategy.py (81 lines)
 │   ├── test_orderflow_signal.py (134 lines)
 │   ├── test_orderflow_strategy.py (98 lines)
 │   ├── test_paper_execution.py (90 lines)
@@ -175,7 +188,12 @@
 │   ├── test_rvol.py (57 lines)
 │   ├── test_rvol_runtime.py (67 lines)
 │   ├── test_scoring_config_loader.py (145 lines)
+│   ├── test_signal_trading_engine_runtime.py (149 lines)
+│   ├── test_signal_trading_runtime.py (0 lines)
 │   ├── test_stop_loss_exit.py (175 lines)
+│   ├── test_strategy_factory.py (26 lines)
+│   ├── test_strategy_runtime.py (71 lines)
+│   ├── test_strategy_trading_engine_runtime.py (197 lines)
 │   ├── test_subscription_manager_runtime.py (132 lines)
 │   ├── test_symbol_registry_runtime.py (124 lines)
 │   ├── test_tick_processor_runtime.py (133 lines)
@@ -192,7 +210,9 @@
 │   ├── test_trade_manager.py (232 lines)
 │   ├── test_trade_pipeline.py (90 lines)
 │   ├── test_trade_pipeline_journal.py (0 lines)
+│   ├── test_trading_cycle_engine.py (199 lines)
 │   ├── test_trading_engine.py (224 lines)
+│   ├── test_trading_runtime.py (193 lines)
 │   ├── test_vwap_signal.py (103 lines)
 │   ├── test_watchlist_loader.py (25 lines)
 │   └── test_websocket_runtime.py (41 lines)
@@ -207,16 +227,17 @@
 ├── .env (11 lines)
 ├── .gitignore (9 lines)
 ├── _CHANGELOG.md (287 lines)
-├── _folderTree.md (189 lines)
+├── _folderTree.md (225 lines)
 ├── _MASTER_ARCHITECTURE.md (879 lines)
 ├── _PROJECT_DOCUMENT_AUDIT_2026-06-03.md (14 lines)
 ├── _PROJECT_STATE.md (495 lines)
 ├── _ROADMAP.md (424 lines)
-├── _TECH_DEBT 2026_06-03.md (484 lines)
+├── _TECH_DEBT 2026_06-03.md (501 lines)
 ├── _TECH_DEBT.md (343 lines)
 ├── generate_project_structure.bat (88 lines)
 ├── loginInfo.py (13 lines)
 ├── main.py (12 lines)
+├── PROJECT_DEPENDENCY_ANALYZER.py (667 lines)
 ├── PROMPT_Text.txt (1262 lines)
 ├── pytest.ini (5 lines)
 ├── README.md (0 lines)

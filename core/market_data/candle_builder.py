@@ -7,9 +7,7 @@ from core.logging_manager import LoggingManager
 
 from core.market_data.candle import Candle
 
-from core.market_data.market_clock import (
-    MarketClock
-)
+from core.market_data.market_clock import MarketClock
 
 
 class CandleBuilder:
@@ -23,34 +21,19 @@ class CandleBuilder:
     - closed candle management
     """
 
-    def __init__(
-        self,
-        market_clock: MarketClock
-    ) -> None:
+    def __init__(self, market_clock: MarketClock) -> None:
 
-        self.logger = LoggingManager.get_logger(
-            __name__
-        )
+        self.logger = LoggingManager.get_logger(__name__)
 
         self.market_clock = market_clock
 
         self.lock = Lock()
 
-        self.current_candles: dict[
-            tuple[str, str],
-            Candle
-        ] = {}
+        self.current_candles: dict[tuple[str, str], Candle] = {}
 
-        self.closed_candles: dict[
-            tuple[str, str],
-            list[Candle]
-        ] = {}
+        self.closed_candles: dict[tuple[str, str], list[Candle]] = {}
 
-    def process_tick(
-        self,
-        tick: dict,
-        timeframe: str = "1m"
-    ) -> Optional[Candle]:
+    def process_tick(self, tick: dict, timeframe: str = "1m") -> Optional[Candle]:
         """
         Process incoming tick and update candle.
 
@@ -59,94 +42,50 @@ class CandleBuilder:
         """
 
         try:
+            symbol = str(tick.get("symbol", ""))
 
-            symbol = str(
-                tick.get("symbol", "")
-            )
+            price = float(tick.get("ltp", 0))
 
-            price = float(
-                tick.get("ltp", 0)
-            )
+            volume = int(tick.get("volume", 0))
 
-            volume = int(
-                tick.get("volume", 0)
-            )
-
-            timestamp = tick.get(
-                "timestamp"
-            )
+            timestamp = tick.get("timestamp")
 
             if not symbol:
-
                 return None
 
             if timestamp is None:
-
                 return None
 
-            timeframe_minutes = (
-                self._parse_timeframe(
-                    timeframe
-                )
+            timeframe_minutes = self._parse_timeframe(timeframe)
+
+            candle_start = self.market_clock.get_candle_start_time(
+                timestamp, timeframe_minutes
             )
 
-            candle_start = (
-                self.market_clock
-                .get_candle_start_time(
-                    timestamp,
-                    timeframe_minutes
-                )
+            candle_end = self.market_clock.get_candle_end_time(
+                candle_start, timeframe_minutes
             )
 
-            candle_end = (
-                self.market_clock
-                .get_candle_end_time(
-                    candle_start,
-                    timeframe_minutes
-                )
-            )
-
-            key = (
-                symbol,
-                timeframe
-            )
+            key = (symbol, timeframe)
 
             with self.lock:
-
-                current_candle = (
-                    self.current_candles
-                    .get(key)
-                )
+                current_candle = self.current_candles.get(key)
 
                 # ====================================
                 # CREATE NEW CANDLE
                 # ====================================
 
                 if current_candle is None:
-
-                    new_candle = (
-                        Candle.from_tick(
-                            symbol=symbol,
-
-                            timeframe=timeframe,
-
-                            price=price,
-
-                            volume=volume,
-
-                            start_time=(
-                                candle_start
-                            ),
-
-                            end_time=(
-                                candle_end
-                            )
-                        )
+                    new_candle = Candle.from_tick(
+                        symbol=symbol,
+                        timeframe=timeframe,
+                        price=price,
+                        volume=volume,
+                        start_time=(candle_start),
+                        end_time=(candle_end),
                     )
 
-                    self.current_candles[
-                        key
-                    ] = new_candle
+                    self.current_candles[key] = new_candle
 
                     return None
 
@@ -154,15 +93,8 @@ class CandleBuilder:
                 # SAME CANDLE UPDATE
                 # ====================================
 
-                if (
-                    timestamp
-                    < current_candle.end_time
-                ):
-
-                    current_candle.update(
-                        price=price,
-                        volume=volume
-                    )
+                if timestamp < current_candle.end_time:
+                    current_candle.update(price=price, volume=volume)
 
                     return None
 
@@ -172,104 +104,52 @@ class CandleBuilder:
 
                 current_candle.close_candle()
 
-                if (
-                    key
-                    not in self.closed_candles
-                ):
+                if key not in self.closed_candles:
+                    self.closed_candles[key] = []
 
-                    self.closed_candles[
-                        key
-                    ] = []
+                self.closed_candles[key].append(current_candle)
 
-                self.closed_candles[
-                    key
-                ].append(
-                    current_candle
+                new_candle = Candle.from_tick(
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    price=price,
+                    volume=volume,
+                    start_time=(candle_start),
+                    end_time=(candle_end),
                 )
 
-                new_candle = (
-                    Candle.from_tick(
-                        symbol=symbol,
+                self.current_candles[key] = new_candle
 
-                        timeframe=timeframe,
-
-                        price=price,
-
-                        volume=volume,
-
-                        start_time=(
-                            candle_start
-                        ),
-
-                        end_time=(
-                            candle_end
-                        )
-                    )
-                )
-
-                self.current_candles[
-                    key
-                ] = new_candle
-
-                self.logger.info(
-                    f"Candle closed: "
-                    f"{symbol} "
-                    f"{timeframe}"
-                )
-
+                self.logger.info(f"Candle closed: {symbol} {timeframe}")
+                
                 return current_candle
 
         except Exception as error:
-
-            self.logger.error(
-                f"Candle processing failed: "
-                f"{error}"
-            )
+            self.logger.error(f"Candle processing failed: {error}")
 
             return None
 
     def get_current_candle(
-        self,
-        symbol: str,
-        timeframe: str = "1m"
+        self, symbol: str, timeframe: str = "1m"
     ) -> Optional[Candle]:
         """
         Return active candle.
         """
 
-        key = (
-            symbol,
-            timeframe
-        )
+        key = (symbol, timeframe)
 
         with self.lock:
+            return self.current_candles.get(key)
 
-            return self.current_candles.get(
-                key
-            )
-
-    def get_closed_candles(
-        self,
-        symbol: str,
-        timeframe: str = "1m"
-    ) -> list[Candle]:
+    def get_closed_candles(self, symbol: str, timeframe: str = "1m") -> list[Candle]:
         """
         Return closed candles.
         """
 
-        key = (
-            symbol,
-            timeframe
-        )
+        key = (symbol, timeframe)
 
         with self.lock:
-
-            return list(
-                self.closed_candles.get(
-                    key,
-                    []
-                )
-            )
+            return list(self.closed_candles.get(key, []))
 
     def force_close_all(self) -> None:
         """
@@ -277,32 +157,17 @@ class CandleBuilder:
         """
 
         with self.lock:
-
-            for (
-                key,
-                candle
-            ) in self.current_candles.items():
-
+            for key, candle in self.current_candles.items():
                 candle.close_candle()
 
-                if (
-                    key
-                    not in self.closed_candles
-                ):
+                if key not in self.closed_candles:
+                    self.closed_candles[key] = []
 
-                    self.closed_candles[
-                        key
-                    ] = []
-
-                self.closed_candles[
-                    key
-                ].append(candle)
+                self.closed_candles[key].append(candle)
 
             self.current_candles.clear()
 
-            self.logger.info(
-                "All candles force closed"
-            )
+            self.logger.info("All candles force closed")
 
     def clear(self) -> None:
         """
@@ -310,19 +175,13 @@ class CandleBuilder:
         """
 
         with self.lock:
-
             self.current_candles.clear()
 
             self.closed_candles.clear()
 
-            self.logger.info(
-                "Candle builder cleared"
-            )
+            self.logger.info("Candle builder cleared")
 
-    def _parse_timeframe(
-        self,
-        timeframe: str
-    ) -> int:
+    def _parse_timeframe(self, timeframe: str) -> int:
         """
         Convert timeframe string to minutes.
 
@@ -332,10 +191,6 @@ class CandleBuilder:
             15m -> 15
         """
 
-        normalized = (
-            timeframe
-            .lower()
-            .replace("m", "")
-        )
+        normalized = timeframe.lower().replace("m", "")
 
         return int(normalized)

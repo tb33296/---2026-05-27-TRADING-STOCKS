@@ -2,14 +2,15 @@
 from threading import Lock
 from typing import Any, Optional
 
-from core.logging_manager import (
-    LoggingManager
-)
+from core.logging_manager import LoggingManager
 
-from core.websocket.tick_queue import (
-    TickQueue
-)
+from core.websocket.tick_queue import TickQueue
 
+from runtime.orderflow_runtime import OrderFlowRuntime
+
+from core.market_data.timeframe_manager import TimeframeManager
+
+from runtime.indicator_runtime import IndicatorRuntime
 
 class TickProcessor:
     """
@@ -30,29 +31,31 @@ class TickProcessor:
 
     def __init__(
         self,
-        tick_queue: TickQueue
+        tick_queue: TickQueue,
+        orderflow_runtime: OrderFlowRuntime,
+        timeframe_manager: TimeframeManager,
+        indicator_runtime: IndicatorRuntime,
     ) -> None:
 
-        self.logger = LoggingManager.get_logger(
-            __name__
-        )
+        self.logger = LoggingManager.get_logger(__name__)
 
         self.tick_queue = tick_queue
 
+        self.orderflow_runtime = orderflow_runtime
+
+        self.timeframe_manager = timeframe_manager
+
         self.lock = Lock()
 
-        self.latest_ticks: dict[
-            str,
-            dict[str, Any]
-        ] = {}
+        self.latest_ticks: dict[str, dict[str, Any]] = {}
 
         self.total_processed = 0
 
         self.invalid_ticks = 0
+        
+        self.indicator_runtime = indicator_runtime
 
-    def process_next_tick(
-        self
-    ) -> bool:
+    def process_next_tick(self) -> bool:
         """
         Process a single tick.
 
@@ -66,44 +69,36 @@ class TickProcessor:
             return False
 
         try:
-
-            symbol = str(
-                tick.get(
-                    "symbol",
-                    ""
-                )
-            )
+            symbol = str(tick.get("symbol", ""))
 
             if not symbol:
-
                 self.invalid_ticks += 1
 
                 return False
 
             with self.lock:
-
-                self.latest_ticks[
-                    symbol
-                ] = tick
-
+                self.latest_ticks[symbol] = tick
                 self.total_processed += 1
+            self.orderflow_runtime.process_tick(tick)
 
-                return True
+            closed_candles = self.timeframe_manager.process_tick(tick)
+
+            for candle in closed_candles:
+                self.indicator_runtime.process_closed_candle(candle)
+
+            # #! Logger for ticks has to be deleted after test #TEMPLOGGER
+            # self.logger.info(f"Processed Tick: {symbol} {tick.get('ltp')}")
+
+            return True
 
         except Exception as error:
-
-            self.logger.error(
-                f"Tick processing failed: "
-                f"{error}"
-            )
+            self.logger.error(f"Tick processing failed: {error}")
 
             self.invalid_ticks += 1
 
             return False
 
-    def process_all_available(
-        self
-    ) -> int:
+    def process_all_available(self) -> int:
         """
         Process all queued ticks.
 
@@ -114,78 +109,54 @@ class TickProcessor:
         processed = 0
 
         while self.process_next_tick():
-
             processed += 1
 
         return processed
 
-    def get_latest_tick(
-        self,
-        token: str
-    ) -> Optional[dict[str, Any]]:
+    def get_latest_tick(self, token: str) -> Optional[dict[str, Any]]:
         """
         Return latest tick for token.
         """
 
         with self.lock:
+            return self.latest_ticks.get(token)
 
-            return self.latest_ticks.get(
-                token
-            )
-
-    def get_all_latest_ticks(
-        self
-    ) -> dict[str, dict[str, Any]]:
+    def get_all_latest_ticks(self) -> dict[str, dict[str, Any]]:
         """
         Return snapshot of latest ticks.
         """
 
         with self.lock:
+            return dict(self.latest_ticks)
 
-            return dict(
-                self.latest_ticks
-            )
-
-    def get_total_processed(
-        self
-    ) -> int:
+    def get_total_processed(self) -> int:
         """
         Return processed tick count.
         """
 
         return self.total_processed
 
-    def get_invalid_tick_count(
-        self
-    ) -> int:
+    def get_invalid_tick_count(self) -> int:
         """
         Return invalid tick count.
         """
 
         return self.invalid_ticks
 
-    def get_tracked_symbol_count(
-        self
-    ) -> int:
+    def get_tracked_symbol_count(self) -> int:
         """
         Return unique token count.
         """
 
         with self.lock:
+            return len(self.latest_ticks)
 
-            return len(
-                self.latest_ticks
-            )
-
-    def clear(
-        self
-    ) -> None:
+    def clear(self) -> None:
         """
         Reset processor state.
         """
 
         with self.lock:
-
             self.latest_ticks.clear()
 
             self.total_processed = 0

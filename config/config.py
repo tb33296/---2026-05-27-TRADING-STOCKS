@@ -108,6 +108,7 @@ SYSTEM_MONITOR_INTERVAL = 10
 
 MAX_TICK_QUEUE_SIZE = 5000
 MAX_CANDLE_QUEUE_SIZE = 1000
+MAX_DEPTH_QUEUE_SIZE = 50000
 
 # ============================================
 # File Paths
@@ -132,7 +133,7 @@ SESSION_REFRESH_INTERVAL = 1800
 WEBSOCKET_RECONNECT_INTERVAL = 5
 WEBSOCKET_MAX_RECONNECTS = 20
 
-TICK_QUEUE_MAX_SIZE = 5000
+# TICK_QUEUE_MAX_SIZE = 5000
 
 
 # Session Configuration
@@ -149,7 +150,7 @@ SESSION_HEALTH_CHECK_INTERVAL = 60
 # Tick Queue Configuration
 # ============================================
 
-MAX_TICK_QUEUE_SIZE = 5000
+# MAX_TICK_QUEUE_SIZE = 5000
 
 TICK_PROCESSING_TIMEOUT = 1
 
@@ -212,3 +213,24 @@ DEFAULT_WATCHLIST_FILE = "data/watchlists/nifty100.txt"
 ATR_STOP_MULTIPLIER = 1.5
 
 RISK_REWARD_RATIO = 2.0
+
+
+# --------------------------------
+# WEBSOCKET DATA MODE
+# --------------------------------
+# WEBSOCKET_MODE_LTP = 1
+WEBSOCKET_MODE_QUOTE = 2
+# WEBSOCKET_MODE_SNAPQUOTE = 3
+WEBSOCKET_MODE_DEPTH = 4
+
+# WEBSOCKET_SUBSCRIPTION_MODE = WEBSOCKET_MODE_SNAPQUOTE
+WEBSOCKET_SUBSCRIPTION_MODE = WEBSOCKET_MODE_QUOTE
+
+
+
+# --------------------------------
+# DEBUG
+# --------------------------------
+
+CAPTURE_FIRST_RAW_TICK = True
+RAW_TICK_CAPTURE_FILE = "logs/raw_tick_capture.json"

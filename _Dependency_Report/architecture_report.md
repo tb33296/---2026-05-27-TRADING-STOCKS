@@ -81,6 +81,7 @@
 - core.websocket.subscription_manager
 - core.websocket.tick_queue
 - core.websocket.websocket_manager
+- core.websocket.websocket_manager_jsondump
 
 ## database
 
@@ -90,10 +91,6 @@
 ## execution
 
 - execution.__init__
-
-## indicators
-
-- indicators.__init__
 
 ## loginInfo
 
@@ -112,11 +109,17 @@
 - runtime.__init__
 - runtime.candle_runtime
 - runtime.indicator_runtime
+- runtime.orderflow_runtime
 - runtime.runtime_engine
 - runtime.signal_runtime
+- runtime.signal_trading_runtime
+- runtime.strategy_factory
+- runtime.strategy_runtime
 - runtime.tick_processor
 - runtime.trade_pipeline
+- runtime.trading_cycle_engine
 - runtime.trading_engine
+- runtime.trading_runtime
 
 ## tests
 
@@ -128,6 +131,7 @@
 - tests.test_auth_runtime
 - tests.test_awvap
 - tests.test_awvap_runtime
+- tests.test_candle_indicator_runtime
 - tests.test_candle_rollover
 - tests.test_config
 - tests.test_crossover_signal
@@ -138,6 +142,7 @@
 - tests.test_end_to_end_v2
 - tests.test_heartbeat_monitor
 - tests.test_indicator_runtime
+- tests.test_indicator_signal_runtime
 - tests.test_instrument_lookup
 - tests.test_instrument_updater
 - tests.test_liquidity_delta
@@ -148,6 +153,7 @@
 - tests.test_logger
 - tests.test_moving_average
 - tests.test_multifactor_strategy
+- tests.test_orderflow_runtime
 - tests.test_orderflow_signal
 - tests.test_orderflow_strategy
 - tests.test_paper_execution
@@ -163,7 +169,13 @@
 - tests.test_rvol
 - tests.test_rvol_runtime
 - tests.test_scoring_config_loader
+- tests.test_signal_trading_engine_runtime
+- tests.test_signal_trading_runtime
+- tests.test_snapquote_capture
 - tests.test_stop_loss_exit
+- tests.test_strategy_factory
+- tests.test_strategy_runtime
+- tests.test_strategy_trading_engine_runtime
 - tests.test_subscription_manager_runtime
 - tests.test_symbol_registry_runtime
 - tests.test_tick_processor_runtime
@@ -180,7 +192,9 @@
 - tests.test_trade_manager
 - tests.test_trade_pipeline
 - tests.test_trade_pipeline_journal
+- tests.test_trading_cycle_engine
 - tests.test_trading_engine
+- tests.test_trading_runtime
 - tests.test_vwap_signal
 - tests.test_watchlist_loader
 - tests.test_websocket_runtime
