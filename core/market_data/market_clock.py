@@ -1,17 +1,13 @@
 # core/market_data/market_clock.py
 
-from datetime import (
-    date,
-    datetime,
-    time,
-    timedelta
-)
+from datetime import date, datetime, time, timedelta
 
 from pathlib import Path
 from typing import Optional
 
 from core.logging_manager import LoggingManager
-from config.config import ( MARKET_HOLIDAY_FILE )
+from config.config import MARKET_HOLIDAY_FILE
+
 
 class MarketClock:
     """
@@ -25,13 +21,13 @@ class MarketClock:
     - session timing helpers
     """
 
-    from config.config import ( MARKET_OPEN_TIME, MARKET_CLOSE_TIME )
+    from config.config import MARKET_OPEN_TIME, MARKET_CLOSE_TIME
 
     def __init__(self) -> None:
 
         self.logger = LoggingManager.get_logger(__name__)
 
-        self.holiday_file = Path(MARKET_HOLIDAY_FILE)                       
+        self.holiday_file = Path(MARKET_HOLIDAY_FILE)
 
         self.holidays: set[date] = set()
 
@@ -43,118 +39,68 @@ class MarketClock:
         """
 
         try:
-
             if not self.holiday_file.exists():
-
-                self.logger.warning(
-                    f"Holiday file missing: "
-                    f"{self.holiday_file}"
-                )
+                self.logger.warning(f"Holiday file missing: {self.holiday_file}")
 
                 return
 
-            with open(
-                self.holiday_file,
-                "r",
-                encoding="utf-8"
-            ) as file:
-
+            with open(self.holiday_file, "r", encoding="utf-8") as file:
                 for line in file:
-
                     stripped = line.strip()
 
                     if not stripped:
                         continue
 
-                    holiday_date = (
-                        datetime.strptime(
-                            stripped,
-                            "%d/%m/%Y"
-                        ).date()
-                    )
+                    holiday_date = datetime.strptime(stripped, "%d/%m/%Y").date()
 
-                    self.holidays.add(
-                        holiday_date
-                    )
+                    self.holidays.add(holiday_date)
 
-            self.logger.info(
-                f"Loaded "
-                f"{len(self.holidays)} "
-                f"market holidays"
-            )
+            self.logger.info(f"Loaded {len(self.holidays)} market holidays")
 
         except Exception as error:
+            self.logger.error(f"Holiday load failed: {error}")
 
-            self.logger.error(
-                f"Holiday load failed: "
-                f"{error}"
-            )
-
-    def is_market_holiday(
-        self,
-        check_date: Optional[date] = None
-    ) -> bool:
+    def is_market_holiday(self, check_date: Optional[date] = None) -> bool:
         """
         Check whether date is a market holiday.
         """
 
         if check_date is None:
-
             check_date = datetime.now().date()
 
         return check_date in self.holidays
 
-    def is_weekend(
-        self,
-        check_date: Optional[date] = None
-    ) -> bool:
+    def is_weekend(self, check_date: Optional[date] = None) -> bool:
         """
         Check whether date is weekend.
         """
 
         if check_date is None:
-
             check_date = datetime.now().date()
 
         return check_date.weekday() >= 5
 
-    def is_market_open(
-        self,
-        current_time: Optional[
-            datetime
-        ] = None
-    ) -> bool:
+    def is_market_open(self, current_time: Optional[datetime] = None) -> bool:
         """
         Check whether market session is open.
         """
 
         if current_time is None:
-
             current_time = datetime.now()
 
         current_date = current_time.date()
 
         if self.is_weekend(current_date):
-
             return False
 
-        if self.is_market_holiday(
-            current_date
-        ):
-
+        if self.is_market_holiday(current_date):
             return False
 
         current_clock = current_time.time()
 
-        return (
-            self.MARKET_OPEN_TIME
-            <= current_clock
-            <= self.MARKET_CLOSE_TIME
-        )
+        return self.MARKET_OPEN_TIME <= current_clock <= self.MARKET_CLOSE_TIME
 
-    def get_current_session(
-        self
-    ) -> str:
+    def get_current_session(self) -> str:
         """
         Return current market session state.
         """
@@ -162,33 +108,52 @@ class MarketClock:
         now = datetime.now()
 
         if self.is_market_holiday():
-
             return "HOLIDAY"
 
         if self.is_weekend():
-
             return "WEEKEND"
 
         if now.time() < self.MARKET_OPEN_TIME:
-
             return "PRE_MARKET"
 
         if now.time() > self.MARKET_CLOSE_TIME:
-
             return "POST_MARKET"
 
         return "LIVE_MARKET"
 
-    def get_next_market_open(
-        self
-    ) -> datetime:
+    def get_next_market_open(self) -> datetime:
         """
-        Return next market open datetime.
+        Get next market opening datetime.
+
+        Returns:
+            datetime: Next market opening time
         """
 
-        current_date = datetime.now().date()
+        now = datetime.now()
 
-        next_day = current_date
+        # --------------------------------------------------
+        # Market already open
+        # --------------------------------------------------
+        if self.is_market_open(now):
+            return now
+
+        # --------------------------------------------------
+        # Before market opens today
+        # --------------------------------------------------
+        if (
+            not self.is_weekend(now.date())
+            and not self.is_market_holiday(now.date())
+            and now.time() < self.MARKET_OPEN_TIME
+        ):
+            return datetime.combine(
+                now.date(),
+                self.MARKET_OPEN_TIME
+            )
+
+        # --------------------------------------------------
+        # Search future trading day
+        # --------------------------------------------------
+        next_day = now.date()
 
         while True:
 
@@ -197,59 +162,40 @@ class MarketClock:
             if self.is_weekend(next_day):
                 continue
 
-            if self.is_market_holiday(
-                next_day
-            ):
+            if self.is_market_holiday(next_day):
                 continue
 
             return datetime.combine(
                 next_day,
                 self.MARKET_OPEN_TIME
-            )
+            )   
 
     def get_candle_start_time(
-        self,
-        timestamp: datetime,
-        timeframe_minutes: int
+        self, timestamp: datetime, timeframe_minutes: int
     ) -> datetime:
         """
         Return candle start time.
         """
 
-        minute = (
-            timestamp.minute //
-            timeframe_minutes
-        ) * timeframe_minutes
+        minute = (timestamp.minute // timeframe_minutes) * timeframe_minutes
 
-        return timestamp.replace(
-            minute=minute,
-            second=0,
-            microsecond=0
-        )
+        return timestamp.replace(minute=minute, second=0, microsecond=0)
 
     def get_candle_end_time(
-        self,
-        candle_start: datetime,
-        timeframe_minutes: int
+        self, candle_start: datetime, timeframe_minutes: int
     ) -> datetime:
         """
         Return candle end time.
         """
 
-        return candle_start + timedelta(
-            minutes=timeframe_minutes
-        )
+        return candle_start + timedelta(minutes=timeframe_minutes)
 
-    def seconds_until_market_open(
-        self
-    ) -> int:
+    def seconds_until_market_open(self) -> int:
         """
         Return seconds until next market open.
         """
 
-        next_open = (
-            self.get_next_market_open()
-        )
+        next_open = self.get_next_market_open()
 
         delta = next_open - datetime.now()
 

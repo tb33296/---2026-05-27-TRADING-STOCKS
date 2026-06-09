@@ -3,7 +3,7 @@ from datetime import datetime
 
 from runtime.indicator_runtime import IndicatorRuntime
 
-from runtime.strategy_runtime import StrategyRuntime
+# from runtime.strategy_runtime import StrategyRuntime
 
 from core.strategy.multifactor_strategy import MultiFactorStrategy
 
@@ -42,7 +42,8 @@ class StrategyFactory:
     @staticmethod
     def create(
         symbol: str, timeframe: str, indicator_runtime: IndicatorRuntime
-    ) -> StrategyRuntime:
+    ) -> MultiFactorStrategy:
+
 
         ema_fast = MovingAverage(
             name="EMA_FAST", symbol=symbol, timeframe=timeframe, period=3, ma_type="EMA"
@@ -51,7 +52,7 @@ class StrategyFactory:
         ema_slow = MovingAverage(
             name="EMA_SLOW", symbol=symbol, timeframe=timeframe, period=5, ma_type="EMA"
         )
-        market_clock = MarketClock(MARKET_HOLIDAY_FILE)
+        market_clock = MarketClock()
 
         vwap = VWAP(
             name="VWAP", symbol=symbol, timeframe=timeframe, market_clock=market_clock
@@ -88,4 +89,4 @@ class StrategyFactory:
             cvd=cvd,
         )
 
-        return StrategyRuntime(strategy)
+        return strategy
