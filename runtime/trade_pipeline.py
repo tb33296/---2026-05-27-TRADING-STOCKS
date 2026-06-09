@@ -119,26 +119,43 @@ class TradePipeline:
                     stop_loss=(trade_context.stop_loss),
                     target=(trade_context.target),
                 )
-                if execution.success and execution.position_opened:
-                    trade_id = self._create_journal_entry(
-                        trade_context, execution, sizing
+
+            # ==================================================
+            # SHORT ENTRY
+            # ==================================================
+
+            elif decision.is_short():
+                execution = self.execution_engine.execute_short(
+                    symbol=(trade_context.symbol),
+                    segment=(trade_context.segment),
+                    quantity=(sizing.quantity),
+                    ltp=(trade_context.entry_price),
+                    stop_loss=(trade_context.stop_loss),
+                    target=(trade_context.target),
+                )
+
+            else:
+                return (decision, risk, None, sizing)
+
+            # ==================================================
+            # JOURNAL + TRADE LINKAGE
+            # ==================================================
+
+            if execution.success and execution.position_opened:
+                trade_id = self._create_journal_entry(trade_context, execution, sizing)
+
+                position = self.execution_engine.position_manager.open_positions.get(
+                    trade_context.symbol
+                )
+
+                if position is not None:
+                    position.trade_id = trade_id
+
+                    self.logger.info(
+                        f"Trade ID {trade_id} linked to {trade_context.symbol}"
                     )
 
-                    position = (
-                        self.execution_engine.position_manager.open_positions.get(
-                            trade_context.symbol
-                        )
-                    )
-
-                    if position is not None:
-                        position.trade_id = trade_id
-                        self.logger.info(
-                            f"Trade ID {trade_id} linked to {trade_context.symbol}"
-                        )
-
-                return (decision, risk, execution, sizing)
-
-            return (decision, risk, None, sizing)
+            return (decision, risk, execution, sizing)
 
         except Exception as error:
             self.logger.error(f"Trade pipeline failed: {error}")

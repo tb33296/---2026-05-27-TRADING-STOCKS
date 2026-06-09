@@ -1,5 +1,6 @@
 #core/strategy/trade_context.py
 from dataclasses import dataclass
+from datetime import datetime
 
 
 @dataclass(slots=True)
@@ -16,6 +17,10 @@ class TradeContext:
     symbol: str
 
     segment: str
+
+    # strategy_name: str
+
+    # timestamp: datetime
 
     score: float
 

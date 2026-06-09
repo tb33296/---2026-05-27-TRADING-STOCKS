@@ -86,7 +86,7 @@ class RuntimeEngine:
 
         self.timeframe_manager = TimeframeManager(self.market_clock)
 
-        self.signal_runtime = SignalRuntime()
+        # self.signal_runtime = SignalRuntime()
         self.tick_processor = TickProcessor(
             self.tick_queue,
             self.orderflow_runtime,

@@ -27,24 +27,20 @@ class TradeDecision:
 
     confidence: str
 
-    metadata: dict = field(
-        default_factory=dict
-    )
+    metadata: dict = field(default_factory=dict)
 
     def is_long(self) -> bool:
 
-        return (
-            self.direction.upper()
-            == "LONG"
-        )
+        return self.direction.upper() == "LONG"
 
     def is_short(self) -> bool:
 
-        return (
-            self.direction.upper()
-            == "SHORT"
-        )
+        return self.direction.upper() == "SHORT"
 
     def is_approved(self) -> bool:
 
         return self.approved
+
+    def is_none(self) -> bool:
+
+        return self.direction.upper() == "NONE"

@@ -186,6 +186,7 @@ class MultiFactorStrategy:
             direction = "NO_TRADE"
 
             confidence = "LOW"
+
         # ===================================
         # TRADE SETUP
         # ===================================
@@ -194,10 +195,28 @@ class MultiFactorStrategy:
 
         risk_distance = atr_value * ATR_STOP_MULTIPLIER
 
-        stop_loss = round(current_price - risk_distance, 2)
+        stop_loss = 0.0
 
-        target = round(current_price + (risk_distance * RISK_REWARD_RATIO), 2)
-        
+        target = 0.0
+
+        # -----------------------------------
+        # LONG SETUP
+        # -----------------------------------
+
+        if direction in {"LONG", "STRONG_LONG"}:
+            stop_loss = round(current_price - risk_distance, 2)
+
+            target = round(current_price + (risk_distance * RISK_REWARD_RATIO), 2)
+
+        # -----------------------------------
+        # SHORT SETUP
+        # -----------------------------------
+
+        elif direction in {"SHORT", "STRONG_SHORT"}:
+            stop_loss = round(current_price + risk_distance, 2)
+
+            target = round(current_price - (risk_distance * RISK_REWARD_RATIO), 2)
+
         return MultiFactorDecision(
             score=round(score, 2),
             direction=direction,

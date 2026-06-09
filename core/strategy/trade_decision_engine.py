@@ -43,7 +43,8 @@ class TradeDecisionEngine:
 
             elif normalized_direction == "STRONG_SHORT":
                 normalized_direction = "SHORT"
-            if score < self.minimum_score:
+            
+            if abs(score) < self.minimum_score:
                 return TradeDecision(
                     approved=False,
                     direction="NONE",

@@ -88,7 +88,8 @@ class PositionSizingEngine:
         """
 
         sizing = self.config.get_position_sizing()
-
+        score = abs(score)
+        
         if score >= 90:
             return float(sizing.get("score_90_plus_multiplier", 1.5))
 

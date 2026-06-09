@@ -34,7 +34,7 @@ class RiskEngine:
 
         self.position_manager = position_manager
 
-    def evaluate(self, signal) -> RiskDecision:
+    def evaluate(self, trade_decision) -> RiskDecision:
         """
         Determine whether a trade
         is allowed.

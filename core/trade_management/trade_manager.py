@@ -1,20 +1,14 @@
 # core/trade_management/trade_manager.py
 
-from core.logging_manager import (
-    LoggingManager
-)
+from core.logging_manager import LoggingManager
 
-from core.trade_management.exit_decision import (
-    ExitDecision
-)
+from core.trade_management.exit_decision import ExitDecision
 
-from runtime.trade_pipeline import (
-    TradePipeline
-)
+from runtime.trade_pipeline import TradePipeline
 
-from core.positions.position_manager import (
-    PositionManager
-)
+from core.positions.position_manager import PositionManager
+
+from core.trade_management.exit_rules import ExitRules
 
 
 class TradeManager:
@@ -34,128 +28,85 @@ class TradeManager:
     """
 
     def __init__(
-        self,
-        position_manager: PositionManager,
-        trade_pipeline: TradePipeline
+        self, position_manager: PositionManager, trade_pipeline: TradePipeline
     ) -> None:
 
-        self.logger = (
-            LoggingManager.get_logger(
-                __name__
-            )
-        )
+        self.logger = LoggingManager.get_logger(__name__)
 
-        self.position_manager = (
-            position_manager
-        )
+        self.position_manager = position_manager
 
-        self.trade_pipeline = (
-            trade_pipeline
-        )
+        self.trade_pipeline = trade_pipeline
 
-    def evaluate_position(
-        self,
-        symbol: str,
-        current_price: float
-    ) -> ExitDecision:
+    def evaluate_position(self, symbol: str, current_price: float) -> ExitDecision:
         """
         Evaluate exit conditions.
         """
 
-        position = (
-            self.position_manager
-            .get_open_positions()
-            .get(symbol)
-        )
+        position = self.position_manager.get_open_positions().get(symbol)
 
         if position is None:
-
-            return ExitDecision(
-                should_exit=False,
-                reason="POSITION_NOT_FOUND"
-            )
+            return ExitDecision(should_exit=False, reason="POSITION_NOT_FOUND")
 
         # ----------------------------------
-        # LONG POSITIONS
+        # STOP LOSS
         # ----------------------------------
 
-        if position.side == "LONG":
-
-            if (
-                current_price
-                <= position.stop_loss
-            ):
-
-                return ExitDecision(
-                    should_exit=True,
-                    reason="STOP_LOSS"
-                )
-
-            if (
-                current_price
-                >= position.target
-            ):
-
-                return ExitDecision(
-                    should_exit=True,
-                    reason="TARGET"
-                )
-
-        return ExitDecision(
-            should_exit=False,
-            reason="HOLD"
+        decision = ExitRules.stop_loss_hit(
+            side=position.side,
+            current_price=current_price,
+            stop_loss=position.stop_loss,
         )
 
-    def process_position(
-        self,
-        symbol: str,
-        current_price: float
-    ) -> bool:
+        if decision.should_exit:
+            return decision
+
+        # ----------------------------------
+        # TARGET
+        # ----------------------------------
+
+        decision = ExitRules.target_hit(
+            side=position.side, current_price=current_price, target=position.target
+        )
+
+        if decision.should_exit:
+            return decision
+
+        # ----------------------------------
+        # FORCE EXIT
+        # ----------------------------------
+
+        decision = ExitRules.force_exit_required()
+
+        if decision.should_exit:
+            return decision
+
+        return ExitDecision(should_exit=False, reason="HOLD")
+
+    def process_position(self, symbol: str, current_price: float) -> bool:
         """
         Process a single position.
         """
 
         try:
-
-            decision = (
-                self.evaluate_position(
-                    symbol=symbol,
-                    current_price=current_price
-                )
+            decision = self.evaluate_position(
+                symbol=symbol, current_price=current_price
             )
 
             if not decision.should_exit:
-
                 return False
 
-            self.logger.info(
-                f"Exit Triggered: "
-                f"{symbol} "
-                f"({decision.reason})"
-            )
+            self.logger.info(f"Exit Triggered: {symbol} ({decision.reason})")
 
-            return (
-                self.trade_pipeline
-                .close_trade(
-                    symbol=symbol,
-                    exit_price=current_price,
-                    exit_reason=decision.reason
-                )
+            return self.trade_pipeline.close_trade(
+                symbol=symbol, exit_price=current_price, exit_reason=decision.reason
             )
 
         except Exception as error:
-
-            self.logger.error(
-                f"Position processing failed: "
-                f"{error}"
-            )
+            self.logger.error(f"Position processing failed: {error}")
 
             return False
 
-    def process_all_positions(
-        self,
-        price_map: dict[str, float]
-    ) -> int:
+    def process_all_positions(self, price_map: dict[str, float]) -> int:
         """
         Process all open positions.
 
@@ -166,41 +117,24 @@ class TradeManager:
         closed_count = 0
 
         try:
-
-            symbols = list(
-                self.position_manager
-                .get_open_positions()
-                .keys()
-            )
+            symbols = list(self.position_manager.get_open_positions().keys())
 
             for symbol in symbols:
-
-                current_price = (
-                    price_map.get(symbol)
-                )
+                current_price = price_map.get(symbol)
 
                 if current_price is None:
-
                     continue
 
-                closed = (
-                    self.process_position(
-                        symbol=symbol,
-                        current_price=current_price
-                    )
+                closed = self.process_position(
+                    symbol=symbol, current_price=current_price
                 )
 
                 if closed:
-
                     closed_count += 1
 
             return closed_count
 
         except Exception as error:
-
-            self.logger.error(
-                f"Process all positions failed: "
-                f"{error}"
-            )
+            self.logger.error(f"Process all positions failed: {error}")
 
             return closed_count

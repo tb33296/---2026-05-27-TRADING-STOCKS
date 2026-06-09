@@ -30,6 +30,7 @@
 - core.indicators.atr
 - core.indicators.awvap
 - core.indicators.cvd
+- core.indicators.ema
 - core.indicators.indicator_base
 - core.indicators.indicator_manager
 - core.indicators.liquidity_delta
@@ -64,6 +65,7 @@
 - core.signals.signal_manager
 - core.signals.vwap_signal
 - core.strategy.crossover_strategy
+- core.strategy.ema_crossover_strategy
 - core.strategy.multifactor_decision
 - core.strategy.multifactor_strategy
 - core.strategy.orderflow_strategy
@@ -72,16 +74,18 @@
 - core.strategy.trade_context
 - core.strategy.trade_decision
 - core.strategy.trade_decision_engine
+- core.strategy.trade_intent
 - core.trade_management.exit_decision
+- core.trade_management.exit_rules
 - core.trade_management.trade_manager
 - core.watchdog.__init__
 - core.watchdog.heartbeat_monitor
 - core.websocket.__init__
+- core.websocket.depth_queue
 - core.websocket.reconnect_manager
 - core.websocket.subscription_manager
 - core.websocket.tick_queue
 - core.websocket.websocket_manager
-- core.websocket.websocket_manager_jsondump
 
 ## database
 
@@ -108,9 +112,13 @@
 
 - runtime.__init__
 - runtime.candle_runtime
+- runtime.depth_processor
+- runtime.indicator_registration
 - runtime.indicator_runtime
+- runtime.orderflow_registration
 - runtime.orderflow_runtime
 - runtime.runtime_engine
+- runtime.signal_registration
 - runtime.signal_runtime
 - runtime.signal_trading_runtime
 - runtime.strategy_factory
@@ -142,6 +150,7 @@
 - tests.test_end_to_end_v2
 - tests.test_heartbeat_monitor
 - tests.test_indicator_runtime
+- tests.test_indicator_signal_flow
 - tests.test_indicator_signal_runtime
 - tests.test_instrument_lookup
 - tests.test_instrument_updater
@@ -166,9 +175,11 @@
 - tests.test_risk_lockout
 - tests.test_runtime_engine
 - tests.test_runtime_engine_v11
+- tests.test_runtime_startup
 - tests.test_rvol
 - tests.test_rvol_runtime
 - tests.test_scoring_config_loader
+- tests.test_signal_strategy_flow
 - tests.test_signal_trading_engine_runtime
 - tests.test_signal_trading_runtime
 - tests.test_snapquote_capture

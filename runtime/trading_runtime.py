@@ -2,17 +2,11 @@
 
 # runtime/trading_runtime.py
 
-from core.trade_management.trade_manager import (
-    TradeManager
-)
+from core.trade_management.trade_manager import TradeManager
 
-from runtime.tick_processor import (
-    TickProcessor
-)
+from runtime.tick_processor import TickProcessor
 
-from core.logging_manager import (
-    LoggingManager
-)
+from core.logging_manager import LoggingManager
 
 
 class TradingRuntime:
@@ -26,22 +20,14 @@ class TradingRuntime:
     """
 
     def __init__(
-        self,
-        tick_processor: TickProcessor,
-        trade_manager: TradeManager
+        self, tick_processor: TickProcessor, trade_manager: TradeManager
     ) -> None:
 
-        self.logger = LoggingManager.get_logger(
-            __name__
-        )
+        self.logger = LoggingManager.get_logger(__name__)
 
-        self.tick_processor = (
-            tick_processor
-        )
+        self.tick_processor = tick_processor
 
-        self.trade_manager = (
-            trade_manager
-        )
+        self.trade_manager = trade_manager
 
     def process_market(self) -> int:
         """
@@ -51,35 +37,16 @@ class TradingRuntime:
             number of positions closed
         """
 
-        latest_ticks = (
-            self.tick_processor
-            .get_all_latest_ticks()
-        )
+        latest_ticks = self.tick_processor.get_all_latest_ticks()
 
-        price_map: dict[
-            str,
-            float
-        ] = {}
+        price_map: dict[str, float] = {}
 
-        for symbol, tick in (
-            latest_ticks.items()
-        ):
-
-            ltp = tick.get(
-                "ltp"
-            )
+        for symbol, tick in latest_ticks.items():
+            ltp = tick.get("ltp")
 
             if ltp is None:
-
                 continue
 
-            price_map[
-                symbol
-            ] = float(ltp)
+            price_map[symbol] = float(ltp)
 
-        return (
-            self.trade_manager
-            .process_all_positions(
-                price_map
-            )
-        )
+        return self.trade_manager.process_all_positions(price_map)

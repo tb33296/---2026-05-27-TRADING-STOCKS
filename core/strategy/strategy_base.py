@@ -6,6 +6,8 @@ from core.logging_manager import LoggingManager
 
 from core.signals.signal import Signal
 
+from core.strategy.trade_intent import TradeIntent
+
 
 class StrategyBase(ABC):
     """
@@ -18,23 +20,11 @@ class StrategyBase(ABC):
     - runtime state tracking
     """
 
-    VALID_STATES = {
-        "IDLE",
-        "LONG",
-        "SHORT",
-        "EXITED"
-    }
+    VALID_STATES = {"IDLE", "LONG", "SHORT", "EXITED"}
 
-    def __init__(
-        self,
-        name: str,
-        symbol: str,
-        timeframe: str
-    ) -> None:
+    def __init__(self, name: str, symbol: str, timeframe: str) -> None:
 
-        self.logger = LoggingManager.get_logger(
-            __name__
-        )
+        self.logger = LoggingManager.get_logger(__name__)
 
         self.name = name
 
@@ -51,10 +41,7 @@ class StrategyBase(ABC):
         self.last_signal: Signal | None = None
 
     @abstractmethod
-    def on_signal(
-        self,
-        signal: Signal
-    ) -> Signal | None:
+    def on_signal(self, signal: Signal) -> TradeIntent | None:
         """
         Process incoming signal.
 
@@ -65,10 +52,7 @@ class StrategyBase(ABC):
         pass
 
     @abstractmethod
-    def should_enter(
-        self,
-        signal: Signal
-    ) -> bool:
+    def should_enter(self, signal: Signal) -> bool:
         """
         Determine entry condition.
         """
@@ -76,10 +60,7 @@ class StrategyBase(ABC):
         pass
 
     @abstractmethod
-    def should_exit(
-        self,
-        signal: Signal
-    ) -> bool:
+    def should_exit(self, signal: Signal) -> bool:
         """
         Determine exit condition.
         """
@@ -94,27 +75,15 @@ class StrategyBase(ABC):
 
         pass
 
-    def set_state(
-        self,
-        state: str
-    ) -> None:
+    def set_state(self, state: str) -> None:
         """
         Update strategy state.
         """
 
-        normalized = (
-            state.upper().strip()
-        )
+        normalized = state.upper().strip()
 
-        if (
-            normalized
-            not in self.VALID_STATES
-        ):
-
-            raise ValueError(
-                f"Invalid strategy state: "
-                f"{normalized}"
-            )
+        if normalized not in self.VALID_STATES:
+            raise ValueError(f"Invalid strategy state: {normalized}")
 
         self.state = normalized
 
@@ -160,6 +129,13 @@ class StrategyBase(ABC):
 
         return self.name
 
+    def get_full_name(self) -> str:
+        """
+        Return unique strategy identifier.
+        """
+
+        return f"{self.symbol}_{self.timeframe}_{self.name}"
+
     def get_symbol(self) -> str:
         """
         Return strategy symbol.
@@ -174,34 +150,33 @@ class StrategyBase(ABC):
 
         return self.timeframe
 
-    def get_last_signal(
-        self
-    ) -> Signal | None:
+    def get_last_signal(self) -> Signal | None:
         """
         Return last processed signal.
         """
 
         return self.last_signal
 
-    def increment_signal_count(
-        self
-    ) -> None:
+    def set_last_signal(self, signal: Signal) -> None:
+        """
+        Store last processed signal.
+        """
+
+        self.last_signal = signal
+
+    def increment_signal_count(self) -> None:
         """
         Increment processed signal count.
         """
 
         self.total_signals_processed += 1
 
-    def get_total_signals_processed(
-        self
-    ) -> int:
+    def get_total_signals_processed(self) -> int:
         """
         Return processed signal count.
         """
 
-        return (
-            self.total_signals_processed
-        )
+        return self.total_signals_processed
 
     def mark_ready(self) -> None:
         """
@@ -216,4 +191,3 @@ class StrategyBase(ABC):
         """
 
         return self.ready
-

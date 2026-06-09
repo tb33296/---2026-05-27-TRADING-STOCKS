@@ -2,25 +2,15 @@
 
 from datetime import datetime
 
-from core.execution.execution_result import (
-    ExecutionResult
-)
+from core.execution.execution_result import ExecutionResult
 
-from core.logging_manager import (
-    LoggingManager
-)
+from core.logging_manager import LoggingManager
 
-from core.positions.position import (
-    Position
-)
+from core.positions.position import Position
 
-from core.positions.position_manager import (
-    PositionManager
-)
+from core.positions.position_manager import PositionManager
 
-from config.config import (
-    SIMULATED_SLIPPAGE_PERCENT
-)
+from config.config import SIMULATED_SLIPPAGE_PERCENT
 
 
 class PaperExecutionEngine:
@@ -28,18 +18,11 @@ class PaperExecutionEngine:
     Simulated order execution engine.
     """
 
-    def __init__(
-        self,
-        position_manager: PositionManager
-    ) -> None:
+    def __init__(self, position_manager: PositionManager) -> None:
 
-        self.logger = LoggingManager.get_logger(
-            __name__
-        )
+        self.logger = LoggingManager.get_logger(__name__)
 
-        self.position_manager = (
-            position_manager
-        )
+        self.position_manager = position_manager
 
     def execute_buy(
         self,
@@ -48,28 +31,16 @@ class PaperExecutionEngine:
         quantity: int,
         ltp: float,
         stop_loss: float,
-        target: float
+        target: float,
     ) -> ExecutionResult:
         """
         Execute simulated BUY.
         """
 
         try:
+            fill_price = ltp * (1 + SIMULATED_SLIPPAGE_PERCENT)
 
-            fill_price = (
-                ltp
-                *
-                (
-                    1
-                    +
-                    SIMULATED_SLIPPAGE_PERCENT
-                )
-            )
-
-            fill_price = round(
-                fill_price,
-                2
-            )
+            fill_price = round(fill_price, 2)
 
             position = Position(
                 symbol=symbol,
@@ -79,18 +50,12 @@ class PaperExecutionEngine:
                 entry_price=fill_price,
                 entry_time=datetime.now(),
                 stop_loss=stop_loss,
-                target=target
+                target=target,
             )
 
-            success = (
-                self.position_manager
-                .open_position(
-                    position
-                )
-            )
+            success = self.position_manager.open_position(position)
 
             if not success:
-
                 return ExecutionResult(
                     success=False,
                     symbol=symbol,
@@ -98,9 +63,7 @@ class PaperExecutionEngine:
                     quantity=quantity,
                     fill_price=fill_price,
                     timestamp=datetime.now(),
-                    message=(
-                        "POSITION_OPEN_FAILED"
-                    )
+                    message=("POSITION_OPEN_FAILED"),
                 )
 
             return ExecutionResult(
@@ -111,15 +74,11 @@ class PaperExecutionEngine:
                 fill_price=fill_price,
                 timestamp=datetime.now(),
                 message="FILLED",
-                position_opened=True
+                position_opened=True,
             )
 
         except Exception as error:
-
-            self.logger.error(
-                f"BUY execution failed: "
-                f"{error}"
-            )
+            self.logger.error(f"BUY execution failed: {error}")
 
             return ExecutionResult(
                 success=False,
@@ -128,22 +87,80 @@ class PaperExecutionEngine:
                 quantity=quantity,
                 fill_price=0.0,
                 timestamp=datetime.now(),
-                message=str(error)
+                message=str(error),
             )
 
-    def execute_sell(
+    def execute_short(
         self,
         symbol: str,
-        exit_price: float):
+        segment: str,
+        quantity: int,
+        ltp: float,
+        stop_loss: float,
+        target: float,
+    ) -> ExecutionResult:
+        """
+        Execute simulated SHORT sell.
+        """
+
+        try:
+            fill_price = ltp * (1 - SIMULATED_SLIPPAGE_PERCENT)
+
+            fill_price = round(fill_price, 2)
+
+            position = Position(
+                symbol=symbol,
+                segment=segment,
+                side="SHORT",
+                quantity=quantity,
+                entry_price=fill_price,
+                entry_time=datetime.now(),
+                stop_loss=stop_loss,
+                target=target,
+            )
+
+            success = self.position_manager.open_position(position)
+
+            if not success:
+                return ExecutionResult(
+                    success=False,
+                    symbol=symbol,
+                    side="SHORT",
+                    quantity=quantity,
+                    fill_price=fill_price,
+                    timestamp=datetime.now(),
+                    message=("POSITION_OPEN_FAILED"),
+                )
+
+            return ExecutionResult(
+                success=True,
+                symbol=symbol,
+                side="SHORT",
+                quantity=quantity,
+                fill_price=fill_price,
+                timestamp=datetime.now(),
+                message="FILLED",
+                position_opened=True,
+            )
+
+        except Exception as error:
+            self.logger.error(f"SHORT execution failed: {error}")
+
+            return ExecutionResult(
+                success=False,
+                symbol=symbol,
+                side="SHORT",
+                quantity=quantity,
+                fill_price=0.0,
+                timestamp=datetime.now(),
+                message=str(error),
+            )
+
+    def execute_sell(self, symbol: str, exit_price: float):
         """
         Close existing position.
         """
 
-        return (
-            self.position_manager
-            .close_position(
-                symbol=symbol,
-                exit_price=exit_price
-                
-            )
+        return self.position_manager.close_position(
+            symbol=symbol, exit_price=exit_price
         )

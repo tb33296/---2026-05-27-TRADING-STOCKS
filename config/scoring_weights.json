@@ -1,55 +1,42 @@
 {
     "version": 1,
     "last_updated": "2026-05-31",
-
     "weights": {
-
         "trend": {
             "ema_bullish": 20,
             "ema_bearish": -20
         },
-
         "fair_value": {
             "vwap_bullish": 15,
             "vwap_bearish": -15,
-
             "awvap_bullish": 15,
             "awvap_bearish": -15
         },
-
         "volume": {
             "rvol_bullish": 10,
             "rvol_bearish": -10,
-
             "vwma_bullish": 10,
             "vwma_bearish": -10
         },
-
         "volatility": {
             "atr_active": 10,
             "atr_low_volatility": -10
         },
-
         "orderflow": {
             "liquidity_bullish": 10,
             "liquidity_bearish": -10,
-
             "cvd_bullish": 10,
             "cvd_bearish": -10
         }
     },
-
     "thresholds": {
         "strong_long": 80,
         "long": 60,
-
         "neutral_low": -20,
         "neutral_high": 20,
-
         "short": -60,
-        "strong_short": -80
+        "strong_short": -65
     },
-
     "position_sizing": {
         "full_size_score": 90,
         "seventy_five_percent_score": 70,

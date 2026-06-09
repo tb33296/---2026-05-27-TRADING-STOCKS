@@ -1,9 +1,9 @@
 Potential Orphan Files
 ============================================================
 
+core.strategy.ema_crossover_strategy
 core.strategy.strategy_manager
 core.websocket.reconnect_manager
-core.websocket.websocket_manager_jsondump
 loginInfo
 runtime.signal_trading_runtime
 utils.helpers

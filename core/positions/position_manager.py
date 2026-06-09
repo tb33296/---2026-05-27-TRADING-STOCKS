@@ -65,8 +65,11 @@ class PositionManager:
             if position.side == "LONG":
                 gross_pnl = (exit_price - position.entry_price) * position.quantity
 
-            else:
+            elif position.side == "SHORT":
                 gross_pnl = (position.entry_price - exit_price) * position.quantity
+
+            else:
+                raise ValueError(f"Unknown side: {position.side}")
 
             position.gross_pnl = gross_pnl
 
@@ -77,7 +80,7 @@ class PositionManager:
             charges = self.charges_engine.calculate(
                 segment=position.segment, turnover=turnover
             )
-            print(f"Turnover={turnover} Charges={charges}")
+            self.logger.debug(f"Turnover={turnover} Charges={charges}")
             position.charges = charges
 
             position.net_pnl = gross_pnl - charges

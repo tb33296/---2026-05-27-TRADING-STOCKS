@@ -13,10 +13,40 @@ runtime.candle_runtime
 
 ------------------------------------------------------------
 
+runtime.depth_processor
+
+    core.logging_manager
+    core.websocket.depth_queue
+    runtime.orderflow_runtime
+
+------------------------------------------------------------
+
+runtime.indicator_registration
+
+    config.config
+    core.indicators.atr
+    core.indicators.ema
+    core.indicators.rvol
+    core.indicators.vwap
+    core.instruments.symbol_registry
+    core.market_data.market_clock
+    runtime.indicator_runtime
+
+------------------------------------------------------------
+
 runtime.indicator_runtime
 
     core.indicators.indicator_manager
     core.market_data.candle
+
+------------------------------------------------------------
+
+runtime.orderflow_registration
+
+    core.indicators.cvd
+    core.indicators.liquidity_delta
+    core.instruments.symbol_registry
+    runtime.orderflow_runtime
 
 ------------------------------------------------------------
 
@@ -35,20 +65,47 @@ runtime.runtime_engine
     core.instruments.symbol_registry
     core.instruments.token_resolver
     core.logging_manager
+    core.market_data.market_clock
+    core.market_data.timeframe_manager
     core.session.session_manager
+    core.websocket.depth_queue
     core.websocket.subscription_manager
     core.websocket.tick_queue
     core.websocket.websocket_manager
+    runtime.depth_processor
+    runtime.indicator_registration
+    runtime.indicator_runtime
+    runtime.orderflow_registration
+    runtime.orderflow_runtime
+    runtime.signal_registration
+    runtime.signal_runtime
+    runtime.tick_processor
     utils.watchlist_loader
+
+------------------------------------------------------------
+
+runtime.signal_registration
+
+    config.config
+    core.indicators.ema
+    core.indicators.rvol
+    core.indicators.vwap
+    core.instruments.symbol_registry
+    core.signals.crossover_signal
+    core.signals.vwap_signal
+    runtime.indicator_runtime
+    runtime.signal_runtime
 
 ------------------------------------------------------------
 
 runtime.signal_runtime
 
     core.logging_manager
+    core.market_data.candle
     core.signals.crossover_signal
     core.signals.signal
     core.signals.signal_manager
+    core.signals.vwap_signal
 
 ------------------------------------------------------------
 
@@ -77,15 +134,21 @@ runtime.strategy_factory
 
 runtime.strategy_runtime
 
-    core.strategy.multifactor_decision
-    core.strategy.multifactor_strategy
+    core.logging_manager
+    core.signals.signal
+    core.strategy.strategy_base
+    core.strategy.trade_intent
 
 ------------------------------------------------------------
 
 runtime.tick_processor
 
     core.logging_manager
+    core.market_data.timeframe_manager
     core.websocket.tick_queue
+    runtime.indicator_runtime
+    runtime.orderflow_runtime
+    runtime.signal_runtime
 
 ------------------------------------------------------------
 
