@@ -1,10 +1,10 @@
 Project Statistics
 ============================================================
 
-Python Files: 184
-Internal Imports: 480
+Python Files: 186
+Internal Imports: 482
 External Imports: 184
-Orphan Files: 8
+Orphan Files: 9
 
 Generated:
-2026-06-09 12:00:06
+2026-06-09 18:19:07

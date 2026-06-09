@@ -110,6 +110,25 @@ class TradePipeline:
             if not risk.approved:
                 return (decision, risk, None, sizing)
 
+            existing_position = (
+                self.execution_engine.position_manager.get_open_positions().get(
+                    trade_context.symbol
+                )
+            )
+
+            if existing_position is not None:
+                if existing_position.side.upper() == decision.direction.upper():
+                    self.logger.info(
+                        f"Duplicate position blocked: {trade_context.symbol}"
+                    )
+
+                    return (
+                        decision,
+                        risk,
+                        None,
+                        sizing,
+                    )
+
             if decision.is_long():
                 execution = self.execution_engine.execute_buy(
                     symbol=(trade_context.symbol),

@@ -10,6 +10,8 @@ from core.positions.position_manager import PositionManager
 
 from core.trade_management.exit_rules import ExitRules
 
+from core.trade_management.trailing_stop_manager import TrailingStopManager
+
 
 class TradeManager:
     """
@@ -37,6 +39,8 @@ class TradeManager:
 
         self.trade_pipeline = trade_pipeline
 
+        self.trailing_stop_manager = TrailingStopManager()
+
     def evaluate_position(self, symbol: str, current_price: float) -> ExitDecision:
         """
         Evaluate exit conditions.
@@ -46,6 +50,15 @@ class TradeManager:
 
         if position is None:
             return ExitDecision(should_exit=False, reason="POSITION_NOT_FOUND")
+
+        # ----------------------------------
+        # TRAILING STOP UPDATE
+        # ----------------------------------
+
+        self.trailing_stop_manager.update(
+            position=position,
+            current_price=current_price,
+        )
 
         # ----------------------------------
         # STOP LOSS
@@ -75,7 +88,7 @@ class TradeManager:
         # FORCE EXIT
         # ----------------------------------
 
-        decision = ExitRules.force_exit_required()
+        decision = ExitRules.force_exit_time_hit()  # .force_exit_required()
 
         if decision.should_exit:
             return decision

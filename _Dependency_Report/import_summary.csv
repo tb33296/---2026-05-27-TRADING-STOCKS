@@ -114,7 +114,9 @@ core.trade_management.trade_manager,core.logging_manager
 core.trade_management.trade_manager,core.positions.position_manager
 core.trade_management.trade_manager,core.trade_management.exit_decision
 core.trade_management.trade_manager,core.trade_management.exit_rules
+core.trade_management.trade_manager,core.trade_management.trailing_stop_manager
 core.trade_management.trade_manager,runtime.trade_pipeline
+core.trade_management.trailing_stop_manager,core.positions.position
 core.watchdog.heartbeat_monitor,config.config
 core.watchdog.heartbeat_monitor,core.logging_manager
 core.websocket.reconnect_manager,config.config

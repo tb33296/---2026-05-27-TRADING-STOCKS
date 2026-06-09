@@ -18,8 +18,8 @@ HIGH RISK MODULES
    9  core.instruments.symbol_registry
    9  runtime.tick_processor
    9  core.indicators.moving_average
-   8  core.indicators.liquidity_delta
    8  core.indicators.cvd
+   8  core.indicators.liquidity_delta
    8  core.signals.crossover_signal
    7  core.instruments.instrument_manager
    7  core.trade_management.trade_manager
@@ -28,32 +28,32 @@ HIGH RISK MODULES
    6  core.indicators.rvol
    6  core.strategy.trade_context
    6  runtime.runtime_engine
+   5  core.positions.position
    5  core.session.session_manager
    5  runtime.orderflow_runtime
-   5  runtime.signal_runtime
    5  utils.watchlist_loader
-   4  core.positions.position
+   5  runtime.signal_runtime
    4  core.auth.auth_manager
    4  core.indicators.atr
    4  core.websocket.subscription_manager
    4  core.websocket.websocket_manager
    4  core.signals.vwap_signal
-   4  core.strategy.multifactor_strategy
    4  runtime.strategy_runtime
+   4  core.strategy.multifactor_strategy
    4  runtime.candle_runtime
    3  core.journal.trade_snapshot
    3  core.market_data.candle_builder
-   3  core.strategy.trade_intent
    3  core.strategy.strategy_base
-   3  core.strategy.multifactor_decision
+   3  core.strategy.trade_intent
    3  config.scoring_config_loader
+   3  core.strategy.multifactor_decision
    3  core.strategy.crossover_strategy
    3  core.websocket.depth_queue
    3  core.indicators.ema
    3  core.market_data.timeframe_manager
    3  core.indicators.awvap
-   3  core.strategy.trade_decision_engine
    3  core.risk.position_sizing_engine
+   3  core.strategy.trade_decision_engine
    3  runtime.trading_runtime
    3  runtime.trading_engine
    2  core.execution.position
@@ -69,11 +69,12 @@ HIGH RISK MODULES
    1  core.risk.position_size_decision
    1  core.risk.risk_decision
    1  core.strategy.trade_decision
+   1  core.trade_management.trailing_stop_manager
    1  core.trade_management.exit_rules
    1  core.indicators.indicator_manager
-   1  runtime.orderflow_registration
    1  runtime.depth_processor
    1  runtime.indicator_registration
+   1  runtime.orderflow_registration
    1  runtime.signal_registration
    1  core.signals.signal_manager
    1  core.indicators.vwma

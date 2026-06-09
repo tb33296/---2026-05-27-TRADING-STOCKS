@@ -3,6 +3,7 @@ Potential Orphan Files
 
 core.strategy.ema_crossover_strategy
 core.strategy.strategy_manager
+core.trade_management.entry_rules
 core.websocket.reconnect_manager
 loginInfo
 runtime.signal_trading_runtime

@@ -50,6 +50,7 @@ class PaperExecutionEngine:
                 entry_price=fill_price,
                 entry_time=datetime.now(),
                 stop_loss=stop_loss,
+                initial_stop_loss=stop_loss,
                 target=target,
             )
 
@@ -116,6 +117,7 @@ class PaperExecutionEngine:
                 entry_price=fill_price,
                 entry_time=datetime.now(),
                 stop_loss=stop_loss,
+                initial_stop_loss=stop_loss,
                 target=target,
             )
 

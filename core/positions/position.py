@@ -42,3 +42,7 @@ class Position:
     net_pnl: float = 0.0
     
     duration_seconds: int = 0
+    
+    initial_stop_loss: float = 0.0
+
+    highest_rr_achieved: int = 0

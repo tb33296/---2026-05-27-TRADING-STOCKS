@@ -265,6 +265,7 @@ core.market_data.timeframe_manager,runtime.tick_processor
 core.market_data.timeframe_manager,tests.test_timeframe_manager
 core.positions.position,core.execution.paper_execution_engine
 core.positions.position,core.positions.position_manager
+core.positions.position,core.trade_management.trailing_stop_manager
 core.positions.position,tests.test_position_manager
 core.positions.position,tests.test_risk_lockout
 core.positions.position_manager,core.execution.paper_execution_engine
@@ -368,6 +369,7 @@ core.trade_management.trade_manager,tests.test_stop_loss_exit
 core.trade_management.trade_manager,tests.test_trade_manager
 core.trade_management.trade_manager,tests.test_trading_cycle_engine
 core.trade_management.trade_manager,tests.test_trading_runtime
+core.trade_management.trailing_stop_manager,core.trade_management.trade_manager
 core.watchdog.heartbeat_monitor,tests.test_heartbeat_monitor
 core.watchdog.heartbeat_monitor,tests.test_live_market_feed
 core.websocket.depth_queue,core.websocket.websocket_manager

@@ -75,9 +75,11 @@
 - core.strategy.trade_decision
 - core.strategy.trade_decision_engine
 - core.strategy.trade_intent
+- core.trade_management.entry_rules
 - core.trade_management.exit_decision
 - core.trade_management.exit_rules
 - core.trade_management.trade_manager
+- core.trade_management.trailing_stop_manager
 - core.watchdog.__init__
 - core.watchdog.heartbeat_monitor
 - core.websocket.__init__
