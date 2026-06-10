@@ -30,21 +30,15 @@ class Candle:
 
     is_closed: bool = False
 
-    def update(
-        self,
-        price: float,
-        volume: int
-    ) -> None:
+    def update(self, price: float, volume: int) -> None:
         """
         Update candle with incoming tick data.
         """
 
         if price > self.high:
-
             self.high = price
 
         if price < self.low:
-
             self.low = price
 
         self.close = price
@@ -65,24 +59,15 @@ class Candle:
 
         return {
             "symbol": self.symbol,
-
             "timeframe": self.timeframe,
-
             "open": self.open,
-
             "high": self.high,
-
             "low": self.low,
-
             "close": self.close,
-
             "volume": self.volume,
-
             "start_time": self.start_time,
-
             "end_time": self.end_time,
-
-            "is_closed": self.is_closed
+            "is_closed": self.is_closed,
         }
 
     @classmethod
@@ -93,7 +78,7 @@ class Candle:
         price: float,
         volume: int,
         start_time: datetime,
-        end_time: datetime
+        end_time: datetime,
     ) -> "Candle":
         """
         Create candle from first tick.
@@ -101,23 +86,13 @@ class Candle:
 
         return cls(
             symbol=symbol,
-
             timeframe=timeframe,
-
             open=price,
-
             high=price,
-
             low=price,
-
             close=price,
-
             volume=volume,
-
             start_time=start_time,
-
             end_time=end_time,
-
-            is_closed=False
+            is_closed=False,
         )
-

@@ -6,6 +6,9 @@ from config.config import (
     MAX_TICK_QUEUE_SIZE,
     MAX_DEPTH_QUEUE_SIZE,
 )
+
+from config.config import ACTIVE_TIMEFRAMES
+
 from config.config import WEBSOCKET_MODE_QUOTE, WEBSOCKET_MODE_DEPTH
 
 from core.logging_manager import LoggingManager
@@ -53,6 +56,28 @@ from runtime.orderflow_registration import OrderFlowRegistration
 
 from runtime.signal_registration import SignalRegistration
 
+from database.db_manager import DatabaseManager
+
+from core.positions.position_manager import PositionManager
+
+from core.execution.paper_execution_engine import PaperExecutionEngine
+
+from core.risk.risk_engine import RiskEngine
+
+from core.journal.trade_journal_manager import TradeJournalManager
+
+from runtime.trade_pipeline import TradePipeline
+
+from core.trade_management.trade_manager import TradeManager
+
+from runtime.trading_runtime import TradingRuntime
+
+from runtime.multifactor_runtime import MultiFactorRuntime
+
+from core.strategy.trade_decision_engine import TradeDecisionEngine
+
+from core.risk.position_sizing_engine import PositionSizingEngine
+
 
 class RuntimeEngine:
     """
@@ -86,6 +111,35 @@ class RuntimeEngine:
 
         self.timeframe_manager = TimeframeManager(self.market_clock)
 
+        self.db_manager = DatabaseManager()
+
+        self.db_manager.connect()
+
+        self.position_manager = PositionManager()
+
+        self.execution_engine = PaperExecutionEngine(self.position_manager)
+
+        self.risk_engine = RiskEngine(self.position_manager)
+
+        self.journal_manager = TradeJournalManager(self.db_manager)
+
+        self.trade_pipeline = TradePipeline(
+            risk_engine=self.risk_engine,
+            execution_engine=self.execution_engine,
+            journal_manager=self.journal_manager,
+        )
+
+        self.trade_decision_engine = TradeDecisionEngine()
+
+        self.position_sizing_engine = PositionSizingEngine()
+
+        self.multifactor_runtime = MultiFactorRuntime(
+            indicator_runtime=self.indicator_runtime,
+            trade_decision_engine=self.trade_decision_engine,
+            position_sizing_engine=self.position_sizing_engine,
+            trade_pipeline=self.trade_pipeline,
+        )
+
         # self.signal_runtime = SignalRuntime()
         self.tick_processor = TickProcessor(
             self.tick_queue,
@@ -93,8 +147,17 @@ class RuntimeEngine:
             self.timeframe_manager,
             self.indicator_runtime,
             self.signal_runtime,
+            self.multifactor_runtime,
+        )
+        self.trade_manager = TradeManager(
+            position_manager=self.position_manager,
+            trade_pipeline=self.trade_pipeline,
         )
 
+        self.trading_runtime = TradingRuntime(
+            tick_processor=self.tick_processor,
+            trade_manager=self.trade_manager,
+        )
         self.depth_processor = DepthProcessor(
             self.depth_queue,
             self.orderflow_runtime,
@@ -174,7 +237,6 @@ class RuntimeEngine:
 
         try:
             self.logger.info("Starting runtime engine")
-           
 
             # -------------------------
             # Session
@@ -212,11 +274,23 @@ class RuntimeEngine:
                     added += 1
 
             self.logger.info(f"Registered {added} symbols")
-             # =====================================
+            # =====================================
             # INDICATOR REGISTRATION
             # =====================================
 
             indicator_count = self.indicator_registration.register_all()
+
+            strategy_count = 0
+
+            for symbol in self.symbol_registry.get_all_symbols():
+                for timeframe in ACTIVE_TIMEFRAMES:
+                    if self.multifactor_runtime.register_strategy(
+                        symbol=symbol,
+                        timeframe=timeframe,
+                    ):
+                        strategy_count += 1
+
+            self.logger.info(f"Registered {strategy_count} strategies")
 
             self.logger.info(f"Registered {indicator_count} indicators")
 
@@ -235,8 +309,7 @@ class RuntimeEngine:
             signal_count = self.signal_registration.register_all()
 
             self.logger.info(f"Registered {signal_count} signals")
-            
-            
+
             token_symbol_map = self.symbol_registry.get_token_symbol_map(exchange="NSE")
 
             self.websocket_manager.register_token_mappings(token_symbol_map)

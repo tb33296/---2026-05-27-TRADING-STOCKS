@@ -1,12 +1,19 @@
-core/execution/paper_broker.py
-core/execution/tradebook.py
-core/execution/position.py
+Legacy Subsystem Inventory
 
-
-runtime/strategy_runtime.py
-
-core/strategy/strategy_base.py
+We can now confidently place these into a quarantine folder or mark for future removal:
 
 core/strategy/trade_intent.py
 
-core/signals/signal.py
+core/strategy/strategy_base.py
+
+core/strategy/crossover_strategy.py
+
+core/strategy/strategy_manager.py
+
+runtime/strategy_runtime_LEGACY.py
+
+runtime/strategy_factory.py
+
+tests/test_strategy_runtime.py
+
+tests/test_strategy_factory.py

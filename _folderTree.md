@@ -1,13 +1,13 @@
 # Folder Tree
 
 ```text
-!! 2026-05-27 TRADING STOCKS (42 folders, 232 files)/
+!! 2026-05-27 TRADING STOCKS (42 folders, 233 files)/
 ├── _Dependency_Report (0 folders, 7 files)/
-│   ├── architecture_report.md (228 lines)
-│   ├── high_risk_modules.txt (85 lines)
-│   ├── import_summary.csv (481 lines)
-│   ├── orphan_files.txt (11 lines)
-│   ├── reverse_dependencies.csv (481 lines)
+│   ├── architecture_report.md (230 lines)
+│   ├── high_risk_modules.txt (86 lines)
+│   ├── import_summary.csv (483 lines)
+│   ├── orphan_files.txt (12 lines)
+│   ├── reverse_dependencies.csv (483 lines)
 │   ├── runtime_dependencies.txt (193 lines)
 │   └── statistics.txt (10 lines)
 ├── analytics (0 folders, 1 files)/
@@ -58,7 +58,7 @@
 │   ├── market_data (0 folders, 4 files)/
 │   │   ├── candle.py (123 lines)
 │   │   ├── candle_builder.py (196 lines)
-│   │   ├── market_clock.py (256 lines)
+│   │   ├── market_clock.py (202 lines)
 │   │   └── timeframe_manager.py (290 lines)
 │   ├── positions (0 folders, 2 files)/
 │   │   ├── position.py (48 lines)
@@ -78,17 +78,17 @@
 │   │   ├── signal_manager.py (216 lines)
 │   │   └── vwap_signal.py (233 lines)
 │   ├── strategy (0 folders, 11 files)/
-│   │   ├── crossover_strategy.py (159 lines)
 │   │   ├── ema_crossover_strategy.py (0 lines)
 │   │   ├── multifactor_decision.py (20 lines)
 │   │   ├── multifactor_strategy.py (227 lines)
 │   │   ├── orderflow_strategy.py (23 lines)
-│   │   ├── strategy_base.py (193 lines)
-│   │   ├── strategy_manager.py (263 lines)
 │   │   ├── trade_context.py (37 lines)
 │   │   ├── trade_decision.py (46 lines)
 │   │   ├── trade_decision_engine.py (86 lines)
-│   │   └── trade_intent.py (117 lines)
+│   │   ├── ~~~crossover_strategy LEGACY.py (159 lines)
+│   │   ├── ~~~strategy_base LEGACY.py (193 lines)
+│   │   ├── ~~~strategy_manager LEGACY.py (263 lines)
+│   │   └── ~~~trade_intent LEGACY.py (117 lines)
 │   ├── trade_management (0 folders, 5 files)/
 │   │   ├── entry_rules.py (19 lines)
 │   │   ├── exit_decision.py (13 lines)
@@ -149,25 +149,26 @@
 ├── replay (0 folders, 1 files)/
 │   └── __init__.py (0 lines)
 ├── reports (0 folders, 0 files)/
-├── runtime (0 folders, 18 files)/
+├── runtime (0 folders, 19 files)/
 │   ├── __init__.py (0 lines)
 │   ├── candle_runtime.py (44 lines)
 │   ├── depth_processor.py (151 lines)
 │   ├── indicator_registration.py (99 lines)
 │   ├── indicator_runtime.py (35 lines)
+│   ├── multifactor_runtime.py (201 lines)
 │   ├── orderflow_registration.py (66 lines)
 │   ├── orderflow_runtime.py (103 lines)
 │   ├── runtime_engine.py (411 lines)
 │   ├── signal_registration.py (95 lines)
 │   ├── signal_runtime.py (122 lines)
 │   ├── signal_trading_runtime.py (0 lines)
-│   ├── strategy_factory.py (91 lines)
-│   ├── strategy_runtime.py (80 lines)
 │   ├── tick_processor.py (172 lines)
 │   ├── trade_pipeline.py (230 lines)
 │   ├── trading_cycle_engine.py (64 lines)
 │   ├── trading_engine.py (91 lines)
-│   └── trading_runtime.py (52 lines)
+│   ├── trading_runtime.py (52 lines)
+│   ├── ~~~strategy_factory LEGACY.py (92 lines)
+│   └── ~~~strategy_runtime-Legacy.py (80 lines)
 ├── screenshots (0 folders, 0 files)/
 ├── tests (0 folders, 78 files)/
 │   ├── __init__.py (0 lines)
@@ -223,8 +224,6 @@
 │   ├── test_signal_trading_runtime.py (0 lines)
 │   ├── test_snapquote_capture.py (35 lines)
 │   ├── test_stop_loss_exit.py (175 lines)
-│   ├── test_strategy_factory.py (26 lines)
-│   ├── test_strategy_runtime.py (71 lines)
 │   ├── test_strategy_trading_engine_runtime.py (197 lines)
 │   ├── test_subscription_manager_runtime.py (132 lines)
 │   ├── test_symbol_registry_runtime.py (124 lines)
@@ -247,7 +246,9 @@
 │   ├── test_trading_runtime.py (193 lines)
 │   ├── test_vwap_signal.py (103 lines)
 │   ├── test_watchlist_loader.py (25 lines)
-│   └── test_websocket_runtime.py (41 lines)
+│   ├── test_websocket_runtime.py (41 lines)
+│   ├── ~~~test_strategy_factory LEGACY.py (26 lines)
+│   └── ~~~test_strategy_runtime LEGACY.py (71 lines)
 ├── ui (0 folders, 1 files)/
 │   └── __init__.py (0 lines)
 ├── utils (0 folders, 5 files)/
@@ -259,7 +260,7 @@
 ├── .env (11 lines)
 ├── .gitignore (9 lines)
 ├── _CHANGELOG.md (287 lines)
-├── _folderTree.md (246 lines)
+├── _folderTree.md (279 lines)
 ├── _MASTER_ARCHITECTURE.md (879 lines)
 ├── _PROJECT_DOCUMENT_AUDIT_2026-06-03.md (14 lines)
 ├── _PROJECT_STATE.md (495 lines)
@@ -274,6 +275,6 @@
 ├── pytest.ini (5 lines)
 ├── README.md (0 lines)
 ├── requirements.txt (15 lines)
-├── suspected useless files.txt (12 lines)
+├── suspected useless files.txt (19 lines)
 └── tree.py (82 lines)
 ```

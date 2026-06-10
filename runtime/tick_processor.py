@@ -1,5 +1,3 @@
-# runtime/tick_processor.py
-
 from threading import Lock
 from typing import Any, Optional
 
@@ -15,6 +13,8 @@ from runtime.indicator_runtime import IndicatorRuntime
 
 from runtime.signal_runtime import SignalRuntime
 
+from runtime.multifactor_runtime import MultiFactorRuntime
+
 
 class TickProcessor:
     """
@@ -28,9 +28,8 @@ class TickProcessor:
     - track processing statistics
 
     Does NOT:
-    - build candles
-    - calculate indicators
-    - generate signals
+    - generate indicators
+    - execute trades directly
     """
 
     def __init__(
@@ -40,6 +39,7 @@ class TickProcessor:
         timeframe_manager: TimeframeManager,
         indicator_runtime: IndicatorRuntime,
         signal_runtime: SignalRuntime,
+        multifactor_runtime: MultiFactorRuntime,
     ) -> None:
 
         self.logger = LoggingManager.get_logger(__name__)
@@ -50,6 +50,12 @@ class TickProcessor:
 
         self.timeframe_manager = timeframe_manager
 
+        self.indicator_runtime = indicator_runtime
+
+        self.signal_runtime = signal_runtime
+
+        self.multifactor_runtime = multifactor_runtime
+
         self.lock = Lock()
 
         self.latest_ticks: dict[str, dict[str, Any]] = {}
@@ -57,10 +63,6 @@ class TickProcessor:
         self.total_processed = 0
 
         self.invalid_ticks = 0
-
-        self.indicator_runtime = indicator_runtime
-
-        self.signal_runtime = signal_runtime
 
     def process_next_tick(self) -> bool:
         """
@@ -85,17 +87,38 @@ class TickProcessor:
 
             with self.lock:
                 self.latest_ticks[symbol] = tick
+
                 self.total_processed += 1
+
             self.orderflow_runtime.process_tick(tick)
 
             closed_candles = self.timeframe_manager.process_tick(tick)
 
             for candle in closed_candles:
+                # ----------------------------------
+                # Indicator Updates
+                # ----------------------------------
+
                 self.indicator_runtime.process_closed_candle(candle)
+
+                # ----------------------------------
+                # Legacy Signal Path
+                # Keep alive during migration
+                # ----------------------------------
+
                 self.signal_runtime.evaluate_signals(candle)
 
-            # #! Logger for ticks has to be deleted after test #TEMPLOGGER
-            # self.logger.info(f"Processed Tick: {symbol} {tick.get('ltp')}")
+                # ----------------------------------
+                # New MultiFactor Path
+                # ----------------------------------
+
+                self.multifactor_runtime.process_trade_opportunity(
+                    symbol=candle.symbol,
+                    timeframe=candle.timeframe,
+                    segment="NSE",
+                    current_price=candle.close,
+                    account_size=100000.0,
+                )
 
             return True
 
@@ -121,7 +144,10 @@ class TickProcessor:
 
         return processed
 
-    def get_latest_tick(self, token: str) -> Optional[dict[str, Any]]:
+    def get_latest_tick(
+        self,
+        token: str,
+    ) -> Optional[dict[str, Any]]:
         """
         Return latest tick for token.
         """

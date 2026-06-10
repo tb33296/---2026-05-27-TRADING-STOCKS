@@ -1,20 +1,12 @@
-#core/journal/trade_journal_manager.py
+# core/journal/trade_journal_manager.py
 
-from database.db_manager import (
-    DatabaseManager
-)
+from database.db_manager import DatabaseManager
 
-from core.journal.trade_snapshot import (
-    TradeSnapshot
-)
+from core.journal.trade_snapshot import TradeSnapshot
 
-from core.journal.trade_metrics_snapshot import (
-    TradeMetricsSnapshot
-)
+from core.journal.trade_metrics_snapshot import TradeMetricsSnapshot
 
-from core.journal.trade_feature_snapshot import (
-    TradeFeatureSnapshot
-)
+from core.journal.trade_feature_snapshot import TradeFeatureSnapshot
 
 
 class TradeJournalManager:
@@ -22,17 +14,11 @@ class TradeJournalManager:
     Trade journal persistence layer.
     """
 
-    def __init__(
-        self,
-        db_manager: DatabaseManager
-    ) -> None:
+    def __init__(self, db_manager: DatabaseManager) -> None:
 
         self.db = db_manager
 
-    def create_trade(
-        self,
-        trade: TradeSnapshot
-    ) -> int:
+    def create_trade(self, trade: TradeSnapshot) -> int:
         """
         Create trade record.
 
@@ -84,39 +70,25 @@ class TradeJournalManager:
                 trade.segment,
                 trade.strategy_name,
                 trade.direction,
-
                 trade.entry_time,
-
                 trade.quantity,
-
                 trade.entry_price,
-
                 trade.stop_loss,
                 trade.target,
-
                 trade.score,
                 trade.confidence,
-
                 trade.risk_amount,
                 trade.risk_percent,
-
-                trade.status
-            )
+                trade.status,
+            ),
         )
 
         if cursor.lastrowid is None:
-
-            raise RuntimeError(
-                "Failed to create trade record"
-            )
+            raise RuntimeError("Failed to create trade record")
 
         return cursor.lastrowid
 
-    def add_reason(
-        self,
-        trade_id: int,
-        reason: str
-    ) -> None:
+    def add_reason(self, trade_id: int, reason: str) -> None:
 
         self.db.execute(
             """
@@ -126,16 +98,10 @@ class TradeJournalManager:
             )
             VALUES (?, ?)
             """,
-            (
-                trade_id,
-                reason
-            )
+            (trade_id, reason),
         )
 
-    def add_metrics_snapshot(
-        self,
-        snapshot: TradeMetricsSnapshot
-    ) -> None:
+    def add_metrics_snapshot(self, snapshot: TradeMetricsSnapshot) -> None:
 
         self.db.execute(
             """
@@ -167,25 +133,18 @@ class TradeJournalManager:
             """,
             (
                 snapshot.trade_id,
-
                 snapshot.atr,
                 snapshot.rvol,
-
                 snapshot.vwap,
                 snapshot.awvap,
                 snapshot.vwma,
-
                 snapshot.liquidity_ratio,
                 snapshot.liquidity_delta,
-
-                snapshot.cvd
-            )
+                snapshot.cvd,
+            ),
         )
 
-    def add_feature_snapshot(
-        self,
-        snapshot: TradeFeatureSnapshot
-    ) -> None:
+    def add_feature_snapshot(self, snapshot: TradeFeatureSnapshot) -> None:
 
         self.db.execute(
             """
@@ -218,20 +177,15 @@ class TradeJournalManager:
             """,
             (
                 snapshot.trade_id,
-
                 snapshot.trend_state,
-
                 snapshot.vwap_state,
                 snapshot.awvap_state,
                 snapshot.vwma_state,
-
                 snapshot.rvol_state,
                 snapshot.atr_state,
-
                 snapshot.liquidity_state,
-
-                snapshot.cvd_state
-            )
+                snapshot.cvd_state,
+            ),
         )
 
     def close_trade(
@@ -243,7 +197,7 @@ class TradeJournalManager:
         net_pnl: float,
         charges: float,
         exit_reason: str,
-        duration_seconds: int
+        duration_seconds: int,
     ) -> None:
 
         self.db.execute(
@@ -271,27 +225,17 @@ class TradeJournalManager:
             """,
             (
                 exit_time,
-
                 exit_price,
-
                 gross_pnl,
-
                 net_pnl,
-
                 charges,
-
                 exit_reason,
-
                 duration_seconds,
-
-                trade_id
-            )
+                trade_id,
+            ),
         )
 
-    def get_trade(
-        self,
-        trade_id: int
-    ):
+    def get_trade(self, trade_id: int):
 
         cursor = self.db.execute(
             """
@@ -299,9 +243,7 @@ class TradeJournalManager:
             FROM trades
             WHERE trade_id = ?
             """,
-            (
-                trade_id,
-            )
+            (trade_id,),
         )
 
         return cursor.fetchone()

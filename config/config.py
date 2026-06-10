@@ -234,3 +234,22 @@ WEBSOCKET_SUBSCRIPTION_MODE = WEBSOCKET_MODE_QUOTE
 
 CAPTURE_FIRST_RAW_TICK = True
 RAW_TICK_CAPTURE_FILE = "logs/raw_tick_capture.json"
+
+
+# ============================================
+# Indicator Configuration
+# ============================================
+
+EMA_FAST_PERIOD = 3
+
+EMA_SLOW_PERIOD = 5
+
+ATR_PERIOD = 14
+
+RVOL_PERIOD = 20
+
+VWMA_PERIOD = 20
+
+ATR_PERIOD = 14
+
+RVOL_PERIOD = 20
