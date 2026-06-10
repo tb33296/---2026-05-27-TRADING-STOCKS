@@ -79,7 +79,7 @@ class TickProcessor:
 
         try:
             symbol = str(tick.get("symbol", ""))
-
+            self.logger.info(f"[TICK] {symbol} {tick.get('ltp')}")
             if not symbol:
                 self.invalid_ticks += 1
 
@@ -95,11 +95,20 @@ class TickProcessor:
             closed_candles = self.timeframe_manager.process_tick(tick)
 
             for candle in closed_candles:
+                self.logger.info(
+                    f"[CANDLE] {candle.symbol} {candle.timeframe} C={candle.close}"
+                )
                 # ----------------------------------
                 # Indicator Updates
                 # ----------------------------------
 
                 self.indicator_runtime.process_closed_candle(candle)
+                self.logger.info(
+                    f"[INDICATOR] "
+                    f"{candle.symbol} "
+                    f"{candle.timeframe} "
+                    f"close={candle.close}"
+                )
 
                 # ----------------------------------
                 # Legacy Signal Path
@@ -111,7 +120,27 @@ class TickProcessor:
                 # ----------------------------------
                 # New MultiFactor Path
                 # ----------------------------------
+                ema_fast = self.indicator_runtime.get_indicator(
+                    candle.symbol, candle.timeframe, "EMA_FAST"
+                )
 
+                ema_slow = self.indicator_runtime.get_indicator(
+                    candle.symbol, candle.timeframe, "EMA_SLOW"
+                )
+
+                if ema_fast and ema_slow:
+                    self.logger.info(
+                        f"[EMA] "
+                        f"{candle.symbol} "
+                        f"{candle.timeframe} "
+                        f"FAST={ema_fast.get_value()} "
+                        f"SLOW={ema_slow.get_value()}"
+                        f"FAST_READY={ema_fast.is_ready()} "
+                        f"SLOW_READY={ema_slow.is_ready()} "
+                        f"FAST_UPDATES={ema_fast.get_total_updates()} "
+                        f"SLOW_UPDATES={ema_slow.get_total_updates()}"
+                        
+                    )
                 self.multifactor_runtime.process_trade_opportunity(
                     symbol=candle.symbol,
                     timeframe=candle.timeframe,

@@ -56,6 +56,9 @@ class OrderFlowRuntime:
 
             if cvd is not None:
                 cvd.update(price, volume)
+                self.logger.info(
+                    f"[CVD] {symbol} price={price} volume={volume} cvd={cvd.get_cvd()}"
+                )
 
             liquidity = self.liquidity_indicators.get(symbol)
 
@@ -98,6 +101,12 @@ class OrderFlowRuntime:
                 return
 
             liquidity.update(depth_packet)
+            self.logger.info(
+                f"[LIQUIDITY] "
+                f"{symbol} "
+                f"delta={liquidity.get_delta()} "
+                f"ratio={liquidity.get_ratio()}"
+            )
 
         except Exception as error:
             self.logger.error(f"Depth processing failed: {error}")

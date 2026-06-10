@@ -85,12 +85,14 @@ class MultiFactorRuntime:
 
             atr = self.indicator_runtime.get_indicator(symbol, timeframe, "ATR")
 
-            liquidity = self.indicator_runtime.get_indicator(
-                symbol, timeframe, "LIQUIDITY"
-            )
+            # ! Removing the next line and replacing them with None Temporarily.
+            # liquidity = self.indicator_runtime.get_indicator(
+            #     symbol, timeframe, "LIQUIDITY"
+            # )
 
-            cvd = self.indicator_runtime.get_indicator(symbol, timeframe, "CVD")
-
+            # cvd = self.indicator_runtime.get_indicator(symbol, timeframe, "CVD")
+            liquidity = None
+            cvd = None
             strategy = MultiFactorStrategy(
                 ema_fast=ema_fast,
                 ema_slow=ema_slow,
@@ -146,8 +148,7 @@ class MultiFactorRuntime:
             self.logger.error(f"Strategy evaluation failed {symbol}: {error}")
 
             return None
-    
-    
+
     def process_trade_opportunity(
         self,
         symbol: str,
@@ -170,6 +171,14 @@ class MultiFactorRuntime:
         if decision is None:
             return None
 
+        self.logger.info(
+            f"[STRATEGY] "
+            f"{symbol} "
+            f"{timeframe} "
+            f"{decision.direction} "
+            f"score={decision.score}"
+        )
+
         if decision.direction == "NO_TRADE":
             return None
 
@@ -184,7 +193,9 @@ class MultiFactorRuntime:
             stop_loss=decision.stop_loss,
             target=decision.target,
         )
-
+        self.logger.info(
+            f"[TRADE_CANDIDATE] {symbol} {decision.direction} score={decision.score}"
+        )
         return self.trade_pipeline.execute_trade(
             trade_context=trade_context,
             account_size=account_size,

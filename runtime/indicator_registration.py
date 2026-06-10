@@ -119,16 +119,17 @@ class IndicatorRegistration:
                     # ---------------------------------
                     # Order Flow
                     # ---------------------------------
-                    LiquidityDelta(
-                        name="LIQUIDITY",
-                        symbol=symbol,
-                        timeframe=timeframe,
-                    ),
-                    CVD(
-                        name="CVD",
-                        symbol=symbol,
-                        timeframe=timeframe,
-                    ),
+                    # LiquidityDelta(
+                    #     name="LIQUIDITY",
+                    #     symbol=symbol,
+                    #     timeframe=timeframe,
+                    # ),
+                    # CVD(
+                    #     name="CVD",
+                    #     symbol=symbol,
+                    #     timeframe=timeframe,
+                    # ),
+                    #! Temporarily removing the file as there is error in orderflow
                 ]
 
                 for indicator in indicators:

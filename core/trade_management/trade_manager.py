@@ -128,7 +128,9 @@ class TradeManager:
         """
 
         closed_count = 0
-
+        self.logger.info(
+            f"[OPEN_POSITIONS] {len(self.position_manager.get_open_positions())}"
+        )
         try:
             symbols = list(self.position_manager.get_open_positions().keys())
 

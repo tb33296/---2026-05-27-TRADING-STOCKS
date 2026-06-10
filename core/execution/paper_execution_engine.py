@@ -66,7 +66,7 @@ class PaperExecutionEngine:
                     timestamp=datetime.now(),
                     message=("POSITION_OPEN_FAILED"),
                 )
-
+            self.logger.info(f"[POSITION_OPENED] {symbol}")
             return ExecutionResult(
                 success=True,
                 symbol=symbol,
@@ -133,7 +133,7 @@ class PaperExecutionEngine:
                     timestamp=datetime.now(),
                     message=("POSITION_OPEN_FAILED"),
                 )
-
+            self.logger.info(f"[POSITION_OPENED] {symbol}")
             return ExecutionResult(
                 success=True,
                 symbol=symbol,

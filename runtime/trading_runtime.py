@@ -36,7 +36,7 @@ class TradingRuntime:
         Returns:
             number of positions closed
         """
-
+        self.logger.info("[TRADE_RUNTIME] process_market()")
         latest_ticks = self.tick_processor.get_all_latest_ticks()
 
         price_map: dict[str, float] = {}

@@ -133,31 +133,75 @@ class MultiFactorStrategy:
         # ===================================
         # LIQUIDITY
         # ===================================
+         # ! Removing the CVD and Liquidity and replacing them with None Temporarily. 
+        # if self.liquidity.is_bullish():
+        #     score += self.loader.get_weight("orderflow", "liquidity_bullish")
 
-        if self.liquidity.is_bullish():
-            score += self.loader.get_weight("orderflow", "liquidity_bullish")
+        #     reasons.append("Liquidity Bullish")
 
-            reasons.append("Liquidity Bullish")
+        # elif self.liquidity.is_bearish():
+        #     score += self.loader.get_weight("orderflow", "liquidity_bearish")
 
-        elif self.liquidity.is_bearish():
-            score += self.loader.get_weight("orderflow", "liquidity_bearish")
+        #     reasons.append("Liquidity Bearish")
+        if self.liquidity is not None:
 
-            reasons.append("Liquidity Bearish")
+            if self.liquidity.is_bullish():
 
+                score += self.loader.get_weight(
+                    "orderflow",
+                    "liquidity_bullish"
+                )
+
+                reasons.append(
+                    "Liquidity Bullish"
+                )
+
+            elif self.liquidity.is_bearish():
+
+                score += self.loader.get_weight(
+                    "orderflow",
+                    "liquidity_bearish"
+                )
+
+                reasons.append(
+                    "Liquidity Bearish"
+                )
         # ===================================
         # CVD
         # ===================================
 
-        if self.cvd.is_bullish():
-            score += self.loader.get_weight("orderflow", "cvd_bullish")
+        # if self.cvd.is_bullish():
+        #     score += self.loader.get_weight("orderflow", "cvd_bullish")
 
-            reasons.append("CVD Bullish")
+        #     reasons.append("CVD Bullish")
 
-        elif self.cvd.is_bearish():
-            score += self.loader.get_weight("orderflow", "cvd_bearish")
+        # elif self.cvd.is_bearish():
+        #     score += self.loader.get_weight("orderflow", "cvd_bearish")
 
-            reasons.append("CVD Bearish")
+        #     reasons.append("CVD Bearish")
+        if self.cvd is not None:
 
+            if self.cvd.is_bullish():
+
+                score += self.loader.get_weight(
+                    "orderflow",
+                    "cvd_bullish"
+                )
+
+                reasons.append(
+                    "cvd Bullish"
+                )
+
+            elif self.cvd.is_bearish():
+
+                score += self.loader.get_weight(
+                    "orderflow",
+                    "cvd_bearish"
+                )
+
+                reasons.append(
+                    "cvd Bearish"
+                )
         # ===================================
         # DECISION
         # ===================================
