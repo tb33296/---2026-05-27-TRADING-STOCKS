@@ -16,6 +16,8 @@ from core.journal.trade_journal_manager import TradeJournalManager
 
 from core.journal.trade_snapshot import TradeSnapshot
 
+from core.debug.trade_monitor import trade_monitor
+
 
 class TradePipeline:
     """
@@ -94,6 +96,14 @@ class TradePipeline:
                 entry_price=(trade_context.entry_price),
                 stop_loss=(trade_context.stop_loss),
             )
+            self.logger.info(
+                f"[POSITION_SIZE] "
+                f"score={trade_context.score} "
+                f"entry={trade_context.entry_price} "
+                f"sl={trade_context.stop_loss} "
+                f"qty={sizing.quantity} "
+                f"risk_amount={sizing.risk_amount}"
+            )
 
             decision = self.trade_decision_engine.evaluate(
                 score=(trade_context.score),
@@ -101,12 +111,38 @@ class TradePipeline:
                 confidence=(trade_context.confidence),
                 quantity=(sizing.quantity),
             )
+            self.logger.info(
+                f"[TRADE_DECISION] "
+                f"approved={decision.approved} "
+                f"reason={decision.reason} "
+                f"score={decision.score} "
+                f"qty={decision.quantity}"
+            )
+
+            trade_monitor.add(
+                "TRADE_DECISION",
+                (
+                    f"{trade_context.symbol} "
+                    f"approved={decision.approved} "
+                    f"score={decision.score} "
+                    f"qty={decision.quantity}"
+                ),
+            )
 
             if not decision.approved:
                 return (decision, None, None, sizing)
 
             risk = self.risk_engine.evaluate(decision)
+            self.logger.info(f"[RISK] approved={risk.approved} reason={risk.reason}")
 
+            trade_monitor.add(
+                "RISK",
+                (
+                    f"{trade_context.symbol} "
+                    f"approved={risk.approved} "
+                    f"reason={risk.reason}"
+                ),
+            )
             if not risk.approved:
                 return (decision, risk, None, sizing)
 
@@ -130,6 +166,10 @@ class TradePipeline:
                     )
 
             if decision.is_long():
+                self.logger.info(
+                    f"[EXECUTE_ORDER] {trade_context.symbol} LONG qty={sizing.quantity}"
+                )
+
                 execution = self.execution_engine.execute_buy(
                     symbol=(trade_context.symbol),
                     segment=(trade_context.segment),
@@ -139,11 +179,20 @@ class TradePipeline:
                     target=(trade_context.target),
                 )
 
+                trade_monitor.add("EXECUTE_ORDER", f"BUY {trade_context.symbol}")
+
             # ==================================================
             # SHORT ENTRY
             # ==================================================
 
             elif decision.is_short():
+                self.logger.info(
+                    f"[EXECUTE_ORDER] "
+                    f"{trade_context.symbol} "
+                    f"SHORT "
+                    f"qty={sizing.quantity}"
+                )
+
                 execution = self.execution_engine.execute_short(
                     symbol=(trade_context.symbol),
                     segment=(trade_context.segment),
@@ -153,6 +202,8 @@ class TradePipeline:
                     target=(trade_context.target),
                 )
 
+                trade_monitor.add("EXECUTE_ORDER", f"SHORT {trade_context.symbol}")
+
             else:
                 return (decision, risk, None, sizing)
 
@@ -161,6 +212,16 @@ class TradePipeline:
             # ==================================================
 
             if execution.success and execution.position_opened:
+                self.logger.info(
+                    f"[POSITION_OPENED_PIPELINE] "
+                    f"{trade_context.symbol}"
+                    f"qty={execution.quantity}"
+                )
+
+                trade_monitor.add(
+                    "POSITION_OPENED",
+                    (f"{trade_context.symbol} qty={execution.quantity}"),
+                )
                 trade_id = self._create_journal_entry(trade_context, execution, sizing)
 
                 position = self.execution_engine.position_manager.open_positions.get(
@@ -187,18 +248,22 @@ class TradePipeline:
         """
 
         try:
+            self.logger.info(f"[CLOSE_TRADE_START] {symbol} reason={exit_reason}")
+            self.logger.info(f"[CLOSE_1] {symbol}")
             closed_position = self.execution_engine.execute_sell(
                 symbol=symbol, exit_price=exit_price
             )
+            self.logger.info(f"[CLOSE_2] {symbol}")
 
             if closed_position is None:
+                self.logger.info(f"[CLOSE_NONE] {symbol}")
                 return False
 
             if closed_position.trade_id is None:
                 self.logger.error(f"No trade_id found for {symbol}")
 
                 return False
-
+            self.logger.info(f"[CLOSE_3] {symbol} trade_id={closed_position.trade_id}")
             if closed_position.exit_time is None:
                 self.logger.error(f"Missing exit_time for {symbol}")
 
@@ -218,10 +283,13 @@ class TradePipeline:
                 exit_reason=(exit_reason),
                 duration_seconds=(closed_position.duration_seconds),
             )
+            self.logger.info(f"[JOURNAL_UPDATE_DONE] {symbol}")
 
             self.logger.info(
                 f"Trade closed: {symbol} (trade_id={closed_position.trade_id})"
             )
+
+            self.logger.info(f"[CLOSE_4] {symbol}")
             return True
 
         except Exception as error:

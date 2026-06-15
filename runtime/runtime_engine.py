@@ -204,6 +204,8 @@ class RuntimeEngine:
 
         self.depth_processor_thread: Thread | None = None
 
+        self.trade_monitor_thread: Thread | None = None
+
     def _tick_processor_worker(self) -> None:
         """
         Continuously process tick queue.
@@ -229,6 +231,29 @@ class RuntimeEngine:
 
             if processed == 0:
                 time.sleep(0.01)
+
+    def _trade_monitor_worker(self) -> None:
+        """
+        Continuously monitor open positions.
+        """
+
+        self.logger.info("TradeMonitor worker started")
+
+        while self.is_running:
+
+            self.logger.info("[TRADE_MONITOR_LOOP]")
+
+            try:
+
+                self.trading_runtime.process_market()
+
+            except Exception as error:
+
+                self.logger.error(
+                    f"[TRADE_MONITOR_CRASH] {error}"
+                )
+
+            time.sleep(1)
 
     def start(self) -> bool:
         """
@@ -383,9 +408,18 @@ class RuntimeEngine:
                 name="DepthProcessorThread",
             )
 
+            self.trade_monitor_thread = Thread(
+                target=self._trade_monitor_worker,
+                daemon=True,
+                name="TradeMonitorThread",
+            )
+
             self.depth_processor_thread.start()
 
             self.tick_processor_thread.start()
+            
+            self.trade_monitor_thread.start()
+            self.logger.info("TradeMonitor worker started")
 
             self.logger.info("Runtime engine started successfully")
             self.logger.info("Mode 2 Quote stream active")

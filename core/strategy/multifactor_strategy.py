@@ -5,6 +5,8 @@ from core.strategy.multifactor_decision import MultiFactorDecision
 
 from config.config import ATR_STOP_MULTIPLIER, RISK_REWARD_RATIO
 
+from core.logging_manager import LoggingManager
+
 
 class MultiFactorStrategy:
     """
@@ -24,6 +26,8 @@ class MultiFactorStrategy:
     ) -> None:
 
         self.loader = ScoringConfigLoader()
+
+        self.logger = LoggingManager.get_logger(__name__)
 
         self.ema_fast = ema_fast
 
@@ -133,7 +137,7 @@ class MultiFactorStrategy:
         # ===================================
         # LIQUIDITY
         # ===================================
-         # ! Removing the CVD and Liquidity and replacing them with None Temporarily. 
+        #! Removing the CVD and Liquidity and replacing them with None Temporarily.
         # if self.liquidity.is_bullish():
         #     score += self.loader.get_weight("orderflow", "liquidity_bullish")
 
@@ -144,28 +148,15 @@ class MultiFactorStrategy:
 
         #     reasons.append("Liquidity Bearish")
         if self.liquidity is not None:
-
             if self.liquidity.is_bullish():
+                score += self.loader.get_weight("orderflow", "liquidity_bullish")
 
-                score += self.loader.get_weight(
-                    "orderflow",
-                    "liquidity_bullish"
-                )
-
-                reasons.append(
-                    "Liquidity Bullish"
-                )
+                reasons.append("Liquidity Bullish")
 
             elif self.liquidity.is_bearish():
+                score += self.loader.get_weight("orderflow", "liquidity_bearish")
 
-                score += self.loader.get_weight(
-                    "orderflow",
-                    "liquidity_bearish"
-                )
-
-                reasons.append(
-                    "Liquidity Bearish"
-                )
+                reasons.append("Liquidity Bearish")
         # ===================================
         # CVD
         # ===================================
@@ -180,32 +171,30 @@ class MultiFactorStrategy:
 
         #     reasons.append("CVD Bearish")
         if self.cvd is not None:
-
             if self.cvd.is_bullish():
+                score += self.loader.get_weight("orderflow", "cvd_bullish")
 
-                score += self.loader.get_weight(
-                    "orderflow",
-                    "cvd_bullish"
-                )
-
-                reasons.append(
-                    "cvd Bullish"
-                )
+                reasons.append("cvd Bullish")
 
             elif self.cvd.is_bearish():
+                score += self.loader.get_weight("orderflow", "cvd_bearish")
 
-                score += self.loader.get_weight(
-                    "orderflow",
-                    "cvd_bearish"
-                )
-
-                reasons.append(
-                    "cvd Bearish"
-                )
+                reasons.append("cvd Bearish")
         # ===================================
         # DECISION
         # ===================================
-
+        self.logger.info(
+            f"[SCORE_BREAKDOWN] "
+            f"score={score} "
+            f"reasons={reasons} "
+            f"EMA_FAST={self.ema_fast.get_value()} "
+            f"EMA_SLOW={self.ema_slow.get_value()} "
+            f"VWAP={self.vwap.get_value()} "
+            f"AWVAP={self.awvap.get_value()} "
+            f"RVOL={self.rvol.get_value()} "
+            f"VWMA={self.vwma.get_value()} "
+            f"ATR={self.atr.get_value()}"
+        )
         if score >= (self.loader.get_threshold("strong_long")):
             direction = "STRONG_LONG"
 
@@ -236,6 +225,25 @@ class MultiFactorStrategy:
         # ===================================
 
         atr_value = self.atr.get_value()
+        self.logger.info(
+            f"[ATR_DEBUG] direction={direction} price={current_price} atr={atr_value}"
+        )
+        if atr_value <= 0:
+            self.logger.info(
+                f"[ATR_STATE] "
+                f"{self.atr.symbol} "
+                f"{self.atr.timeframe} "
+                f"value={atr_value} "
+                f"ready={self.atr.is_ready()}"
+            )
+            return MultiFactorDecision(
+                score=round(score, 2),
+                direction="NO_TRADE",
+                confidence="LOW",
+                reasons=reasons + ["ATR_NOT_READY"],
+                stop_loss=0.0,
+                target=0.0,
+            )
 
         risk_distance = atr_value * ATR_STOP_MULTIPLIER
 

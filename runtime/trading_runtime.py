@@ -18,6 +18,7 @@ class TradingRuntime:
     - build price map
     - evaluate open positions
     """
+    
 
     def __init__(
         self, tick_processor: TickProcessor, trade_manager: TradeManager

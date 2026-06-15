@@ -57,8 +57,9 @@ class TradingCycleEngine:
         self.tick_processor.process_all_available()
 
         closed_candles = self.candle_runtime.process_ticks()
-
+        self.logger.info(f"[CYCLE] closed_candles={len(closed_candles)}")
         for candle in closed_candles:
             self.indicator_runtime.process_closed_candle(candle)
+            self.logger.info(f"[CYCLE_CANDLE] {candle.symbol} {candle.timeframe}")
 
         return self.trading_runtime.process_market()

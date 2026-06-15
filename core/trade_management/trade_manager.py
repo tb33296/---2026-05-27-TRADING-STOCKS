@@ -47,7 +47,17 @@ class TradeManager:
         """
 
         position = self.position_manager.get_open_positions().get(symbol)
-
+        if position is not None:
+            self.logger.info(
+                f"[EXIT_CHECK] "
+                f"{symbol} "
+                f"side={position.side} "
+                f"entry={position.entry_price} "
+                f"price={current_price} "
+                f"sl={position.stop_loss} "
+                f"target={position.target}"
+                 f"distance_to_target={round(abs(position.target-current_price),2)}"
+            )
         if position is None:
             return ExitDecision(should_exit=False, reason="POSITION_NOT_FOUND")
 
@@ -129,10 +139,12 @@ class TradeManager:
 
         closed_count = 0
         self.logger.info(
-            f"[OPEN_POSITIONS] {len(self.position_manager.get_open_positions())}"
+            f"[OPEN_POSITIONS] {len(self.position_manager.get_open_positions())}"  # Existing
         )
         try:
             symbols = list(self.position_manager.get_open_positions().keys())
+
+            self.logger.info(f"[POSITION_CHECK] open_positions={len(symbols)}")  # Added
 
             for symbol in symbols:
                 current_price = price_map.get(symbol)

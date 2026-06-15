@@ -1,4 +1,9 @@
+# python debug_runtime.py
 import time
+
+import os
+
+from core.debug.trade_monitor import trade_monitor
 
 from runtime.runtime_engine import RuntimeEngine
 from core.logging_manager import LoggingManager
@@ -24,10 +29,41 @@ print("Runtime running")
 
 try:
     while True:
+        os.system("cls")
+
+        print("=" * 80)
+        print("INTRADAY TRADING PLATFORM")
+        print("=" * 80)
+
         print(
-            f"is_alive={runtime.is_alive()}"
+            f"Runtime Alive : {runtime.is_alive()}"
         )
-        time.sleep(5)
+
+        print()
+
+        print("=" * 80)
+        print("TRADE PIPELINE MONITOR")
+        print("=" * 80)
+
+        events = trade_monitor.get_events()
+
+        if not events:
+
+            print("No events yet")
+
+        else:
+
+            for event in events[:30]:
+
+                print(
+                    f"[{event['category']:<18}] "
+                    f"{event['message']}"
+                )
+
+        print()
+        print("=" * 80)
+
+        time.sleep(2)
 
 except KeyboardInterrupt:
 

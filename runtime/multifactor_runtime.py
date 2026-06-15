@@ -145,7 +145,15 @@ class MultiFactorRuntime:
             return decision
 
         except Exception as error:
-            self.logger.error(f"Strategy evaluation failed {symbol}: {error}")
+            import traceback
+
+            self.logger.error(
+                f"Strategy evaluation failed {symbol}: {error}"
+            )
+
+            self.logger.error(
+                traceback.format_exc()
+            )
 
             return None
 

@@ -1,3 +1,4 @@
+# core/trade_management/trailing_stop_manager.py
 from core.positions.position import Position
 
 

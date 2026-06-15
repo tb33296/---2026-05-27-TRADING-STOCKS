@@ -66,6 +66,12 @@ class OrderFlowRuntime:
                 depth_data = tick.get("depth", {})
 
                 liquidity.update(depth_data)
+                self.logger.info(
+                    f"[LIQUIDITY_TICK] "
+                    f"{symbol} "
+                    f"delta={liquidity.get_delta()} "
+                    f"ratio={liquidity.get_ratio()}"
+                )
 
         except Exception as error:
             self.logger.error(f"OrderFlowRuntime failed: {error}")
