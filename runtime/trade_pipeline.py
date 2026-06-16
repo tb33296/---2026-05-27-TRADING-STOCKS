@@ -76,6 +76,13 @@ class TradePipeline:
                 status="OPEN",
             )
         )
+        self.logger.info(
+            f"[JOURNAL_CREATE] "
+            f"symbol={trade_context.symbol} "
+            f"entry={execution.fill_price} "
+            f"sl={trade_context.stop_loss} "
+            f"target={trade_context.target}"
+        )
 
         for reason in trade_context.reasons:
             self.journal_manager.add_reason(trade_id, reason)

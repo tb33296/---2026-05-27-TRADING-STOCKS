@@ -269,6 +269,16 @@ class MultiFactorStrategy:
 
             target = round(current_price - (risk_distance * RISK_REWARD_RATIO), 2)
 
+        
+        self.logger.info(
+            f"[TRADE_SETUP] "
+            f"dir={direction} "
+            f"price={current_price} "
+            f"atr={atr_value} "
+            f"risk_distance={risk_distance} "
+            f"sl={stop_loss} "
+            f"target={target}"
+        )
         return MultiFactorDecision(
             score=round(score, 2),
             direction=direction,

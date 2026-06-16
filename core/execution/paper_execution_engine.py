@@ -41,6 +41,10 @@ class PaperExecutionEngine:
             fill_price = ltp * (1 + SIMULATED_SLIPPAGE_PERCENT)
 
             fill_price = round(fill_price, 2)
+            offset = fill_price - ltp
+
+            stop_loss = round(stop_loss + offset, 2)
+            target = round(target + offset, 2)
 
             position = Position(
                 symbol=symbol,
@@ -108,7 +112,11 @@ class PaperExecutionEngine:
             fill_price = ltp * (1 - SIMULATED_SLIPPAGE_PERCENT)
 
             fill_price = round(fill_price, 2)
+            offset = fill_price - ltp
 
+            stop_loss = round(stop_loss + offset, 2)
+            target = round(target + offset, 2)
+            
             position = Position(
                 symbol=symbol,
                 segment=segment,
