@@ -102,7 +102,7 @@ class DatabaseManager:
 
                 exit_reason TEXT,
 
-                trade_duration_seconds INTEGER,
+                trade_duration_seconds REAL,
 
                 status TEXT NOT NULL
             );

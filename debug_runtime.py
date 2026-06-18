@@ -35,9 +35,7 @@ try:
         print("INTRADAY TRADING PLATFORM")
         print("=" * 80)
 
-        print(
-            f"Runtime Alive : {runtime.is_alive()}"
-        )
+        print(f"Runtime Alive : {runtime.is_alive()}")
 
         print()
 
@@ -48,17 +46,11 @@ try:
         events = trade_monitor.get_events()
 
         if not events:
-
             print("No events yet")
 
         else:
-
             for event in events[:30]:
-
-                print(
-                    f"[{event['category']:<18}] "
-                    f"{event['message']}"
-                )
+                print(f"[{event['category']:<18}] {event['message']}")
 
         print()
         print("=" * 80)
@@ -66,6 +58,11 @@ try:
         time.sleep(2)
 
 except KeyboardInterrupt:
+    print("Closing open positions...")
+
+    closed = runtime.shutdown_positions()
+
+    print(f"Closed {closed} open positions")
 
     print("Stopping runtime")
 

@@ -21,6 +21,11 @@ class MarketTime:
 
     @staticmethod
     def is_market_open() -> bool:
-        current_time = MarketTime.now().strftime("%H:%M")
 
-        return MARKET_OPEN_TIME <= current_time <= MARKET_CLOSE_TIME
+        current_time = MarketTime.now().time()
+
+        return (
+            MARKET_OPEN_TIME
+            <= current_time
+            <= MARKET_CLOSE_TIME
+        )

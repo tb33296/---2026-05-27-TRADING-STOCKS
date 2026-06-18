@@ -4,13 +4,12 @@ from dataclasses import dataclass
 
 @dataclass(slots=True)
 class TradeSnapshot:
-    """
-    Trade journal record.
-    """
 
     trade_id: int | None
 
     symbol: str
+
+    exchange: str
 
     segment: str
 

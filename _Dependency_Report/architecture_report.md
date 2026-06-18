@@ -20,6 +20,7 @@
 - core.__init__
 - core.auth.__init__
 - core.auth.auth_manager
+- core.debug.trade_monitor
 - core.execution.charges_engine
 - core.execution.execution_result
 - core.execution.order
@@ -64,17 +65,17 @@
 - core.signals.signal
 - core.signals.signal_manager
 - core.signals.vwap_signal
-- core.strategy.crossover_strategy
 - core.strategy.ema_crossover_strategy
 - core.strategy.multifactor_decision
 - core.strategy.multifactor_strategy
 - core.strategy.orderflow_strategy
-- core.strategy.strategy_base
-- core.strategy.strategy_manager
 - core.strategy.trade_context
 - core.strategy.trade_decision
 - core.strategy.trade_decision_engine
-- core.strategy.trade_intent
+- core.strategy.~~~crossover_strategy LEGACY
+- core.strategy.~~~strategy_base LEGACY
+- core.strategy.~~~strategy_manager LEGACY
+- core.strategy.~~~trade_intent LEGACY
 - core.trade_management.entry_rules
 - core.trade_management.exit_decision
 - core.trade_management.exit_rules
@@ -93,6 +94,10 @@
 
 - database.__init__
 - database.db_manager
+
+## debug_runtime
+
+- debug_runtime
 
 ## execution
 
@@ -117,19 +122,20 @@
 - runtime.depth_processor
 - runtime.indicator_registration
 - runtime.indicator_runtime
+- runtime.multifactor_runtime
 - runtime.orderflow_registration
 - runtime.orderflow_runtime
 - runtime.runtime_engine
 - runtime.signal_registration
 - runtime.signal_runtime
 - runtime.signal_trading_runtime
-- runtime.strategy_factory
-- runtime.strategy_runtime
 - runtime.tick_processor
 - runtime.trade_pipeline
 - runtime.trading_cycle_engine
 - runtime.trading_engine
 - runtime.trading_runtime
+- runtime.~~~strategy_factory LEGACY
+- runtime.~~~strategy_runtime-Legacy
 
 ## tests
 
@@ -186,8 +192,6 @@
 - tests.test_signal_trading_runtime
 - tests.test_snapquote_capture
 - tests.test_stop_loss_exit
-- tests.test_strategy_factory
-- tests.test_strategy_runtime
 - tests.test_strategy_trading_engine_runtime
 - tests.test_subscription_manager_runtime
 - tests.test_symbol_registry_runtime
@@ -211,6 +215,8 @@
 - tests.test_vwap_signal
 - tests.test_watchlist_loader
 - tests.test_websocket_runtime
+- tests.~~~test_strategy_factory LEGACY
+- tests.~~~test_strategy_runtime LEGACY
 
 ## tree
 
@@ -219,6 +225,7 @@
 ## ui
 
 - ui.__init__
+- ui.ui_trade_monitor
 
 ## utils
 

@@ -23,6 +23,8 @@ class PositionManager:
 
         self.closed_positions: list[Position] = []
 
+        self.logger.info(f"[POSITION_MANAGER_CREATED] id={id(self)}")
+
     def open_position(self, position: Position) -> bool:
         """
         Open new position.
@@ -57,9 +59,9 @@ class PositionManager:
             position.exit_price = exit_price
 
             position.exit_time = datetime.now()
-            position.duration_seconds = int(
+            position.duration_seconds = round(
                 (position.exit_time - position.entry_time).total_seconds()
-            )
+            ,3)
             position.status = "CLOSED"
 
             if position.side == "LONG":

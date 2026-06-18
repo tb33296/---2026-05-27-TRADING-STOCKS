@@ -18,6 +18,11 @@ from core.journal.trade_snapshot import TradeSnapshot
 
 from core.debug.trade_monitor import trade_monitor
 
+from core.journal.trade_metrics_snapshot import TradeMetricsSnapshot
+
+from core.journal.trade_feature_snapshot import TradeFeatureSnapshot
+
+from utils.market_time import MarketTime
 
 class TradePipeline:
     """
@@ -60,22 +65,38 @@ class TradePipeline:
         trade_id = self.journal_manager.create_trade(
             TradeSnapshot(
                 trade_id=None,
-                symbol=(trade_context.symbol),
-                segment=(trade_context.segment),
-                strategy_name=("MultiFactor"),
-                direction=(trade_context.direction),
-                entry_time=(execution.timestamp.isoformat()),
-                quantity=(execution.quantity),
-                entry_price=(execution.fill_price),
-                stop_loss=(trade_context.stop_loss),
-                target=(trade_context.target),
-                score=(trade_context.score),
-                confidence=(trade_context.confidence),
-                risk_amount=(sizing.risk_amount),
-                risk_percent=(sizing.risk_percent),
+
+                symbol=trade_context.symbol,
+
+                exchange=trade_context.exchange,
+                segment=trade_context.segment,
+
+                strategy_name="MultiFactor",
+
+                direction=trade_context.direction,
+
+                entry_time=execution.timestamp.isoformat(),
+
+                quantity=execution.quantity,
+
+                entry_price=execution.fill_price,
+
+                stop_loss=trade_context.stop_loss,
+
+                target=trade_context.target,
+
+                score=trade_context.score,
+
+                confidence=trade_context.confidence,
+
+                risk_amount=sizing.risk_amount,
+
+                risk_percent=sizing.risk_percent,
+
                 status="OPEN",
             )
         )
+        
         self.logger.info(
             f"[JOURNAL_CREATE] "
             f"symbol={trade_context.symbol} "
@@ -86,6 +107,63 @@ class TradePipeline:
 
         for reason in trade_context.reasons:
             self.journal_manager.add_reason(trade_id, reason)
+            # ==================================================
+            # METRICS SNAPSHOT
+            # ==================================================
+
+        self.journal_manager.add_metrics_snapshot(
+            TradeMetricsSnapshot(
+                trade_id=trade_id,
+
+                atr=trade_context.atr,
+
+                rvol=trade_context.rvol,
+
+                vwap=trade_context.vwap,
+
+                awvap=trade_context.awvap,
+
+                vwma=trade_context.vwma,
+
+                liquidity_ratio=trade_context.liquidity_ratio,
+
+                liquidity_delta=trade_context.liquidity_delta,
+
+                cvd=trade_context.cvd,
+            )
+        )
+
+        # ==================================================
+        # FEATURE SNAPSHOT
+        # ==================================================
+
+        self.journal_manager.add_feature_snapshot(
+            TradeFeatureSnapshot(
+                trade_id=trade_id,
+
+                trend_state=trade_context.trend_state,
+
+                vwap_state=trade_context.vwap_state,
+
+                awvap_state=trade_context.awvap_state,
+
+                vwma_state=trade_context.vwma_state,
+
+                rvol_state=trade_context.rvol_state,
+
+                atr_state=trade_context.atr_state,
+
+                liquidity_state=trade_context.liquidity_state,
+
+                cvd_state=trade_context.cvd_state,
+            )
+        )
+        self.logger.info(
+            f"[SNAPSHOT_SAVED] "
+            f"trade_id={trade_id} "
+            f"atr={trade_context.atr} "
+            f"rvol={trade_context.rvol}"
+        )
 
         return trade_id
 
@@ -95,7 +173,15 @@ class TradePipeline:
         """
         Execute full trade workflow.
         """
+        if not MarketTime.is_market_open():
 
+            self.logger.info(
+                f"[TRADE_BLOCKED] "
+                f"{trade_context.symbol} "
+                f"Market not open"
+            )
+
+            return (None, None, None, None)
         try:
             sizing = self.position_sizing_engine.calculate(
                 account_size=account_size,

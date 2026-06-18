@@ -56,7 +56,7 @@ class TradeManager:
                 f"price={current_price} "
                 f"sl={position.stop_loss} "
                 f"target={position.target}"
-                 f"distance_to_target={round(abs(position.target-current_price),2)}"
+                f"distance_to_target={round(abs(position.target - current_price), 2)}"
             )
         if position is None:
             return ExitDecision(should_exit=False, reason="POSITION_NOT_FOUND")
@@ -163,5 +163,52 @@ class TradeManager:
 
         except Exception as error:
             self.logger.error(f"Process all positions failed: {error}")
+
+            return closed_count
+
+    def force_exit_all_positions(
+        self,
+        price_map: dict[str, float],
+        reason: str = "SYSTEM_SHUTDOWN",
+    ) -> int:
+        """
+        Force close all open positions.
+
+        Used during:
+        - Ctrl+C shutdown
+        - emergency stop
+        - future GUI stop button
+        """
+
+        closed_count = 0
+
+        try:
+            symbols = list(self.position_manager.get_open_positions().keys())
+
+            for symbol in symbols:
+                current_price = price_map.get(symbol)
+
+                if current_price is None:
+                    self.logger.warning(f"[FORCE_EXIT] Missing price for {symbol}")
+
+                    continue
+
+                closed = self.trade_pipeline.close_trade(
+                    symbol=symbol,
+                    exit_price=current_price,
+                    exit_reason=reason,
+                )
+
+                if closed:
+                    closed_count += 1
+
+            self.logger.info(
+                f"[FORCE_EXIT] reason={reason} closed_positions={closed_count}"
+            )
+
+            return closed_count
+
+        except Exception as error:
+            self.logger.error(f"Force exit all positions failed: {error}")
 
             return closed_count

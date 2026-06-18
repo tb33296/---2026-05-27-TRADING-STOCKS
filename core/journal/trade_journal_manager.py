@@ -31,7 +31,10 @@ class TradeJournalManager:
             INSERT INTO trades (
 
                 symbol,
+
+                exchange,
                 segment,
+
                 strategy_name,
                 direction,
 
@@ -55,7 +58,8 @@ class TradeJournalManager:
             )
 
             VALUES (
-                ?, ?, ?, ?,
+                ?, ?, ?,
+                ?, ?,
                 ?,
                 ?,
                 ?,
@@ -67,18 +71,28 @@ class TradeJournalManager:
             """,
             (
                 trade.symbol,
+
+                trade.exchange,
                 trade.segment,
+
                 trade.strategy_name,
                 trade.direction,
+
                 trade.entry_time,
+
                 trade.quantity,
+
                 trade.entry_price,
+
                 trade.stop_loss,
                 trade.target,
+
                 trade.score,
                 trade.confidence,
+
                 trade.risk_amount,
                 trade.risk_percent,
+
                 trade.status,
             ),
         )
@@ -197,7 +211,7 @@ class TradeJournalManager:
         net_pnl: float,
         charges: float,
         exit_reason: str,
-        duration_seconds: int,
+        duration_seconds: float,
     ) -> None:
 
         self.db.execute(

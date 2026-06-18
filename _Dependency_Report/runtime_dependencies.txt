@@ -25,9 +25,13 @@ runtime.indicator_registration
 
     config.config
     core.indicators.atr
-    core.indicators.ema
+    core.indicators.awvap
+    core.indicators.cvd
+    core.indicators.liquidity_delta
+    core.indicators.moving_average
     core.indicators.rvol
     core.indicators.vwap
+    core.indicators.vwma
     core.instruments.symbol_registry
     core.market_data.market_clock
     runtime.indicator_runtime
@@ -37,7 +41,21 @@ runtime.indicator_registration
 runtime.indicator_runtime
 
     core.indicators.indicator_manager
+    core.logging_manager
     core.market_data.candle
+
+------------------------------------------------------------
+
+runtime.multifactor_runtime
+
+    core.logging_manager
+    core.risk.position_sizing_engine
+    core.strategy.multifactor_decision
+    core.strategy.multifactor_strategy
+    core.strategy.trade_context
+    core.strategy.trade_decision_engine
+    runtime.indicator_runtime
+    runtime.trade_pipeline
 
 ------------------------------------------------------------
 
@@ -61,25 +79,36 @@ runtime.orderflow_runtime
 runtime.runtime_engine
 
     config.config
+    core.execution.paper_execution_engine
     core.instruments.instrument_manager
     core.instruments.symbol_registry
     core.instruments.token_resolver
+    core.journal.trade_journal_manager
     core.logging_manager
     core.market_data.market_clock
     core.market_data.timeframe_manager
+    core.positions.position_manager
+    core.risk.position_sizing_engine
+    core.risk.risk_engine
     core.session.session_manager
+    core.strategy.trade_decision_engine
+    core.trade_management.trade_manager
     core.websocket.depth_queue
     core.websocket.subscription_manager
     core.websocket.tick_queue
     core.websocket.websocket_manager
+    database.db_manager
     runtime.depth_processor
     runtime.indicator_registration
     runtime.indicator_runtime
+    runtime.multifactor_runtime
     runtime.orderflow_registration
     runtime.orderflow_runtime
     runtime.signal_registration
     runtime.signal_runtime
     runtime.tick_processor
+    runtime.trade_pipeline
+    runtime.trading_runtime
     utils.watchlist_loader
 
 ------------------------------------------------------------
@@ -114,39 +143,13 @@ runtime.signal_trading_runtime
 
 ------------------------------------------------------------
 
-runtime.strategy_factory
-
-    config.config
-    core.indicators.atr
-    core.indicators.awvap
-    core.indicators.cvd
-    core.indicators.liquidity_delta
-    core.indicators.moving_average
-    core.indicators.rvol
-    core.indicators.vwap
-    core.indicators.vwma
-    core.market_data.market_clock
-    core.strategy.multifactor_strategy
-    runtime.indicator_runtime
-    runtime.strategy_runtime
-
-------------------------------------------------------------
-
-runtime.strategy_runtime
-
-    core.logging_manager
-    core.signals.signal
-    core.strategy.strategy_base
-    core.strategy.trade_intent
-
-------------------------------------------------------------
-
 runtime.tick_processor
 
     core.logging_manager
     core.market_data.timeframe_manager
     core.websocket.tick_queue
     runtime.indicator_runtime
+    runtime.multifactor_runtime
     runtime.orderflow_runtime
     runtime.signal_runtime
 
@@ -154,14 +157,18 @@ runtime.tick_processor
 
 runtime.trade_pipeline
 
+    core.debug.trade_monitor
     core.execution.paper_execution_engine
+    core.journal.trade_feature_snapshot
     core.journal.trade_journal_manager
+    core.journal.trade_metrics_snapshot
     core.journal.trade_snapshot
     core.logging_manager
     core.risk.position_sizing_engine
     core.risk.risk_engine
     core.strategy.trade_context
     core.strategy.trade_decision_engine
+    utils.market_time
 
 ------------------------------------------------------------
 
@@ -188,6 +195,32 @@ runtime.trading_runtime
     core.logging_manager
     core.trade_management.trade_manager
     runtime.tick_processor
+
+------------------------------------------------------------
+
+runtime.~~~strategy_factory LEGACY
+
+    config.config
+    core.indicators.atr
+    core.indicators.awvap
+    core.indicators.cvd
+    core.indicators.liquidity_delta
+    core.indicators.moving_average
+    core.indicators.rvol
+    core.indicators.vwap
+    core.indicators.vwma
+    core.market_data.market_clock
+    core.strategy.multifactor_strategy
+    runtime.indicator_runtime
+
+------------------------------------------------------------
+
+runtime.~~~strategy_runtime-Legacy
+
+    core.logging_manager
+    core.signals.signal
+    core.strategy.strategy_base
+    core.strategy.trade_intent
 
 ------------------------------------------------------------
 

@@ -1,14 +1,14 @@
 # Folder Tree
 
 ```text
-!! 2026-05-27 TRADING STOCKS (42 folders, 233 files)/
+!! 2026-05-27 TRADING STOCKS (38 folders, 237 files)/
 ├── _Dependency_Report (0 folders, 7 files)/
-│   ├── architecture_report.md (230 lines)
-│   ├── high_risk_modules.txt (86 lines)
-│   ├── import_summary.csv (483 lines)
-│   ├── orphan_files.txt (12 lines)
-│   ├── reverse_dependencies.csv (483 lines)
-│   ├── runtime_dependencies.txt (193 lines)
+│   ├── architecture_report.md (237 lines)
+│   ├── high_risk_modules.txt (88 lines)
+│   ├── import_summary.csv (515 lines)
+│   ├── orphan_files.txt (19 lines)
+│   ├── reverse_dependencies.csv (515 lines)
+│   ├── runtime_dependencies.txt (225 lines)
 │   └── statistics.txt (10 lines)
 ├── analytics (0 folders, 1 files)/
 │   └── __init__.py (0 lines)
@@ -16,21 +16,23 @@
 │   └── websocket (0 folders, 0 files)/
 ├── config (0 folders, 6 files)/
 │   ├── __init__.py (0 lines)
-│   ├── config.py (236 lines)
+│   ├── config.py (255 lines)
 │   ├── risk_config_loader.py (271 lines)
 │   ├── risk_parameters.json (31 lines)
 │   ├── scoring_config_loader.py (232 lines)
 │   └── scoring_weights.json (51 lines)
-├── core (14 folders, 71 files)/
+├── core (15 folders, 72 files)/
 │   ├── auth (0 folders, 2 files)/
 │   │   ├── __init__.py (0 lines)
 │   │   └── auth_manager.py (290 lines)
+│   ├── debug (0 folders, 1 files)/
+│   │   └── trade_monitor.py (36 lines)
 │   ├── execution (0 folders, 7 files)/
 │   │   ├── charges_engine.py (107 lines)
 │   │   ├── execution_result.py (29 lines)
 │   │   ├── order.py (89 lines)
 │   │   ├── paper_broker.py (204 lines)
-│   │   ├── paper_execution_engine.py (168 lines)
+│   │   ├── paper_execution_engine.py (176 lines)
 │   │   ├── position.py (203 lines)
 │   │   └── tradebook.py (355 lines)
 │   ├── indicators (0 folders, 11 files)/
@@ -52,22 +54,22 @@
 │   │   └── token_resolver.py (242 lines)
 │   ├── journal (0 folders, 4 files)/
 │   │   ├── trade_feature_snapshot.py (27 lines)
-│   │   ├── trade_journal_manager.py (307 lines)
+│   │   ├── trade_journal_manager.py (249 lines)
 │   │   ├── trade_metrics_snapshot.py (29 lines)
 │   │   └── trade_snapshot.py (39 lines)
 │   ├── market_data (0 folders, 4 files)/
-│   │   ├── candle.py (123 lines)
+│   │   ├── candle.py (98 lines)
 │   │   ├── candle_builder.py (196 lines)
 │   │   ├── market_clock.py (202 lines)
 │   │   └── timeframe_manager.py (290 lines)
 │   ├── positions (0 folders, 2 files)/
 │   │   ├── position.py (48 lines)
-│   │   └── position_manager.py (137 lines)
+│   │   └── position_manager.py (139 lines)
 │   ├── risk (0 folders, 4 files)/
 │   │   ├── position_size_decision.py (18 lines)
 │   │   ├── position_sizing_engine.py (102 lines)
 │   │   ├── risk_decision.py (14 lines)
-│   │   └── risk_engine.py (64 lines)
+│   │   └── risk_engine.py (69 lines)
 │   ├── session (0 folders, 2 files)/
 │   │   ├── __init__.py (0 lines)
 │   │   └── session_manager.py (269 lines)
@@ -80,9 +82,9 @@
 │   ├── strategy (0 folders, 11 files)/
 │   │   ├── ema_crossover_strategy.py (0 lines)
 │   │   ├── multifactor_decision.py (20 lines)
-│   │   ├── multifactor_strategy.py (227 lines)
+│   │   ├── multifactor_strategy.py (289 lines)
 │   │   ├── orderflow_strategy.py (23 lines)
-│   │   ├── trade_context.py (37 lines)
+│   │   ├── trade_context.py (73 lines)
 │   │   ├── trade_decision.py (46 lines)
 │   │   ├── trade_decision_engine.py (86 lines)
 │   │   ├── ~~~crossover_strategy LEGACY.py (159 lines)
@@ -93,8 +95,8 @@
 │   │   ├── entry_rules.py (19 lines)
 │   │   ├── exit_decision.py (13 lines)
 │   │   ├── exit_rules.py (134 lines)
-│   │   ├── trade_manager.py (153 lines)
-│   │   └── trailing_stop_manager.py (86 lines)
+│   │   ├── trade_manager.py (214 lines)
+│   │   └── trailing_stop_manager.py (87 lines)
 │   ├── watchdog (0 folders, 2 files)/
 │   │   ├── __init__.py (0 lines)
 │   │   └── heartbeat_monitor.py (171 lines)
@@ -107,45 +109,39 @@
 │   │   └── websocket_manager.py (430 lines)
 │   ├── __init__.py (0 lines)
 │   └── logging_manager.py (64 lines)
-├── data (3 folders, 4 files)/
+├── data (3 folders, 7 files)/
 │   ├── calendar (0 folders, 1 files)/
-│   │   └── holiday.txt (16 lines)
+│   │   └── market_holidays.txt (16 lines)
 │   ├── instruments (0 folders, 1 files)/
 │   │   └── OpenAPIScripMaster.json (1 lines)
 │   ├── watchlists (0 folders, 1 files)/
 │   │   └── nifty100.txt (4 lines)
-│   └── market_data.db (136 lines)
-├── database (0 folders, 3 files)/
+│   ├── market_data.db (395 lines)
+│   ├── market_data.db-shm (3 lines)
+│   ├── market_data.db-wal (327 lines)
+│   └── market_data.db_2026_06_17_backup.db (395 lines)
+├── database (0 folders, 5 files)/
 │   ├── __init__.py (0 lines)
 │   ├── db_manager.py (190 lines)
-│   └── schema.sql (0 lines)
+│   ├── market_data.db (0 lines)
+│   ├── schema.sql (0 lines)
+│   └── trading.db (0 lines)
 ├── execution (0 folders, 1 files)/
 │   └── __init__.py (0 lines)
 ├── instruments (0 folders, 0 files)/
-├── logs (7 folders, 16 files)/
-│   ├── 2026-05-28 (0 folders, 1 files)/
-│   │   └── app.log (0 lines)
-│   ├── 2026-05-29 (0 folders, 1 files)/
-│   │   └── app.log (8 lines)
-│   ├── 2026-06-03 (0 folders, 1 files)/
-│   │   └── app.log (36 lines)
-│   ├── 2026-06-05 (0 folders, 1 files)/
+├── logs (2 folders, 10 files)/
+│   ├── 2026-06-17 (0 folders, 1 files)/
 │   │   └── app.log (3 lines)
-│   ├── 2026-06-06 (0 folders, 1 files)/
-│   │   └── app.log (3 lines)
-│   ├── 2026-06-07 (0 folders, 1 files)/
-│   │   └── app.log (1 lines)
 │   ├── raw_ticks (0 folders, 3 files)/
 │   │   ├── 2026-06-05.jsonl (8 lines)
 │   │   ├── 2026-06-06.jsonl (9 lines)
 │   │   └── 20260605.jsonl (9 lines)
-│   ├── error.log (0 lines)
+│   ├── error.log (244 lines)
 │   ├── raw_tick_capture mode1.json (9 lines)
 │   ├── raw_tick_capture mode2.json (18 lines)
 │   ├── raw_tick_capture.json (18 lines)
 │   ├── raw_tick_capture_mode3.json (89 lines)
-│   ├── raw_tick_capture_mode4.json (211 lines)
-│   └── system.log (3 lines)
+│   └── raw_tick_capture_mode4.json (211 lines)
 ├── replay (0 folders, 1 files)/
 │   └── __init__.py (0 lines)
 ├── reports (0 folders, 0 files)/
@@ -153,20 +149,20 @@
 │   ├── __init__.py (0 lines)
 │   ├── candle_runtime.py (44 lines)
 │   ├── depth_processor.py (151 lines)
-│   ├── indicator_registration.py (99 lines)
-│   ├── indicator_runtime.py (35 lines)
-│   ├── multifactor_runtime.py (201 lines)
+│   ├── indicator_registration.py (139 lines)
+│   ├── indicator_runtime.py (41 lines)
+│   ├── multifactor_runtime.py (287 lines)
 │   ├── orderflow_registration.py (66 lines)
-│   ├── orderflow_runtime.py (103 lines)
-│   ├── runtime_engine.py (411 lines)
+│   ├── orderflow_runtime.py (118 lines)
+│   ├── runtime_engine.py (543 lines)
 │   ├── signal_registration.py (95 lines)
 │   ├── signal_runtime.py (122 lines)
 │   ├── signal_trading_runtime.py (0 lines)
-│   ├── tick_processor.py (172 lines)
-│   ├── trade_pipeline.py (230 lines)
-│   ├── trading_cycle_engine.py (64 lines)
+│   ├── tick_processor.py (227 lines)
+│   ├── trade_pipeline.py (375 lines)
+│   ├── trading_cycle_engine.py (65 lines)
 │   ├── trading_engine.py (91 lines)
-│   ├── trading_runtime.py (52 lines)
+│   ├── trading_runtime.py (53 lines)
 │   ├── ~~~strategy_factory LEGACY.py (92 lines)
 │   └── ~~~strategy_runtime-Legacy.py (80 lines)
 ├── screenshots (0 folders, 0 files)/
@@ -249,27 +245,31 @@
 │   ├── test_websocket_runtime.py (41 lines)
 │   ├── ~~~test_strategy_factory LEGACY.py (26 lines)
 │   └── ~~~test_strategy_runtime LEGACY.py (71 lines)
-├── ui (0 folders, 1 files)/
-│   └── __init__.py (0 lines)
+├── ui (0 folders, 2 files)/
+│   ├── __init__.py (0 lines)
+│   └── ui_trade_monitor.py (25 lines)
 ├── utils (0 folders, 5 files)/
 │   ├── __init__.py (0 lines)
 │   ├── helpers.py (11 lines)
-│   ├── market_time.py (26 lines)
+│   ├── market_time.py (31 lines)
 │   ├── system_monitor.py (15 lines)
 │   └── watchlist_loader.py (76 lines)
 ├── .env (11 lines)
-├── .gitignore (9 lines)
+├── .gitignore (11 lines)
 ├── _CHANGELOG.md (287 lines)
-├── _folderTree.md (279 lines)
+├── _folderTree.md (280 lines)
 ├── _MASTER_ARCHITECTURE.md (879 lines)
 ├── _PROJECT_DOCUMENT_AUDIT_2026-06-03.md (14 lines)
 ├── _PROJECT_STATE.md (495 lines)
 ├── _ROADMAP.md (424 lines)
 ├── _TECH_DEBT 2026_06-03.md (501 lines)
 ├── _TECH_DEBT.md (343 lines)
+├── daily sql.txt (90 lines)
+├── debug_runtime.py (69 lines)
 ├── generate_project_structure.bat (88 lines)
 ├── loginInfo.py (13 lines)
 ├── main.py (12 lines)
+├── market_data.db (0 lines)
 ├── PROJECT_DEPENDENCY_ANALYZER.py (667 lines)
 ├── PROMPT_Text.txt (1262 lines)
 ├── pytest.ini (5 lines)

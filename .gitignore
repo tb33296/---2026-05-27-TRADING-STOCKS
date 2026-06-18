@@ -7,5 +7,6 @@ screenshots/*
 data/*.db
 .env
 .vscode/
-system.log
+system.log.*
+app.log/*
 

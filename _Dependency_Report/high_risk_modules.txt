@@ -1,67 +1,70 @@
 HIGH RISK MODULES
 ============================================================
 
-  56  core.logging_manager
+  61  core.logging_manager
   30  config.config
   30  core.market_data.candle
-  17  core.positions.position_manager
-  16  database.db_manager
-  14  core.execution.paper_execution_engine
-  13  core.risk.risk_engine
-  12  runtime.indicator_runtime
+  18  core.positions.position_manager
+  17  database.db_manager
+  15  core.execution.paper_execution_engine
+  14  core.risk.risk_engine
+  13  runtime.indicator_runtime
+  12  runtime.trade_pipeline
   11  core.indicators.indicator_base
   11  core.market_data.market_clock
+  11  core.journal.trade_journal_manager
   10  core.signals.signal
-  10  runtime.trade_pipeline
   10  core.websocket.tick_queue
-  10  core.journal.trade_journal_manager
+  10  core.indicators.moving_average
+   9  core.indicators.cvd
+   9  core.indicators.liquidity_delta
    9  core.instruments.symbol_registry
    9  runtime.tick_processor
-   9  core.indicators.moving_average
-   8  core.indicators.cvd
-   8  core.indicators.liquidity_delta
+   8  core.trade_management.trade_manager
    8  core.signals.crossover_signal
    7  core.instruments.instrument_manager
-   7  core.trade_management.trade_manager
+   7  runtime.runtime_engine
+   7  core.strategy.trade_context
    6  core.instruments.token_resolver
    6  core.indicators.vwap
    6  core.indicators.rvol
-   6  core.strategy.trade_context
-   6  runtime.runtime_engine
    5  core.positions.position
    5  core.session.session_manager
    5  runtime.orderflow_runtime
+   5  core.strategy.multifactor_strategy
+   5  core.strategy.trade_decision_engine
+   5  core.risk.position_sizing_engine
    5  utils.watchlist_loader
    5  runtime.signal_runtime
    4  core.auth.auth_manager
+   4  core.strategy.multifactor_decision
+   4  core.indicators.awvap
    4  core.indicators.atr
-   4  core.websocket.subscription_manager
+   4  runtime.trading_runtime
    4  core.websocket.websocket_manager
+   4  core.websocket.subscription_manager
    4  core.signals.vwap_signal
-   4  runtime.strategy_runtime
-   4  core.strategy.multifactor_strategy
    4  runtime.candle_runtime
+   3  core.journal.trade_feature_snapshot
+   3  core.journal.trade_metrics_snapshot
    3  core.journal.trade_snapshot
    3  core.market_data.candle_builder
+   3  config.scoring_config_loader
+   3  core.strategy.crossover_strategy
    3  core.strategy.strategy_base
    3  core.strategy.trade_intent
-   3  config.scoring_config_loader
-   3  core.strategy.multifactor_decision
-   3  core.strategy.crossover_strategy
    3  core.websocket.depth_queue
-   3  core.indicators.ema
    3  core.market_data.timeframe_manager
-   3  core.indicators.awvap
-   3  core.risk.position_sizing_engine
-   3  core.strategy.trade_decision_engine
-   3  runtime.trading_runtime
    3  runtime.trading_engine
-   2  core.execution.position
+   3  runtime.strategy_runtime
    2  core.execution.tradebook
-   2  core.journal.trade_metrics_snapshot
-   2  core.journal.trade_feature_snapshot
+   2  core.execution.position
    2  config.risk_config_loader
    2  core.trade_management.exit_decision
+   2  core.debug.trade_monitor
+   2  core.indicators.vwma
+   2  runtime.multifactor_runtime
+   2  core.indicators.ema
    2  core.watchdog.heartbeat_monitor
    1  core.execution.order
    1  core.execution.execution_result
@@ -69,18 +72,18 @@ HIGH RISK MODULES
    1  core.risk.position_size_decision
    1  core.risk.risk_decision
    1  core.strategy.trade_decision
-   1  core.trade_management.trailing_stop_manager
    1  core.trade_management.exit_rules
+   1  core.trade_management.trailing_stop_manager
    1  core.indicators.indicator_manager
+   1  runtime.signal_registration
+   1  runtime.orderflow_registration
    1  runtime.depth_processor
    1  runtime.indicator_registration
-   1  runtime.orderflow_registration
-   1  runtime.signal_registration
    1  core.signals.signal_manager
-   1  core.indicators.vwma
+   1  utils.market_time
    1  core.execution.paper_broker
    1  core.instruments.instrument_updater
    1  core.signals.orderflow_signal
    1  core.strategy.orderflow_strategy
-   1  runtime.strategy_factory
    1  runtime.trading_cycle_engine
+   1  runtime.strategy_factory

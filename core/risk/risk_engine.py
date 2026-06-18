@@ -44,7 +44,7 @@ class RiskEngine:
             open_positions = self.position_manager.get_open_position_count()
 
             if open_positions >= MAX_CONCURRENT_POSITIONS:
-                return RiskDecision(approved=False, reason=("MAX_POSITIONS_REACHED"))
+                return RiskDecision(approved=False, reason=("MAX_CONCURRENT_TRADES_OPEN"))
 
             realized_pnl = self.position_manager.get_total_net_pnl()
 
@@ -52,7 +52,12 @@ class RiskEngine:
                 return RiskDecision(approved=False, reason=("MAX_DAILY_DRAWDOWN"))
 
             consecutive_losses = self.position_manager.get_consecutive_losses()
-
+            self.logger.info(
+                f"[RISK_DEBUG] "
+                f"open_positions={open_positions} "
+                f"realized_pnl={realized_pnl} "
+                f"consecutive_losses={consecutive_losses}"
+            )
             if consecutive_losses >= MAX_CONSECUTIVE_LOSSES:
                 return RiskDecision(approved=False, reason=("MAX_CONSECUTIVE_LOSSES"))
 

@@ -18,7 +18,7 @@ config.config,runtime.candle_runtime
 config.config,runtime.indicator_registration
 config.config,runtime.runtime_engine
 config.config,runtime.signal_registration
-config.config,runtime.strategy_factory
+config.config,runtime.~~~strategy_factory LEGACY
 config.config,tests.TEMP_GETNAMEs
 config.config,tests.test_candle_rollover
 config.config,tests.test_config
@@ -38,10 +38,13 @@ core.auth.auth_manager,core.session.session_manager
 core.auth.auth_manager,tests.TEMP_test_auth
 core.auth.auth_manager,tests.test_auth_runtime
 core.auth.auth_manager,tests.test_live_subscription_runtime
+core.debug.trade_monitor,debug_runtime
+core.debug.trade_monitor,runtime.trade_pipeline
 core.execution.charges_engine,core.positions.position_manager
 core.execution.execution_result,core.execution.paper_execution_engine
 core.execution.order,core.execution.paper_broker
 core.execution.paper_broker,tests.test_end_to_end_runtime
+core.execution.paper_execution_engine,runtime.runtime_engine
 core.execution.paper_execution_engine,runtime.trade_pipeline
 core.execution.paper_execution_engine,tests.test_end_to_end_v2
 core.execution.paper_execution_engine,tests.test_paper_execution
@@ -61,21 +64,22 @@ core.execution.position,core.execution.tradebook
 core.execution.tradebook,core.execution.paper_broker
 core.execution.tradebook,tests.test_end_to_end_runtime
 core.indicators.atr,runtime.indicator_registration
-core.indicators.atr,runtime.strategy_factory
+core.indicators.atr,runtime.~~~strategy_factory LEGACY
 core.indicators.atr,tests.test_atr
 core.indicators.atr,tests.test_atr_runtime
-core.indicators.awvap,runtime.strategy_factory
+core.indicators.awvap,runtime.indicator_registration
+core.indicators.awvap,runtime.~~~strategy_factory LEGACY
 core.indicators.awvap,tests.test_awvap
 core.indicators.awvap,tests.test_awvap_runtime
 core.indicators.cvd,core.signals.orderflow_signal
+core.indicators.cvd,runtime.indicator_registration
 core.indicators.cvd,runtime.orderflow_registration
 core.indicators.cvd,runtime.orderflow_runtime
-core.indicators.cvd,runtime.strategy_factory
+core.indicators.cvd,runtime.~~~strategy_factory LEGACY
 core.indicators.cvd,tests.test_cvd
 core.indicators.cvd,tests.test_cvd_runtime
 core.indicators.cvd,tests.test_orderflow_runtime
 core.indicators.cvd,tests.test_orderflow_signal
-core.indicators.ema,runtime.indicator_registration
 core.indicators.ema,runtime.signal_registration
 core.indicators.ema,tests.test_indicator_signal_flow
 core.indicators.indicator_base,core.indicators.atr
@@ -91,14 +95,16 @@ core.indicators.indicator_base,core.indicators.vwma
 core.indicators.indicator_base,core.signals.crossover_signal
 core.indicators.indicator_manager,runtime.indicator_runtime
 core.indicators.liquidity_delta,core.signals.orderflow_signal
+core.indicators.liquidity_delta,runtime.indicator_registration
 core.indicators.liquidity_delta,runtime.orderflow_registration
 core.indicators.liquidity_delta,runtime.orderflow_runtime
-core.indicators.liquidity_delta,runtime.strategy_factory
+core.indicators.liquidity_delta,runtime.~~~strategy_factory LEGACY
 core.indicators.liquidity_delta,tests.test_liquidity_delta
 core.indicators.liquidity_delta,tests.test_liquidity_delta_runtime
 core.indicators.liquidity_delta,tests.test_orderflow_runtime
 core.indicators.liquidity_delta,tests.test_orderflow_signal
-core.indicators.moving_average,runtime.strategy_factory
+core.indicators.moving_average,runtime.indicator_registration
+core.indicators.moving_average,runtime.~~~strategy_factory LEGACY
 core.indicators.moving_average,tests.test_candle_indicator_runtime
 core.indicators.moving_average,tests.test_crossover_signal
 core.indicators.moving_average,tests.test_end_to_end_runtime
@@ -109,17 +115,18 @@ core.indicators.moving_average,tests.test_moving_average
 core.indicators.moving_average,tests.test_trade_lifecycle
 core.indicators.rvol,runtime.indicator_registration
 core.indicators.rvol,runtime.signal_registration
-core.indicators.rvol,runtime.strategy_factory
+core.indicators.rvol,runtime.~~~strategy_factory LEGACY
 core.indicators.rvol,tests.test_indicator_signal_flow
 core.indicators.rvol,tests.test_rvol
 core.indicators.rvol,tests.test_rvol_runtime
 core.indicators.vwap,core.signals.vwap_signal
 core.indicators.vwap,runtime.indicator_registration
 core.indicators.vwap,runtime.signal_registration
-core.indicators.vwap,runtime.strategy_factory
+core.indicators.vwap,runtime.~~~strategy_factory LEGACY
 core.indicators.vwap,tests.test_indicator_signal_flow
 core.indicators.vwap,tests.test_vwap_signal
-core.indicators.vwma,runtime.strategy_factory
+core.indicators.vwma,runtime.indicator_registration
+core.indicators.vwma,runtime.~~~strategy_factory LEGACY
 core.instruments.instrument_manager,core.instruments.token_resolver
 core.instruments.instrument_manager,runtime.runtime_engine
 core.instruments.instrument_manager,tests.test_instrument_lookup
@@ -144,7 +151,9 @@ core.instruments.token_resolver,tests.test_live_subscription_runtime
 core.instruments.token_resolver,tests.test_subscription_manager_runtime
 core.instruments.token_resolver,tests.test_symbol_registry_runtime
 core.journal.trade_feature_snapshot,core.journal.trade_journal_manager
+core.journal.trade_feature_snapshot,runtime.trade_pipeline
 core.journal.trade_feature_snapshot,tests.test_trade_journal_manager
+core.journal.trade_journal_manager,runtime.runtime_engine
 core.journal.trade_journal_manager,runtime.trade_pipeline
 core.journal.trade_journal_manager,tests.test_signal_trading_engine_runtime
 core.journal.trade_journal_manager,tests.test_strategy_trading_engine_runtime
@@ -156,6 +165,7 @@ core.journal.trade_journal_manager,tests.test_trading_cycle_engine
 core.journal.trade_journal_manager,tests.test_trading_engine
 core.journal.trade_journal_manager,tests.test_trading_runtime
 core.journal.trade_metrics_snapshot,core.journal.trade_journal_manager
+core.journal.trade_metrics_snapshot,runtime.trade_pipeline
 core.journal.trade_metrics_snapshot,tests.test_trade_journal_manager
 core.journal.trade_snapshot,core.journal.trade_journal_manager
 core.journal.trade_snapshot,runtime.trade_pipeline
@@ -163,6 +173,7 @@ core.journal.trade_snapshot,tests.test_trade_journal_manager
 core.logging_manager,config.risk_config_loader
 core.logging_manager,config.scoring_config_loader
 core.logging_manager,core.auth.auth_manager
+core.logging_manager,core.debug.trade_monitor
 core.logging_manager,core.execution.charges_engine
 core.logging_manager,core.execution.paper_broker
 core.logging_manager,core.execution.paper_execution_engine
@@ -189,26 +200,30 @@ core.logging_manager,core.signals.crossover_signal
 core.logging_manager,core.signals.orderflow_signal
 core.logging_manager,core.signals.signal_manager
 core.logging_manager,core.signals.vwap_signal
-core.logging_manager,core.strategy.crossover_strategy
-core.logging_manager,core.strategy.strategy_base
-core.logging_manager,core.strategy.strategy_manager
+core.logging_manager,core.strategy.multifactor_strategy
 core.logging_manager,core.strategy.trade_decision_engine
+core.logging_manager,core.strategy.~~~crossover_strategy LEGACY
+core.logging_manager,core.strategy.~~~strategy_base LEGACY
+core.logging_manager,core.strategy.~~~strategy_manager LEGACY
 core.logging_manager,core.trade_management.trade_manager
 core.logging_manager,core.watchdog.heartbeat_monitor
 core.logging_manager,core.websocket.reconnect_manager
 core.logging_manager,core.websocket.subscription_manager
 core.logging_manager,core.websocket.websocket_manager
+core.logging_manager,debug_runtime
 core.logging_manager,main
 core.logging_manager,runtime.depth_processor
+core.logging_manager,runtime.indicator_runtime
+core.logging_manager,runtime.multifactor_runtime
 core.logging_manager,runtime.orderflow_runtime
 core.logging_manager,runtime.runtime_engine
 core.logging_manager,runtime.signal_runtime
-core.logging_manager,runtime.strategy_runtime
 core.logging_manager,runtime.tick_processor
 core.logging_manager,runtime.trade_pipeline
 core.logging_manager,runtime.trading_cycle_engine
 core.logging_manager,runtime.trading_engine
 core.logging_manager,runtime.trading_runtime
+core.logging_manager,runtime.~~~strategy_runtime-Legacy
 core.logging_manager,tests.TEMP_test_auth
 core.logging_manager,tests.test_auth_runtime
 core.logging_manager,tests.test_end_to_end_runtime
@@ -255,7 +270,7 @@ core.market_data.market_clock,core.market_data.timeframe_manager
 core.market_data.market_clock,runtime.candle_runtime
 core.market_data.market_clock,runtime.indicator_registration
 core.market_data.market_clock,runtime.runtime_engine
-core.market_data.market_clock,runtime.strategy_factory
+core.market_data.market_clock,runtime.~~~strategy_factory LEGACY
 core.market_data.market_clock,tests.test_candle_rollover
 core.market_data.market_clock,tests.test_indicator_signal_flow
 core.market_data.market_clock,tests.test_timeframe_manager
@@ -270,6 +285,7 @@ core.positions.position,tests.test_position_manager
 core.positions.position,tests.test_risk_lockout
 core.positions.position_manager,core.execution.paper_execution_engine
 core.positions.position_manager,core.trade_management.trade_manager
+core.positions.position_manager,runtime.runtime_engine
 core.positions.position_manager,tests.test_end_to_end_v2
 core.positions.position_manager,tests.test_paper_execution
 core.positions.position_manager,tests.test_position_exit
@@ -286,10 +302,13 @@ core.positions.position_manager,tests.test_trading_cycle_engine
 core.positions.position_manager,tests.test_trading_engine
 core.positions.position_manager,tests.test_trading_runtime
 core.risk.position_size_decision,core.risk.position_sizing_engine
+core.risk.position_sizing_engine,runtime.multifactor_runtime
+core.risk.position_sizing_engine,runtime.runtime_engine
 core.risk.position_sizing_engine,runtime.trade_pipeline
 core.risk.position_sizing_engine,tests.test_position_sizing_engine
 core.risk.position_sizing_engine,tests.test_position_sizing_engine_v2
 core.risk.risk_decision,core.risk.risk_engine
+core.risk.risk_engine,runtime.runtime_engine
 core.risk.risk_engine,runtime.trade_pipeline
 core.risk.risk_engine,tests.test_end_to_end_v2
 core.risk.risk_engine,tests.test_risk_engine
@@ -321,11 +340,11 @@ core.signals.signal,core.signals.crossover_signal
 core.signals.signal,core.signals.orderflow_signal
 core.signals.signal,core.signals.signal_manager
 core.signals.signal,core.signals.vwap_signal
-core.signals.signal,core.strategy.crossover_strategy
-core.signals.signal,core.strategy.strategy_base
-core.signals.signal,core.strategy.strategy_manager
+core.signals.signal,core.strategy.~~~crossover_strategy LEGACY
+core.signals.signal,core.strategy.~~~strategy_base LEGACY
+core.signals.signal,core.strategy.~~~strategy_manager LEGACY
 core.signals.signal,runtime.signal_runtime
-core.signals.signal,runtime.strategy_runtime
+core.signals.signal,runtime.~~~strategy_runtime-Legacy
 core.signals.signal,tests.test_orderflow_strategy
 core.signals.signal_manager,runtime.signal_runtime
 core.signals.vwap_signal,runtime.signal_registration
@@ -336,16 +355,19 @@ core.strategy.crossover_strategy,core.strategy.orderflow_strategy
 core.strategy.crossover_strategy,tests.test_end_to_end_runtime
 core.strategy.crossover_strategy,tests.test_end_to_end_v2
 core.strategy.multifactor_decision,core.strategy.multifactor_strategy
+core.strategy.multifactor_decision,runtime.multifactor_runtime
 core.strategy.multifactor_decision,tests.test_signal_trading_engine_runtime
 core.strategy.multifactor_decision,tests.test_trading_engine
-core.strategy.multifactor_strategy,runtime.strategy_factory
+core.strategy.multifactor_strategy,runtime.multifactor_runtime
+core.strategy.multifactor_strategy,runtime.~~~strategy_factory LEGACY
 core.strategy.multifactor_strategy,tests.test_multifactor_strategy
-core.strategy.multifactor_strategy,tests.test_strategy_runtime
 core.strategy.multifactor_strategy,tests.test_strategy_trading_engine_runtime
+core.strategy.multifactor_strategy,tests.~~~test_strategy_runtime LEGACY
 core.strategy.orderflow_strategy,tests.test_orderflow_strategy
-core.strategy.strategy_base,core.strategy.crossover_strategy
-core.strategy.strategy_base,core.strategy.strategy_manager
-core.strategy.strategy_base,runtime.strategy_runtime
+core.strategy.strategy_base,core.strategy.~~~crossover_strategy LEGACY
+core.strategy.strategy_base,core.strategy.~~~strategy_manager LEGACY
+core.strategy.strategy_base,runtime.~~~strategy_runtime-Legacy
+core.strategy.trade_context,runtime.multifactor_runtime
 core.strategy.trade_context,runtime.trade_pipeline
 core.strategy.trade_context,runtime.trading_engine
 core.strategy.trade_context,tests.test_trade_context
@@ -353,15 +375,18 @@ core.strategy.trade_context,tests.test_trade_journal_lifecycle
 core.strategy.trade_context,tests.test_trade_manager
 core.strategy.trade_context,tests.test_trade_pipeline
 core.strategy.trade_decision,core.strategy.trade_decision_engine
+core.strategy.trade_decision_engine,runtime.multifactor_runtime
+core.strategy.trade_decision_engine,runtime.runtime_engine
 core.strategy.trade_decision_engine,runtime.trade_pipeline
 core.strategy.trade_decision_engine,tests.test_trade_decision_engine
 core.strategy.trade_decision_engine,tests.test_trade_decision_engine_v2
-core.strategy.trade_intent,core.strategy.crossover_strategy
-core.strategy.trade_intent,core.strategy.strategy_base
-core.strategy.trade_intent,runtime.strategy_runtime
+core.strategy.trade_intent,core.strategy.~~~crossover_strategy LEGACY
+core.strategy.trade_intent,core.strategy.~~~strategy_base LEGACY
+core.strategy.trade_intent,runtime.~~~strategy_runtime-Legacy
 core.trade_management.exit_decision,core.trade_management.exit_rules
 core.trade_management.exit_decision,core.trade_management.trade_manager
 core.trade_management.exit_rules,core.trade_management.trade_manager
+core.trade_management.trade_manager,runtime.runtime_engine
 core.trade_management.trade_manager,runtime.trading_runtime
 core.trade_management.trade_manager,tests.test_end_to_end_v2
 core.trade_management.trade_manager,tests.test_position_exit
@@ -396,6 +421,7 @@ core.websocket.websocket_manager,tests.test_websocket_runtime
 database.db_manager,core.execution.tradebook
 database.db_manager,core.journal.trade_journal_manager
 database.db_manager,main
+database.db_manager,runtime.runtime_engine
 database.db_manager,tests.test_database
 database.db_manager,tests.test_end_to_end_runtime
 database.db_manager,tests.test_signal_trading_engine_runtime
@@ -416,23 +442,27 @@ runtime.candle_runtime,tests.test_trading_cycle_engine
 runtime.depth_processor,runtime.runtime_engine
 runtime.indicator_registration,runtime.runtime_engine
 runtime.indicator_runtime,runtime.indicator_registration
+runtime.indicator_runtime,runtime.multifactor_runtime
 runtime.indicator_runtime,runtime.runtime_engine
 runtime.indicator_runtime,runtime.signal_registration
-runtime.indicator_runtime,runtime.strategy_factory
 runtime.indicator_runtime,runtime.tick_processor
 runtime.indicator_runtime,runtime.trading_cycle_engine
+runtime.indicator_runtime,runtime.~~~strategy_factory LEGACY
 runtime.indicator_runtime,tests.test_candle_indicator_runtime
 runtime.indicator_runtime,tests.test_indicator_runtime
 runtime.indicator_runtime,tests.test_indicator_signal_flow
 runtime.indicator_runtime,tests.test_indicator_signal_runtime
-runtime.indicator_runtime,tests.test_strategy_factory
 runtime.indicator_runtime,tests.test_trading_cycle_engine
+runtime.indicator_runtime,tests.~~~test_strategy_factory LEGACY
+runtime.multifactor_runtime,runtime.runtime_engine
+runtime.multifactor_runtime,runtime.tick_processor
 runtime.orderflow_registration,runtime.runtime_engine
 runtime.orderflow_runtime,runtime.depth_processor
 runtime.orderflow_runtime,runtime.orderflow_registration
 runtime.orderflow_runtime,runtime.runtime_engine
 runtime.orderflow_runtime,runtime.tick_processor
 runtime.orderflow_runtime,tests.test_orderflow_runtime
+runtime.runtime_engine,debug_runtime
 runtime.runtime_engine,tests.test_live_candle_builder
 runtime.runtime_engine,tests.test_runtime_engine
 runtime.runtime_engine,tests.test_runtime_engine_v11
@@ -445,11 +475,10 @@ runtime.signal_runtime,runtime.signal_registration
 runtime.signal_runtime,runtime.tick_processor
 runtime.signal_runtime,tests.test_indicator_signal_flow
 runtime.signal_runtime,tests.test_indicator_signal_runtime
-runtime.strategy_factory,tests.test_strategy_factory
-runtime.strategy_runtime,runtime.strategy_factory
-runtime.strategy_runtime,tests.test_strategy_factory
-runtime.strategy_runtime,tests.test_strategy_runtime
+runtime.strategy_factory,tests.~~~test_strategy_factory LEGACY
 runtime.strategy_runtime,tests.test_strategy_trading_engine_runtime
+runtime.strategy_runtime,tests.~~~test_strategy_factory LEGACY
+runtime.strategy_runtime,tests.~~~test_strategy_runtime LEGACY
 runtime.tick_processor,runtime.candle_runtime
 runtime.tick_processor,runtime.runtime_engine
 runtime.tick_processor,runtime.trading_cycle_engine
@@ -460,6 +489,8 @@ runtime.tick_processor,tests.test_tick_processor_runtime
 runtime.tick_processor,tests.test_trading_cycle_engine
 runtime.tick_processor,tests.test_trading_runtime
 runtime.trade_pipeline,core.trade_management.trade_manager
+runtime.trade_pipeline,runtime.multifactor_runtime
+runtime.trade_pipeline,runtime.runtime_engine
 runtime.trade_pipeline,runtime.trading_engine
 runtime.trade_pipeline,tests.test_signal_trading_engine_runtime
 runtime.trade_pipeline,tests.test_strategy_trading_engine_runtime
@@ -473,9 +504,11 @@ runtime.trading_cycle_engine,tests.test_trading_cycle_engine
 runtime.trading_engine,tests.test_signal_trading_engine_runtime
 runtime.trading_engine,tests.test_strategy_trading_engine_runtime
 runtime.trading_engine,tests.test_trading_engine
+runtime.trading_runtime,runtime.runtime_engine
 runtime.trading_runtime,runtime.trading_cycle_engine
 runtime.trading_runtime,tests.test_trading_cycle_engine
 runtime.trading_runtime,tests.test_trading_runtime
+utils.market_time,runtime.trade_pipeline
 utils.watchlist_loader,runtime.runtime_engine
 utils.watchlist_loader,tests.test_live_subscription_runtime
 utils.watchlist_loader,tests.test_subscription_manager_runtime

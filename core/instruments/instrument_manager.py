@@ -8,6 +8,7 @@ from typing import Any, Optional
 
 from core.logging_manager import LoggingManager
 
+
 class InstrumentManager:
     """
     Handles instrument master loading and indexing.
@@ -20,44 +21,23 @@ class InstrumentManager:
     - provide fast lookup access
     """
 
-    def __init__(
-        self,
-        instrument_file: str
-    ) -> None:
+    def __init__(self, instrument_file: str) -> None:
 
-        self.logger = LoggingManager.get_logger(
-            __name__
-        )
+        self.logger = LoggingManager.get_logger(__name__)
 
-        self.instrument_file = Path(
-            instrument_file
-        )
+        self.instrument_file = Path(instrument_file)
 
         self.lock = Lock()
 
-        self.instruments: list[
-            dict[str, Any]
-        ] = []
+        self.instruments: list[dict[str, Any]] = []
 
-        self.token_index: dict[
-            str,
-            dict[str, Any]
-        ] = {}
+        self.token_index: dict[str, dict[str, Any]] = {}
 
-        self.symbol_index: dict[
-            str,
-            list[dict[str, Any]]
-        ] = {}
+        self.symbol_index: dict[str, list[dict[str, Any]]] = {}
 
-        self.name_index: dict[
-            str,
-            list[dict[str, Any]]
-        ] = {}
+        self.name_index: dict[str, list[dict[str, Any]]] = {}
 
-        self.exchange_index: dict[
-            str,
-            list[dict[str, Any]]
-        ] = {}
+        self.exchange_index: dict[str, list[dict[str, Any]]] = {}
 
         self.is_loaded = False
 
@@ -67,38 +47,22 @@ class InstrumentManager:
         """
 
         try:
-
             if not self.instrument_file.exists():
-
-                self.logger.error(
-                    f"Instrument file missing: "
-                    f"{self.instrument_file}"
-                )
+                self.logger.error(f"Instrument file missing: {self.instrument_file}")
 
                 return False
 
-            self.logger.info(
-                "Loading instrument master"
-            )
+            self.logger.info("Loading instrument master")
 
-            with open(
-                self.instrument_file,
-                "r",
-                encoding="utf-8"
-            ) as file:
-
+            with open(self.instrument_file, "r", encoding="utf-8") as file:
                 raw_data = json.load(file)
 
             if not isinstance(raw_data, list):
-
-                self.logger.error(
-                    "Invalid instrument file format"
-                )
+                self.logger.error("Invalid instrument file format")
 
                 return False
 
             with self.lock:
-
                 self.instruments.clear()
 
                 self.token_index.clear()
@@ -110,154 +74,86 @@ class InstrumentManager:
                 self.exchange_index.clear()
 
                 for record in raw_data:
-
-                    normalized = (
-                        self.normalize_instrument(
-                            record
-                        )
-                    )
+                    normalized = self.normalize_instrument(record)
 
                     if normalized is None:
                         continue
 
-                    self.instruments.append(
-                        normalized
-                    )
+                    self.instruments.append(normalized)
 
                     token = normalized["token"]
 
                     symbol = normalized["symbol"]
 
-                    name = normalized[
-                        "name"
-                    ].upper()
+                    name = normalized["name"].upper()
 
-                    exchange = normalized[
-                        "exchange"
-                    ]
+                    exchange = normalized["exchange"]
 
-                    self.token_index[token] = (
-                        normalized
-                    )
+                    self.token_index[token] = normalized
 
-                    if (
-                        symbol
-                        not in self.symbol_index
-                    ):
+                    if symbol not in self.symbol_index:
+                        self.symbol_index[symbol] = []
 
-                        self.symbol_index[
-                            symbol
-                        ] = []
+                    self.symbol_index[symbol].append(normalized)
 
-                    self.symbol_index[
-                        symbol
-                    ].append(normalized)
+                    if name not in self.name_index:
+                        self.name_index[name] = []
 
-                    if (
-                        name
-                        not in self.name_index
-                    ):
+                    self.name_index[name].append(normalized)
 
-                        self.name_index[
-                            name
-                        ] = []
+                    if exchange not in self.exchange_index:
+                        self.exchange_index[exchange] = []
 
-                    self.name_index[
-                        name
-                    ].append(normalized)
-
-                    if (
-                        exchange
-                        not in self.exchange_index
-                    ):
-
-                        self.exchange_index[
-                            exchange
-                        ] = []
-
-                    self.exchange_index[
-                        exchange
-                    ].append(normalized)
+                    self.exchange_index[exchange].append(normalized)
 
                 self.is_loaded = True
 
-            self.logger.info(
-                f"Loaded "
-                f"{len(self.instruments)} "
-                f"instruments"
-            )
+            self.logger.info(f"Loaded {len(self.instruments)} instruments")
 
             return True
 
         except Exception as error:
-
-            self.logger.error(
-                f"Instrument loading failed: "
-                f"{error}"
-            )
+            self.logger.error(f"Instrument loading failed: {error}")
 
             return False
 
-    def normalize_instrument(
-        self,
-        record: dict[str, Any]
-    ) -> Optional[dict[str, Any]]:
+    def normalize_instrument(self, record: dict[str, Any]) -> Optional[dict[str, Any]]:
         """
         Normalize raw instrument record.
         """
 
         try:
+            token = str(record.get("token", "")).strip()
 
-            token = str(
-                record.get("token", "")
-            ).strip()
+            symbol = str(record.get("symbol", "")).strip().upper()
 
-            symbol = str(
-                record.get("symbol", "")
-            ).strip().upper()
+            exchange = str(record.get("exch_seg", "")).strip().upper()
 
-            exchange = str(
-                record.get("exch_seg", "")
-            ).strip().upper()
+            # ----------------------------------
+            # Derive trading segment
+            # ----------------------------------
+
+            segment = "UNKNOWN"
+
+            if exchange in ("NSE", "BSE"):
+                segment = "EQUITY"
+
+            elif exchange == "NFO":
+                segment = "FNO"
+
+            elif exchange == "MCX":
+                segment = "COMMODITY"
 
             instrument = {
                 "token": token,
-
                 "symbol": symbol,
-
-                "name": str(
-                    record.get("name", "")
-                ).strip(),
-
+                "name": str(record.get("name", "")).strip(),
                 "exchange": exchange,
-
-                "instrument_type": str(
-                    record.get(
-                        "instrumenttype",
-                        ""
-                    )
-                ).strip(),
-
-                "expiry": str(
-                    record.get(
-                        "expiry",
-                        ""
-                    )
-                ).strip(),
-
-                "strike": float(
-                    record.get(
-                        "strike",
-                        0
-                    )
-                ),
-
-                "lot_size": int(
-                    record.get(
-                        "lotsize",
-                        0
-                    )
-                )
+                "segment": segment,
+                "instrument_type": str(record.get("instrumenttype", "")).strip(),
+                "expiry": str(record.get("expiry", "")).strip(),
+                "strike": float(record.get("strike", 0)),
+                "lot_size": int(record.get("lotsize", 0)),
             }
 
             if not token:
@@ -269,72 +165,54 @@ class InstrumentManager:
             return instrument
 
         except Exception as error:
-
-            self.logger.warning(
-                f"Instrument normalization failed: "
-                f"{error}"
-            )
+            self.logger.warning(f"Instrument normalization failed: {error}")
 
             return None
 
-    def get_instrument_by_token(
-        self,
-        token: str
-    ) -> Optional[dict[str, Any]]:
+    def get_instrument_by_token(self, token: str) -> Optional[dict[str, Any]]:
         """
         Return instrument by token.
         """
 
         with self.lock:
+            return self.token_index.get(token)
 
-            return self.token_index.get(
-                token
-            )
-
-    def get_instruments_by_symbol(
-        self,
-        symbol: str
-    ) -> list[dict[str, Any]]:
+    def get_instruments_by_symbol(self, symbol: str) -> list[dict[str, Any]]:
         """
         Return instruments for trading symbol.
         """
 
         with self.lock:
+            return self.symbol_index.get(symbol.upper(), [])
+    
+    def get_primary_instrument(self, symbol: str) -> Optional[dict[str, Any]]:
+        """
+        Return primary instrument record for symbol.
+        """
 
-            return self.symbol_index.get(
-                symbol.upper(),
-                []
-            )
+        instruments = self.get_instruments_by_symbol(symbol)
 
-    def get_instruments_by_name(
-        self,
-        name: str
-    ) -> list[dict[str, Any]]:
+        if not instruments:
+            return None
+
+        return instruments[0]
+    
+    
+    def get_instruments_by_name(self, name: str) -> list[dict[str, Any]]:
         """
         Return instruments for company name.
         """
 
         with self.lock:
+            return self.name_index.get(name.upper(), [])
 
-            return self.name_index.get(
-                name.upper(),
-                []
-            )
-
-    def get_instruments_by_exchange(
-        self,
-        exchange: str
-    ) -> list[dict[str, Any]]:
+    def get_instruments_by_exchange(self, exchange: str) -> list[dict[str, Any]]:
         """
         Return instruments for exchange.
         """
 
         with self.lock:
-
-            return self.exchange_index.get(
-                exchange.upper(),
-                []
-            )
+            return self.exchange_index.get(exchange.upper(), [])
 
     def get_total_instruments(self) -> int:
         """
@@ -342,10 +220,7 @@ class InstrumentManager:
         """
 
         with self.lock:
-
-            return len(
-                self.instruments
-            )
+            return len(self.instruments)
 
     def is_instrument_loaded(self) -> bool:
         """
@@ -360,7 +235,6 @@ class InstrumentManager:
         """
 
         with self.lock:
-
             self.instruments.clear()
 
             self.token_index.clear()
@@ -373,6 +247,4 @@ class InstrumentManager:
 
             self.is_loaded = False
 
-            self.logger.info(
-                "Instrument cache cleared"
-            )
+            self.logger.info("Instrument cache cleared")

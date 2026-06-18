@@ -138,6 +138,7 @@ class RuntimeEngine:
             trade_decision_engine=self.trade_decision_engine,
             position_sizing_engine=self.position_sizing_engine,
             trade_pipeline=self.trade_pipeline,
+            instrument_manager=self.instrument_manager,
         )
 
         # self.signal_runtime = SignalRuntime()
@@ -516,3 +517,28 @@ class RuntimeEngine:
     def get_signal_runtime(self) -> SignalRuntime:
 
         return self.signal_runtime
+    
+    
+    def shutdown_positions(self) -> int:
+        """
+        Close all open positions using
+        latest available market prices.
+        """
+
+        latest_ticks = self.tick_processor.get_all_latest_ticks()
+
+        price_map: dict[str, float] = {}
+
+        for symbol, tick in latest_ticks.items():
+
+            ltp = tick.get("ltp")
+
+            if ltp is None:
+                continue
+
+            price_map[symbol] = float(ltp)
+
+        return self.trade_manager.force_exit_all_positions(
+            price_map=price_map,
+            reason="SYSTEM_SHUTDOWN",
+        )

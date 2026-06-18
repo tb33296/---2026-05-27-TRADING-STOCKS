@@ -1,0 +1,105 @@
+SELECT
+    COUNT(*) AS trades,
+
+    SUM(CASE WHEN net_pnl > 0 THEN 1 ELSE 0 END) AS winners,
+
+    SUM(CASE WHEN net_pnl < 0 THEN 1 ELSE 0 END) AS losers,
+
+    ROUND(
+        100.0 *
+        SUM(CASE WHEN net_pnl > 0 THEN 1 ELSE 0 END)
+        / COUNT(*),
+        2
+    ) AS win_rate,
+
+    ROUND(SUM(gross_pnl), 2) AS gross_pnl,
+
+    ROUND(SUM(charges), 2) AS charges,
+
+    ROUND(SUM(net_pnl), 2) AS net_pnl
+
+FROM trades
+
+WHERE status='CLOSED'
+AND DATE(exit_time)=DATE('now');
+
+
+
+
+
+Daily P&L
+SELECT
+    COUNT(*) AS trades,
+    ROUND(SUM(gross_pnl),2) AS gross_pnl,
+    ROUND(SUM(charges),2) AS charges,
+    ROUND(SUM(net_pnl),2) AS net_pnl
+FROM trades
+WHERE status='CLOSED'
+AND DATE(exit_time)=DATE('now');
+
+
+Win/Loss Summary
+SELECT
+    COUNT(*) AS trades,
+    SUM(CASE WHEN net_pnl > 0 THEN 1 ELSE 0 END) AS winners,
+    SUM(CASE WHEN net_pnl < 0 THEN 1 ELSE 0 END) AS losers,
+    ROUND(
+        100.0 *
+        SUM(CASE WHEN net_pnl > 0 THEN 1 ELSE 0 END)
+        / COUNT(*),
+        2
+    ) AS win_rate,
+    ROUND(SUM(net_pnl),2) AS net_pnl
+FROM trades
+WHERE status='CLOSED'
+AND DATE(exit_time)=DATE('now');
+3. Exit Reason Breakdown
+SELECT
+    exit_reason,
+    COUNT(*) AS trades,
+    ROUND(AVG(net_pnl),2) AS avg_pnl,
+    ROUND(SUM(net_pnl),2) AS total_pnl
+FROM trades
+WHERE status='CLOSED'
+AND DATE(exit_time)=DATE('now')
+GROUP BY exit_reason;
+
+4. Effective RR Check
+
+Use the query we created earlier that shows:
+
+trade_id
+symbol
+entry_price
+stop_loss
+target
+actual_risk
+stop_to_target
+effective_rr
+
+for today's trades.
+
+This will tell us immediately whether the slippage fix is behaving correctly.
+
+5. Open Trades Check
+SELECT
+    trade_id,
+    symbol,
+    status
+FROM trades
+WHERE status='OPEN';
+
+
+SELECT SUM(net_pnl) FROM trades;
+
+SELECT 
+    SUM(CASE WHEN net_pnl > 0 THEN net_pnl ELSE 0 END) AS total_positive_trades,
+    SUM(CASE WHEN net_pnl < 0 THEN net_pnl ELSE 0 END) AS total_negative_trades,
+	SUM(net_pnl) AS net_pnl
+FROM trades;
+
+SELECT * FROM trades WHERE TRIM(exit_reason) = 'SYSTEM_SHUTDOWN'
+
+SELECT trade_id, symbol, exit_time  
+FROM trades 
+WHERE exit_reason LIKE 'SYSTEM_SHUTDOWN';

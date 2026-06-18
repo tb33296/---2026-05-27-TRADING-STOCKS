@@ -198,7 +198,7 @@ ACTIVE_TIMEFRAMES = [ "1m", "5m", "15m" ]
 # ============================================ 
 # Slippage Configuration 
 # ============================================ 
-SIMULATED_SLIPPAGE_PERCENT = 0.001
+SIMULATED_SLIPPAGE_PERCENT = 0 # 0.001 #TEMP CHANGE
 DEFAULT_ORDER_QUANTITY = 1
 
 

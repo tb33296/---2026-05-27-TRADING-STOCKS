@@ -16,6 +16,8 @@ class TradeContext:
 
     symbol: str
 
+    exchange: str
+    
     segment: str
 
     # strategy_name: str
@@ -35,3 +37,39 @@ class TradeContext:
     stop_loss: float
 
     target: float
+    
+    # -------------------------------------------------
+    # Feature States
+    # -------------------------------------------------
+
+    atr: float
+
+    rvol: float
+
+    vwap: float
+
+    awvap: float
+
+    vwma: float
+
+    liquidity_ratio: float
+
+    liquidity_delta: float
+
+    cvd: float
+
+    trend_state: str
+
+    vwap_state: str
+
+    awvap_state: str
+
+    vwma_state: str
+
+    rvol_state: str
+
+    atr_state: str
+
+    liquidity_state: str
+
+    cvd_state: str

@@ -1,3 +1,4 @@
+# runtime/tick_processor.py
 from threading import Lock
 from typing import Any, Optional
 
@@ -144,7 +145,6 @@ class TickProcessor:
                 self.multifactor_runtime.process_trade_opportunity(
                     symbol=candle.symbol,
                     timeframe=candle.timeframe,
-                    segment="NSE",
                     current_price=candle.close,
                     account_size=100000.0,
                 )

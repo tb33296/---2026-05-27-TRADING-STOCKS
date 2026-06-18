@@ -15,6 +15,8 @@ from runtime.trade_pipeline import TradePipeline
 
 from core.strategy.trade_context import TradeContext
 
+from core.instruments.instrument_manager import InstrumentManager
+
 
 class MultiFactorRuntime:
     """
@@ -38,6 +40,7 @@ class MultiFactorRuntime:
         trade_decision_engine: TradeDecisionEngine,
         position_sizing_engine: PositionSizingEngine,
         trade_pipeline: TradePipeline,
+        instrument_manager: InstrumentManager,
     ) -> None:
 
         self.logger = LoggingManager.get_logger(__name__)
@@ -50,7 +53,12 @@ class MultiFactorRuntime:
 
         self.trade_pipeline = trade_pipeline
 
-        self.strategies: dict[tuple[str, str], MultiFactorStrategy] = {}
+        self.instrument_manager = instrument_manager
+
+        self.strategies: dict[
+            tuple[str, str],
+            MultiFactorStrategy,
+        ] = {}
 
     # --------------------------------------------------
     # Strategy Registration
@@ -147,13 +155,9 @@ class MultiFactorRuntime:
         except Exception as error:
             import traceback
 
-            self.logger.error(
-                f"Strategy evaluation failed {symbol}: {error}"
-            )
+            self.logger.error(f"Strategy evaluation failed {symbol}: {error}")
 
-            self.logger.error(
-                traceback.format_exc()
-            )
+            self.logger.error(traceback.format_exc())
 
             return None
 
@@ -161,7 +165,6 @@ class MultiFactorRuntime:
         self,
         symbol: str,
         timeframe: str,
-        segment: str,
         current_price: float,
         account_size: float,
     ):
@@ -179,6 +182,11 @@ class MultiFactorRuntime:
         if decision is None:
             return None
 
+        strategy = self.strategies.get((symbol, timeframe))
+
+        if strategy is None:
+            return None
+
         self.logger.info(
             f"[STRATEGY] "
             f"{symbol} "
@@ -190,8 +198,24 @@ class MultiFactorRuntime:
         if decision.direction == "NO_TRADE":
             return None
 
+        # ----------------------------------
+        # Instrument Metadata
+        # ----------------------------------
+
+        instrument = self.instrument_manager.get_primary_instrument(symbol)
+
+        if instrument is None:
+            self.logger.warning(f"No instrument found for {symbol}")
+
+            return None
+
+        exchange = instrument.get("exchange", "UNKNOWN")
+
+        segment = instrument.get("segment", "UNKNOWN")
+
         trade_context = TradeContext(
             symbol=symbol,
+            exchange=exchange,
             segment=segment,
             score=decision.score,
             direction=decision.direction,
@@ -200,6 +224,42 @@ class MultiFactorRuntime:
             entry_price=current_price,
             stop_loss=decision.stop_loss,
             target=decision.target,
+            # ==================================
+            # Metrics Snapshot
+            # ==================================
+            atr=strategy.atr.get_value(),
+            rvol=strategy.rvol.get_value(),
+            vwap=strategy.vwap.get_value(),
+            awvap=strategy.awvap.get_value(),
+            vwma=strategy.vwma.get_value(),
+            liquidity_ratio=0.0,
+            liquidity_delta=0.0,
+            cvd=0.0,
+            # ==================================
+            # Feature Snapshot
+            # ==================================
+            trend_state=(
+                "BULLISH"
+                if strategy.ema_fast.get_value() > strategy.ema_slow.get_value()
+                else "BEARISH"
+            ),
+            vwap_state=(
+                "ABOVE" if current_price > strategy.vwap.get_value() else "BELOW"
+            ),
+            awvap_state=(
+                "ABOVE" if current_price > strategy.awvap.get_value() else "BELOW"
+            ),
+            vwma_state=(
+                "ABOVE" if current_price > strategy.vwma.get_value() else "BELOW"
+            ),
+            rvol_state=(
+                "HIGH"
+                if strategy.rvol.get_value() >= 1.5
+                else ("LOW" if strategy.rvol.get_value() < 1.0 else "NORMAL")
+            ),
+            atr_state=("ACTIVE" if strategy.atr.get_value() > 0 else "INACTIVE"),
+            liquidity_state="DISABLED",
+            cvd_state="DISABLED",
         )
         self.logger.info(
             f"[TRADE_CANDIDATE] {symbol} {decision.direction} score={decision.score}"
