@@ -9,8 +9,11 @@ class PendingOrder:
     symbol: str
 
     direction: str
+    
+    exchange: str
 
     segment: str
+    
 
     quantity: int
 
@@ -21,5 +24,11 @@ class PendingOrder:
     target: float
 
     remaining_ticks: int
+    
+    slippage_ticks: int
 
-    created_time: datetime
+    fill_price: float | None = None
+
+    fill_time: datetime | None = None
+
+    created_time: datetime | None = None

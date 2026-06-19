@@ -41,6 +41,7 @@ class TradePipeline:
         risk_engine: RiskEngine,
         execution_engine: PaperExecutionEngine,
         journal_manager: TradeJournalManager,
+        pending_order_manager,
     ) -> None:
 
         self.logger = LoggingManager.get_logger(__name__)
@@ -53,6 +54,8 @@ class TradePipeline:
         self.trade_decision_engine = TradeDecisionEngine()
 
         self.position_sizing_engine = PositionSizingEngine()
+        
+        self.pending_order_manager = pending_order_manager
 
     # -------------------------------------------------------------------------------------
     def _create_journal_entry(

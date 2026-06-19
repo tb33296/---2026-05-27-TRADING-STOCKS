@@ -6,6 +6,7 @@ from config.config import (
     MAX_TICK_QUEUE_SIZE,
     MAX_DEPTH_QUEUE_SIZE,
 )
+from core.execution.pending_order_manager import PendingOrderManager
 
 from config.config import ACTIVE_TIMEFRAMES
 
@@ -131,10 +132,13 @@ class RuntimeEngine:
 
         self.journal_manager = TradeJournalManager(self.db_manager)
 
+        self.pending_order_manager = PendingOrderManager()
+        
         self.trade_pipeline = TradePipeline(
             risk_engine=self.risk_engine,
             execution_engine=self.execution_engine,
             journal_manager=self.journal_manager,
+            pending_order_manager=self.pending_order_manager,
         )
 
         self.trade_decision_engine = TradeDecisionEngine()
