@@ -78,6 +78,7 @@ from core.strategy.trade_decision_engine import TradeDecisionEngine
 
 from core.risk.position_sizing_engine import PositionSizingEngine
 
+# from runtime.orderflow_runtime import OrderFlowRuntime
 
 class RuntimeEngine:
     """
@@ -97,9 +98,16 @@ class RuntimeEngine:
         self.logger = LoggingManager.get_logger(__name__)
 
         self.session_manager = SessionManager()
+        
+        self.instrument_manager = InstrumentManager(INSTRUMENT_MASTER_PATH)
 
+        self.token_resolver = TokenResolver(self.instrument_manager)
+
+        self.symbol_registry = SymbolRegistry(self.token_resolver)
         self.tick_queue = TickQueue(MAX_TICK_QUEUE_SIZE)
         self.depth_queue = DepthQueue(MAX_DEPTH_QUEUE_SIZE)
+        
+        
 
         self.orderflow_runtime = OrderFlowRuntime()
 
@@ -135,6 +143,7 @@ class RuntimeEngine:
 
         self.multifactor_runtime = MultiFactorRuntime(
             indicator_runtime=self.indicator_runtime,
+            orderflow_runtime=self.orderflow_runtime,
             trade_decision_engine=self.trade_decision_engine,
             position_sizing_engine=self.position_sizing_engine,
             trade_pipeline=self.trade_pipeline,
@@ -168,11 +177,7 @@ class RuntimeEngine:
             self.session_manager, self.tick_queue, self.depth_queue
         )
 
-        self.instrument_manager = InstrumentManager(INSTRUMENT_MASTER_PATH)
-
-        self.token_resolver = TokenResolver(self.instrument_manager)
-
-        self.symbol_registry = SymbolRegistry(self.token_resolver)
+        
 
         # =====================================
         # REGISTRATIONS
@@ -307,7 +312,7 @@ class RuntimeEngine:
             indicator_count = self.indicator_registration.register_all()
 
             strategy_count = 0
-
+            orderflow_count = self.orderflow_registration.register_all()
             for symbol in self.symbol_registry.get_all_symbols():
                 for timeframe in ACTIVE_TIMEFRAMES:
                     if self.multifactor_runtime.register_strategy(
@@ -324,7 +329,7 @@ class RuntimeEngine:
             # ORDERFLOW REGISTRATION
             # =====================================
 
-            orderflow_count = self.orderflow_registration.register_all()
+            
 
             self.logger.info(f"Registered {orderflow_count} orderflow indicators")
 

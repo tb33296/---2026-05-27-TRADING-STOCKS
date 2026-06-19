@@ -93,9 +93,15 @@ WHERE status='OPEN';
 SELECT SUM(net_pnl) FROM trades;
 
 SELECT 
+    -- All-Time Metrics
     SUM(CASE WHEN net_pnl > 0 THEN net_pnl ELSE 0 END) AS total_positive_trades,
     SUM(CASE WHEN net_pnl < 0 THEN net_pnl ELSE 0 END) AS total_negative_trades,
-	SUM(net_pnl) AS net_pnl
+    SUM(net_pnl) AS total_net_pnl,
+	
+    -- Today's Metrics Only
+    SUM(CASE WHEN net_pnl > 0 AND date(entry_time) = date('now', 'localtime') THEN net_pnl ELSE 0 END) AS todays_positive_trades,
+    SUM(CASE WHEN net_pnl < 0 AND date(entry_time) = date('now', 'localtime') THEN net_pnl ELSE 0 END) AS todays_negative_trades,
+    SUM(CASE WHEN date(entry_time) = date('now', 'localtime') THEN net_pnl ELSE 0 END) AS todays_net_pnl
 FROM trades;
 
 SELECT * FROM trades WHERE TRIM(exit_reason) = 'SYSTEM_SHUTDOWN'

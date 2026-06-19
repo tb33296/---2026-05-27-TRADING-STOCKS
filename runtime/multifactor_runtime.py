@@ -17,6 +17,8 @@ from core.strategy.trade_context import TradeContext
 
 from core.instruments.instrument_manager import InstrumentManager
 
+from runtime.orderflow_runtime import OrderFlowRuntime
+
 
 class MultiFactorRuntime:
     """
@@ -37,6 +39,7 @@ class MultiFactorRuntime:
     def __init__(
         self,
         indicator_runtime: IndicatorRuntime,
+        orderflow_runtime: OrderFlowRuntime,
         trade_decision_engine: TradeDecisionEngine,
         position_sizing_engine: PositionSizingEngine,
         trade_pipeline: TradePipeline,
@@ -54,6 +57,8 @@ class MultiFactorRuntime:
         self.trade_pipeline = trade_pipeline
 
         self.instrument_manager = instrument_manager
+
+        self.orderflow_runtime = orderflow_runtime
 
         self.strategies: dict[
             tuple[str, str],
@@ -99,8 +104,10 @@ class MultiFactorRuntime:
             # )
 
             # cvd = self.indicator_runtime.get_indicator(symbol, timeframe, "CVD")
-            liquidity = None
-            cvd = None
+            liquidity = self.orderflow_runtime.get_liquidity(symbol)
+
+            cvd = self.orderflow_runtime.get_cvd(symbol)
+
             strategy = MultiFactorStrategy(
                 ema_fast=ema_fast,
                 ema_slow=ema_slow,
@@ -184,6 +191,10 @@ class MultiFactorRuntime:
 
         strategy = self.strategies.get((symbol, timeframe))
 
+        liquidity = self.orderflow_runtime.get_liquidity(symbol)
+
+        cvd = self.orderflow_runtime.get_cvd(symbol)
+
         if strategy is None:
             return None
 
@@ -232,9 +243,9 @@ class MultiFactorRuntime:
             vwap=strategy.vwap.get_value(),
             awvap=strategy.awvap.get_value(),
             vwma=strategy.vwma.get_value(),
-            liquidity_ratio=0.0,
-            liquidity_delta=0.0,
-            cvd=0.0,
+            liquidity_ratio=(liquidity.get_ratio() if liquidity else 0.0),
+            liquidity_delta=(liquidity.get_delta() if liquidity else 0.0),
+            cvd=(cvd.get_cvd() if cvd else 0.0),
             # ==================================
             # Feature Snapshot
             # ==================================
@@ -258,8 +269,17 @@ class MultiFactorRuntime:
                 else ("LOW" if strategy.rvol.get_value() < 1.0 else "NORMAL")
             ),
             atr_state=("ACTIVE" if strategy.atr.get_value() > 0 else "INACTIVE"),
-            liquidity_state="DISABLED",
-            cvd_state="DISABLED",
+            liquidity_state=(
+                "BULLISH"
+                if liquidity and liquidity.is_bullish()
+                else ("BEARISH" if liquidity and liquidity.is_bearish() else "NEUTRAL")
+            ),
+            
+            cvd_state=(
+                "BULLISH"
+                if cvd and cvd.is_bullish()
+                else ("BEARISH" if cvd and cvd.is_bearish() else "NEUTRAL")
+            ),
         )
         self.logger.info(
             f"[TRADE_CANDIDATE] {symbol} {decision.direction} score={decision.score}"
