@@ -1,5 +1,18 @@
 # runtime/trade_pipeline.py
 
+import random
+
+from datetime import datetime
+
+from config.config import (
+    MIN_SLIPPAGE_TICKS,
+    MAX_SLIPPAGE_TICKS,
+)
+
+from core.execution.pending_order import PendingOrder
+
+from core.execution.execution_result import ExecutionResult
+
 from core.execution.paper_execution_engine import PaperExecutionEngine
 
 from core.logging_manager import LoggingManager
@@ -23,6 +36,7 @@ from core.journal.trade_metrics_snapshot import TradeMetricsSnapshot
 from core.journal.trade_feature_snapshot import TradeFeatureSnapshot
 
 from utils.market_time import MarketTime
+
 
 class TradePipeline:
     """
@@ -54,7 +68,7 @@ class TradePipeline:
         self.trade_decision_engine = TradeDecisionEngine()
 
         self.position_sizing_engine = PositionSizingEngine()
-        
+
         self.pending_order_manager = pending_order_manager
 
     # -------------------------------------------------------------------------------------
@@ -68,38 +82,24 @@ class TradePipeline:
         trade_id = self.journal_manager.create_trade(
             TradeSnapshot(
                 trade_id=None,
-
                 symbol=trade_context.symbol,
-
                 exchange=trade_context.exchange,
                 segment=trade_context.segment,
-
                 strategy_name="MultiFactor",
-
                 direction=trade_context.direction,
-
                 entry_time=execution.timestamp.isoformat(),
-
                 quantity=execution.quantity,
-
                 entry_price=execution.fill_price,
-
                 stop_loss=trade_context.stop_loss,
-
                 target=trade_context.target,
-
                 score=trade_context.score,
-
                 confidence=trade_context.confidence,
-
                 risk_amount=sizing.risk_amount,
-
                 risk_percent=sizing.risk_percent,
-
                 status="OPEN",
             )
         )
-        
+
         self.logger.info(
             f"[JOURNAL_CREATE] "
             f"symbol={trade_context.symbol} "
@@ -117,21 +117,13 @@ class TradePipeline:
         self.journal_manager.add_metrics_snapshot(
             TradeMetricsSnapshot(
                 trade_id=trade_id,
-
                 atr=trade_context.atr,
-
                 rvol=trade_context.rvol,
-
                 vwap=trade_context.vwap,
-
                 awvap=trade_context.awvap,
-
                 vwma=trade_context.vwma,
-
                 liquidity_ratio=trade_context.liquidity_ratio,
-
                 liquidity_delta=trade_context.liquidity_delta,
-
                 cvd=trade_context.cvd,
             )
         )
@@ -143,21 +135,13 @@ class TradePipeline:
         self.journal_manager.add_feature_snapshot(
             TradeFeatureSnapshot(
                 trade_id=trade_id,
-
                 trend_state=trade_context.trend_state,
-
                 vwap_state=trade_context.vwap_state,
-
                 awvap_state=trade_context.awvap_state,
-
                 vwma_state=trade_context.vwma_state,
-
                 rvol_state=trade_context.rvol_state,
-
                 atr_state=trade_context.atr_state,
-
                 liquidity_state=trade_context.liquidity_state,
-
                 cvd_state=trade_context.cvd_state,
             )
         )
@@ -171,18 +155,113 @@ class TradePipeline:
         return trade_id
 
     # `````````````````````````````````````````````````````~~~~~~~~~~~~~~~~~~~~~~~~~```````
+    # --------------------------------------------------------------------------------------
+    def execute_pending_order(
+        self,
+        order: PendingOrder,
+        fill_price: float,
+    ):
+        """
+        Execute a pending order after
+        simulated slippage delay.
+        """
 
+        try:
+            order.fill_price = fill_price
+
+            order.fill_time = datetime.now()
+
+            trade_context = order.trade_context
+
+            # ----------------------------------
+            # Execute BUY
+            # ----------------------------------
+
+            if order.direction == "LONG":
+                execution = self.execution_engine.execute_buy(
+                    symbol=order.symbol,
+                    segment=order.segment,
+                    quantity=order.quantity,
+                    ltp=fill_price,
+                    stop_loss=order.stop_loss,
+                    target=order.target,
+                )
+
+            # ----------------------------------
+            # Execute SHORT
+            # ----------------------------------
+
+            elif order.direction == "SHORT":
+                execution = self.execution_engine.execute_short(
+                    symbol=order.symbol,
+                    segment=order.segment,
+                    quantity=order.quantity,
+                    ltp=fill_price,
+                    stop_loss=order.stop_loss,
+                    target=order.target,
+                )
+
+            else:
+                self.logger.error(f"Unknown pending order direction: {order.direction}")
+
+                return None
+
+            # ----------------------------------
+            # Journal Creation
+            # ----------------------------------
+
+            if execution.success and execution.position_opened:
+                sizing = type(
+                    "SizingResult",
+                    (),
+                    {
+                        "risk_amount": order.risk_amount,
+                        "risk_percent": order.risk_percent,
+                    },
+                )()
+
+                trade_id = self._create_journal_entry(
+                    trade_context=trade_context,
+                    execution=execution,
+                    sizing=sizing,
+                )
+
+                position = self.execution_engine.position_manager.open_positions.get(
+                    order.symbol
+                )
+
+                if position is not None:
+                    position.trade_id = trade_id
+
+                    self.logger.info(
+                        f"[TRADE_LINKED] {order.symbol} trade_id={trade_id}"
+                    )
+
+                slippage_points = fill_price - order.signal_price
+
+                self.logger.info(
+                    f"[SLIPPAGE_FILL] "
+                    f"{order.symbol} "
+                    f"signal={order.signal_price:.2f} "
+                    f"fill={fill_price:.2f} "
+                    f"ticks={order.slippage_ticks} "
+                    f"slippage={slippage_points:.2f}"
+                )
+
+            return execution
+
+        except Exception as error:
+            self.logger.error(f"Pending order execution failed: {error}")
+
+            return None
+
+    # __________________________________________________________________________________________
     def execute_trade(self, trade_context: TradeContext, account_size: float):
         """
         Execute full trade workflow.
         """
         if not MarketTime.is_market_open():
-
-            self.logger.info(
-                f"[TRADE_BLOCKED] "
-                f"{trade_context.symbol} "
-                f"Market not open"
-            )
+            self.logger.info(f"[TRADE_BLOCKED] {trade_context.symbol} Market not open")
 
             return (None, None, None, None)
         try:
@@ -266,16 +345,46 @@ class TradePipeline:
                     f"[EXECUTE_ORDER] {trade_context.symbol} LONG qty={sizing.quantity}"
                 )
 
-                execution = self.execution_engine.execute_buy(
-                    symbol=(trade_context.symbol),
-                    segment=(trade_context.segment),
-                    quantity=(sizing.quantity),
-                    ltp=(trade_context.entry_price),
-                    stop_loss=(trade_context.stop_loss),
-                    target=(trade_context.target),
+                slippage_ticks = random.randint(
+                    MIN_SLIPPAGE_TICKS,
+                    MAX_SLIPPAGE_TICKS,
                 )
 
-                trade_monitor.add("EXECUTE_ORDER", f"BUY {trade_context.symbol}")
+                pending_order = PendingOrder(
+                    symbol=trade_context.symbol,
+                    direction="LONG",
+                    exchange=trade_context.exchange,
+                    segment=trade_context.segment,
+                    trade_context=trade_context,
+                    account_size=account_size,
+                    quantity=sizing.quantity,
+                    risk_amount=sizing.risk_amount,
+                    risk_percent=sizing.risk_percent,
+                    signal_price=trade_context.entry_price,
+                    stop_loss=trade_context.stop_loss,
+                    target=trade_context.target,
+                    remaining_ticks=slippage_ticks,
+                    slippage_ticks=slippage_ticks,
+                    created_time=datetime.now(),
+                )
+
+                self.pending_order_manager.create_order(pending_order)
+
+                self.logger.info(
+                    f"[PENDING_LONG] {trade_context.symbol} delay={slippage_ticks}"
+                )
+
+                trade_monitor.add(
+                    "PENDING_ORDER",
+                    (f"LONG {trade_context.symbol} delay={slippage_ticks}"),
+                )
+
+                return (
+                    decision,
+                    risk,
+                    None,
+                    sizing,
+                )
 
             # ==================================================
             # SHORT ENTRY
@@ -288,50 +397,78 @@ class TradePipeline:
                     f"SHORT "
                     f"qty={sizing.quantity}"
                 )
-
-                execution = self.execution_engine.execute_short(
-                    symbol=(trade_context.symbol),
-                    segment=(trade_context.segment),
-                    quantity=(sizing.quantity),
-                    ltp=(trade_context.entry_price),
-                    stop_loss=(trade_context.stop_loss),
-                    target=(trade_context.target),
+                slippage_ticks = random.randint(
+                    MIN_SLIPPAGE_TICKS,
+                    MAX_SLIPPAGE_TICKS,
+                )
+                pending_order = PendingOrder(
+                    symbol=trade_context.symbol,
+                    direction="SHORT",
+                    exchange=trade_context.exchange,
+                    segment=trade_context.segment,
+                    trade_context=trade_context,
+                    account_size=account_size,
+                    quantity=sizing.quantity,
+                    risk_amount=sizing.risk_amount,
+                    risk_percent=sizing.risk_percent,
+                    signal_price=trade_context.entry_price,
+                    stop_loss=trade_context.stop_loss,
+                    target=trade_context.target,
+                    remaining_ticks=slippage_ticks,
+                    slippage_ticks=slippage_ticks,
+                    created_time=datetime.now(),
                 )
 
-                trade_monitor.add("EXECUTE_ORDER", f"SHORT {trade_context.symbol}")
+                self.pending_order_manager.create_order(pending_order)
+
+                self.logger.info(
+                    f"[PENDING_SHORT] {trade_context.symbol} delay={slippage_ticks}"
+                )
+
+                trade_monitor.add(
+                    "PENDING_ORDER",
+                    (f"SHORT {trade_context.symbol} delay={slippage_ticks}"),
+                )
+
+                return (
+                    decision,
+                    risk,
+                    None,
+                    sizing,
+                )
 
             else:
                 return (decision, risk, None, sizing)
 
-            # ==================================================
-            # JOURNAL + TRADE LINKAGE
-            # ==================================================
+            # # ==================================================
+            # # JOURNAL + TRADE LINKAGE
+            # # ==================================================
 
-            if execution.success and execution.position_opened:
-                self.logger.info(
-                    f"[POSITION_OPENED_PIPELINE] "
-                    f"{trade_context.symbol}"
-                    f"qty={execution.quantity}"
-                )
+            # if execution.success and execution.position_opened:
+            #     self.logger.info(
+            #         f"[POSITION_OPENED_PIPELINE] "
+            #         f"{trade_context.symbol}"
+            #         f"qty={execution.quantity}"
+            #     )
 
-                trade_monitor.add(
-                    "POSITION_OPENED",
-                    (f"{trade_context.symbol} qty={execution.quantity}"),
-                )
-                trade_id = self._create_journal_entry(trade_context, execution, sizing)
+            #     trade_monitor.add(
+            #         "POSITION_OPENED",
+            #         (f"{trade_context.symbol} qty={execution.quantity}"),
+            #     )
+            #     trade_id = self._create_journal_entry(trade_context, execution, sizing)
 
-                position = self.execution_engine.position_manager.open_positions.get(
-                    trade_context.symbol
-                )
+            #     position = self.execution_engine.position_manager.open_positions.get(
+            #         trade_context.symbol
+            #     )
 
-                if position is not None:
-                    position.trade_id = trade_id
+            #     if position is not None:
+            #         position.trade_id = trade_id
 
-                    self.logger.info(
-                        f"Trade ID {trade_id} linked to {trade_context.symbol}"
-                    )
+            #         self.logger.info(
+            #             f"Trade ID {trade_id} linked to {trade_context.symbol}"
+            #         )
 
-            return (decision, risk, execution, sizing)
+            # return (decision, risk, execution, sizing)
 
         except Exception as error:
             self.logger.error(f"Trade pipeline failed: {error}")

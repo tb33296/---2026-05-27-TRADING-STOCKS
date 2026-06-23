@@ -67,7 +67,7 @@ class OrderFlowRuntime:
 
                 liquidity.update(depth_data)
                 self.logger.info(
-                    f"[LIQUIDITY_TICK] "
+                    f"[MODE3_LIQUIDITY] "
                     f"{symbol} "
                     f"delta={liquidity.get_delta()} "
                     f"ratio={liquidity.get_ratio()}"

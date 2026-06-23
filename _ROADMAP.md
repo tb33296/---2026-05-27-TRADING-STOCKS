@@ -422,3 +422,145 @@ Build Runtime Engine
 Target Outcome:
 
 A continuously running event-driven paper trading system operating without manual intervention.
+
+
+
+# Future Enhancement: Dynamic Depth Subscription Manager
+
+## Problem
+
+Angel One WebSocket V2 Depth Mode (Mode 4) is limited to approximately 50 symbols per connection.
+
+Current implementation subscribes all active watchlist symbols to:
+
+* Quote Mode (Mode 2)
+* Depth Mode (Mode 4)
+
+This architecture will not scale beyond the current watchlist size.
+
+---
+
+## Proposed Solution
+
+Create:
+
+runtime/depth_subscription_manager.py
+
+Responsibilities:
+
+* Maintain Quote subscriptions for the full watchlist.
+* Dynamically allocate Depth subscriptions to the highest-priority symbols.
+* Continuously rebalance Depth subscriptions during market hours.
+
+---
+
+## Target Architecture
+
+NIFTY 100 Universe
+↓
+QUOTE Mode (2)
+↓
+100 Symbols
+
+Indicator Processing
+↓
+
+Rank By:
+
+* Strategy Score
+* RVOL
+* Momentum
+* Volatility
+
+  ```
+    ↓
+  ```
+
+Top 20–40 Symbols
+↓
+
+DEPTH Mode (4)
+↓
+
+Liquidity Ratio
+Liquidity Delta
+Order Flow Analysis
+
+---
+
+## Benefits
+
+* Scale to 100+ symbols without violating Angel One Depth limits.
+* Reduce unnecessary market depth traffic.
+* Focus Liquidity and Order Flow analysis on the most relevant candidates.
+* Lower CPU and memory consumption.
+
+---
+
+## Alternative Approaches
+
+### Option A — Multiple WebSocket Connections
+
+Angel One currently allows multiple concurrent WebSocket connections.
+
+Example:
+
+Connection 1 → 50 Depth Symbols
+Connection 2 → 50 Depth Symbols
+Connection 3 → 50 Depth Symbols
+
+Pros:
+
+* Supports larger Depth universes.
+
+Cons:
+
+* Increased complexity.
+* Increased network traffic.
+* Increased processing load.
+
+Status:
+Not recommended at current project maturity.
+
+---
+
+### Option B — Dynamic Subscription Rotation
+
+Periodically:
+
+* Unsubscribe low-priority symbols.
+* Subscribe high-priority symbols.
+
+Pros:
+
+* Efficient use of Depth quota.
+* Better scalability.
+
+Cons:
+
+* Additional subscription management logic required.
+
+Status:
+Preferred long-term solution.
+
+---
+
+## Prerequisites
+
+Must be completed before implementation:
+
+* RVOL validation
+* VWMA validation
+* Liquidity Ratio validation
+* Liquidity Delta validation
+* Slippage workflow validation
+* Trade quality analysis
+
+---
+
+## Priority
+
+Low
+
+Target Phase:
+Post-validation optimization phase.

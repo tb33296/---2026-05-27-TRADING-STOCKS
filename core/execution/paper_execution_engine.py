@@ -10,7 +10,7 @@ from core.positions.position import Position
 
 from core.positions.position_manager import PositionManager
 
-from config.config import SIMULATED_SLIPPAGE_PERCENT
+# from config.config import SIMULATED_SLIPPAGE_PERCENT
 
 
 class PaperExecutionEngine:
@@ -38,7 +38,9 @@ class PaperExecutionEngine:
         """
 
         try:
-            fill_price = ltp * (1 + SIMULATED_SLIPPAGE_PERCENT)
+            fill_price = round(ltp, 2)
+
+            offset = 0.0
 
             fill_price = round(fill_price, 2)
             offset = fill_price - ltp
@@ -109,7 +111,9 @@ class PaperExecutionEngine:
         """
 
         try:
-            fill_price = ltp * (1 - SIMULATED_SLIPPAGE_PERCENT)
+            fill_price = round(ltp, 2)
+
+            offset = 0.0
 
             fill_price = round(fill_price, 2)
             offset = fill_price - ltp

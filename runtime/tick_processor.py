@@ -16,6 +16,8 @@ from runtime.signal_runtime import SignalRuntime
 
 from runtime.multifactor_runtime import MultiFactorRuntime
 
+from core.execution.pending_order_manager import PendingOrderManager
+
 
 class TickProcessor:
     """
@@ -41,6 +43,7 @@ class TickProcessor:
         indicator_runtime: IndicatorRuntime,
         signal_runtime: SignalRuntime,
         multifactor_runtime: MultiFactorRuntime,
+        pending_order_manager: PendingOrderManager,
     ) -> None:
 
         self.logger = LoggingManager.get_logger(__name__)
@@ -64,6 +67,8 @@ class TickProcessor:
         self.total_processed = 0
 
         self.invalid_ticks = 0
+        
+        self.pending_order_manager = pending_order_manager
 
     def process_next_tick(self) -> bool:
         """
@@ -92,6 +97,34 @@ class TickProcessor:
                 self.total_processed += 1
 
             self.orderflow_runtime.process_tick(tick)
+            
+            # ----------------------------------
+            # Pending Order Processing
+            # ----------------------------------
+
+            ready_orders = (
+                self.pending_order_manager.process_tick(
+                    symbol
+                )
+            )
+            
+            for order in ready_orders:
+
+                self.logger.info(
+                    f"[EXECUTING_PENDING_ORDER] "
+                    f"{order.symbol} "
+                    f"{order.direction}"
+                )
+
+                self.multifactor_runtime.trade_pipeline.execute_pending_order(
+                    order=order,
+                    fill_price=float(
+                        tick.get(
+                            "ltp",
+                            order.signal_price,
+                        )
+                    ),
+                )
 
             closed_candles = self.timeframe_manager.process_tick(tick)
 

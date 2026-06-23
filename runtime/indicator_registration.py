@@ -1,3 +1,4 @@
+# runtime/indicator_registration.py
 from datetime import datetime
 
 from config.config import (

@@ -52,7 +52,49 @@ class MultiFactorStrategy:
         score = 0.0
 
         reasons: list[str] = []
+        required = [
+            self.atr,
+            self.rvol,
+            self.vwma,
+        ]
 
+        # ===================================
+        # INDICATOR READINESS GATE
+        # ===================================
+        if not self.atr.is_ready():
+            self.logger.info(
+                f"[WARMUP_BLOCKED] "
+                f"{self.atr.symbol} "
+                f"ATR not ready"
+            )
+        if not self.rvol.is_ready():
+            self.logger.info(
+                f"[WARMUP_BLOCKED] "
+                f"{self.rvol.symbol} "
+                f"RVOL not ready"
+            )
+        if not self.vwma.is_ready():
+            self.logger.info(
+                f"[WARMUP_BLOCKED] "
+                f"{self.vwma.symbol} "
+                f"VWMA not ready"
+            )
+        required = [
+            self.atr,
+            self.rvol,
+            self.vwma,
+        ]
+        
+        if not all(ind.is_ready() for ind in required):
+
+            return MultiFactorDecision(
+                score=0.0,
+                direction="NO_TRADE",
+                confidence="LOW",
+                reasons=["INDICATORS_NOT_READY"],
+                stop_loss=0.0,
+                target=0.0,
+            )
         # ===================================
         # TREND
         # ===================================
@@ -99,32 +141,69 @@ class MultiFactorStrategy:
         # RVOL
         # ===================================
 
-        rvol_value = self.rvol.get_value()
+        if self.rvol.is_ready():
 
-        if rvol_value >= 1.5:
-            score += self.loader.get_weight("volume", "rvol_bullish")
+            rvol_value = self.rvol.get_value()
 
-            reasons.append(f"RVOL={rvol_value}")
+            if rvol_value >= 1.5:
+                score += self.loader.get_weight(
+                    "volume",
+                    "rvol_bullish",
+                )
 
-        elif rvol_value < 1.0:
-            score += self.loader.get_weight("volume", "rvol_bearish")
+                reasons.append(
+                    f"RVOL={rvol_value}"
+                )
 
-            reasons.append(f"Weak RVOL={rvol_value}")
+            elif rvol_value < 1.0:
+                score += self.loader.get_weight(
+                    "volume",
+                    "rvol_bearish",
+                )
+
+                reasons.append(
+                    f"Weak RVOL={rvol_value}"
+                )
+
+        else:
+
+            reasons.append(
+                "RVOL Not Ready"
+            )
 
         # ===================================
         # VWMA
         # ===================================
 
-        if current_price > self.vwma.get_value():
-            score += self.loader.get_weight("volume", "vwma_bullish")
+        if self.vwma.is_ready():
 
-            reasons.append("Above VWMA")
+            if current_price > self.vwma.get_value():
+
+                score += self.loader.get_weight(
+                    "volume",
+                    "vwma_bullish",
+                )
+
+                reasons.append(
+                    "Above VWMA"
+                )
+
+            else:
+
+                score += self.loader.get_weight(
+                    "volume",
+                    "vwma_bearish",
+                )
+
+                reasons.append(
+                    "Below VWMA"
+                )
 
         else:
-            score += self.loader.get_weight("volume", "vwma_bearish")
 
-            reasons.append("Below VWMA")
-
+            reasons.append(
+                "VWMA Not Ready"
+            )
         # ===================================
         # ATR
         # ===================================
@@ -269,7 +348,6 @@ class MultiFactorStrategy:
 
             target = round(current_price - (risk_distance * RISK_REWARD_RATIO), 2)
 
-        
         self.logger.info(
             f"[TRADE_SETUP] "
             f"dir={direction} "

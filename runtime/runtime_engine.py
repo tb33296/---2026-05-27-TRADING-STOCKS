@@ -10,7 +10,7 @@ from core.execution.pending_order_manager import PendingOrderManager
 
 from config.config import ACTIVE_TIMEFRAMES
 
-from config.config import WEBSOCKET_MODE_QUOTE, WEBSOCKET_MODE_DEPTH
+from config.config import  WEBSOCKET_MODE_QUOTE, WEBSOCKET_MODE_DEPTH, WEBSOCKET_MODE_SNAPQUOTE
 
 from core.logging_manager import LoggingManager
 
@@ -81,6 +81,7 @@ from core.risk.position_sizing_engine import PositionSizingEngine
 
 # from runtime.orderflow_runtime import OrderFlowRuntime
 
+
 class RuntimeEngine:
     """
     Main runtime orchestrator.
@@ -99,7 +100,7 @@ class RuntimeEngine:
         self.logger = LoggingManager.get_logger(__name__)
 
         self.session_manager = SessionManager()
-        
+
         self.instrument_manager = InstrumentManager(INSTRUMENT_MASTER_PATH)
 
         self.token_resolver = TokenResolver(self.instrument_manager)
@@ -107,8 +108,6 @@ class RuntimeEngine:
         self.symbol_registry = SymbolRegistry(self.token_resolver)
         self.tick_queue = TickQueue(MAX_TICK_QUEUE_SIZE)
         self.depth_queue = DepthQueue(MAX_DEPTH_QUEUE_SIZE)
-        
-        
 
         self.orderflow_runtime = OrderFlowRuntime()
 
@@ -133,7 +132,7 @@ class RuntimeEngine:
         self.journal_manager = TradeJournalManager(self.db_manager)
 
         self.pending_order_manager = PendingOrderManager()
-        
+
         self.trade_pipeline = TradePipeline(
             risk_engine=self.risk_engine,
             execution_engine=self.execution_engine,
@@ -162,6 +161,7 @@ class RuntimeEngine:
             self.indicator_runtime,
             self.signal_runtime,
             self.multifactor_runtime,
+            pending_order_manager=self.pending_order_manager,
         )
         self.trade_manager = TradeManager(
             position_manager=self.position_manager,
@@ -180,8 +180,6 @@ class RuntimeEngine:
         self.websocket_manager = WebSocketManager(
             self.session_manager, self.tick_queue, self.depth_queue
         )
-
-        
 
         # =====================================
         # REGISTRATIONS
@@ -250,18 +248,13 @@ class RuntimeEngine:
         self.logger.info("TradeMonitor worker started")
 
         while self.is_running:
-
             self.logger.info("[TRADE_MONITOR_LOOP]")
 
             try:
-
                 self.trading_runtime.process_market()
 
             except Exception as error:
-
-                self.logger.error(
-                    f"[TRADE_MONITOR_CRASH] {error}"
-                )
+                self.logger.error(f"[TRADE_MONITOR_CRASH] {error}")
 
             time.sleep(1)
 
@@ -333,8 +326,6 @@ class RuntimeEngine:
             # ORDERFLOW REGISTRATION
             # =====================================
 
-            
-
             self.logger.info(f"Registered {orderflow_count} orderflow indicators")
 
             # =====================================
@@ -388,21 +379,36 @@ class RuntimeEngine:
                 self.logger.error("Mode 2 subscription failed")
 
                 return False
-
             # -------------------------
-            # Mode 4 Subscription
+            # Mode 3 Subscription
             # -------------------------
 
             if not (
                 self.websocket_manager.subscribe(
-                    correlation_id="mode4_depth",
-                    mode=WEBSOCKET_MODE_DEPTH,
+                    correlation_id="mode3_depth",
+                    mode=WEBSOCKET_MODE_SNAPQUOTE,
                     token_list=payload,
                 )
             ):
-                self.logger.error("Mode 4 subscription failed")
-
+                self.logger.error("Mode 3 subscription failed")
                 return False
+            
+            
+            #! TEMPORARY SUSPENTION OF MODE 4
+            # -------------------------
+            # Mode 4 Subscription
+            # -------------------------
+
+            # if not (
+            #     self.websocket_manager.subscribe(
+            #         correlation_id="mode4_depth",
+            #         mode=WEBSOCKET_MODE_DEPTH,
+            #         token_list=payload,
+            #     )
+            # ):
+            #     self.logger.error("Mode 4 subscription failed")
+
+            #     return False
 
             self.is_running = True
 
@@ -427,7 +433,7 @@ class RuntimeEngine:
             self.depth_processor_thread.start()
 
             self.tick_processor_thread.start()
-            
+
             self.trade_monitor_thread.start()
             self.logger.info("TradeMonitor worker started")
 
@@ -526,8 +532,7 @@ class RuntimeEngine:
     def get_signal_runtime(self) -> SignalRuntime:
 
         return self.signal_runtime
-    
-    
+
     def shutdown_positions(self) -> int:
         """
         Close all open positions using
@@ -539,7 +544,6 @@ class RuntimeEngine:
         price_map: dict[str, float] = {}
 
         for symbol, tick in latest_ticks.items():
-
             ltp = tick.get("ltp")
 
             if ltp is None:

@@ -25,7 +25,12 @@ class WebSocketManager:
     Handles SmartAPI websocket connection and tick ingestion.
     """
 
-    def __init__(self, session_manager: SessionManager, tick_queue: TickQueue, depth_queue: DepthQueue) -> None:
+    def __init__(
+        self,
+        session_manager: SessionManager,
+        tick_queue: TickQueue,
+        depth_queue: DepthQueue,
+    ) -> None:
 
         self.logger = LoggingManager.get_logger(__name__)
 
@@ -33,7 +38,7 @@ class WebSocketManager:
 
         self.tick_queue = tick_queue
         
-        
+        self.depth_queue = depth_queue
 
         self.websocket: Optional[SmartWebSocketV2] = None
 
@@ -57,6 +62,13 @@ class WebSocketManager:
 
         self.last_tick_time: Optional[datetime] = None
         self.token_symbol_map: dict[str, str] = {}
+        
+        # ----------------------------------
+        # Volume Tracking
+        # ----------------------------------
+
+        self.previous_day_volume: dict[str, int] = {}
+
 
         self.raw_tick_captured = False
 
@@ -206,6 +218,9 @@ class WebSocketManager:
             if subscription_mode == 2:
                 self.handle_quote_tick(data)
 
+            elif subscription_mode == 3:
+                self.handle_snapquote_tick(data)
+
             elif subscription_mode == 4:
                 self.handle_depth_tick(data)
 
@@ -221,12 +236,32 @@ class WebSocketManager:
         """
 
         try:
-            normalized_depth = self.normalize_depth_tick(raw_tick)
+            normalized_depth = self.normalize_depth_tick(
+                raw_tick
+            )
 
             if normalized_depth is None:
                 return
 
-            self.last_depth_packet = normalized_depth
+            # ----------------------------------
+            # Push into Depth Queue
+            # ----------------------------------
+
+            success = self.depth_queue.enqueue(
+                normalized_depth
+            )
+
+            if not success:
+
+                self.logger.warning(
+                    "Depth queue overflow"
+                )
+
+                return
+
+            self.last_depth_packet = (
+                normalized_depth
+            )
 
             self.total_ticks_received += 1
 
@@ -268,6 +303,34 @@ class WebSocketManager:
         except Exception as error:
             self.logger.error(f"Quote processing failed: {error}")
 
+    def handle_snapquote_tick(self, raw_tick: dict[str, Any]) -> None:
+        """
+        Mode 3 Snapshot Quote.
+
+        Build synthetic depth packet
+        from best 5 bid/ask levels.
+        """
+
+        try:
+            normalized_depth = self.normalize_snapquote_depth(raw_tick)
+
+            if normalized_depth is None:
+                return
+
+            success = self.depth_queue.enqueue(normalized_depth)
+
+            if not success:
+                self.logger.warning("Depth queue overflow")
+
+                return
+
+            self.depth_ticks_received += 1
+
+        except Exception as error:
+            self.logger.error(f"Snapquote processing failed: {error}")
+    
+    
+    
     def on_error(self, *args: Any) -> None:
         """
         Websocket error callback.
@@ -313,11 +376,24 @@ class WebSocketManager:
 
             ltp = float(raw_tick.get("last_traded_price", 0)) / 100
 
-            volume = int(raw_tick.get("volume_trade_for_the_day", 0))
+            day_volume = int(raw_tick.get("volume_trade_for_the_day", 0))
 
             exchange_time = raw_tick.get("exchange_timestamp")
 
             symbol = self.token_symbol_map.get(token, token)
+
+            # ----------------------------------
+            # Convert cumulative day volume
+            # into incremental tick volume
+            # ----------------------------------
+
+            previous_volume = self.previous_day_volume.get(symbol, day_volume)
+
+            volume = max(0, day_volume - previous_volume)
+
+            self.previous_day_volume[symbol] = day_volume
+            
+            self.logger.info(f"[VOLUME] {symbol} day={day_volume} tick={volume}")
 
             normalized_tick = {
                 "symbol": symbol,
@@ -389,6 +465,56 @@ class WebSocketManager:
         except Exception as error:
             self.logger.error(f"Raw tick capture failed: {error}")
 
+    def normalize_snapquote_depth(
+        self,
+        raw_tick: dict[str, Any]
+    ) -> Optional[dict[str, Any]]:
+
+        try:
+
+            token = str(
+                raw_tick.get(
+                    "token",
+                    ""
+                )
+            )
+
+            symbol = (
+                self.token_symbol_map.get(
+                    token,
+                    token
+                )
+            )
+
+            buy_levels = raw_tick.get(
+                "best_5_buy_data",
+                []
+            )
+
+            sell_levels = raw_tick.get(
+                "best_5_sell_data",
+                []
+            )
+
+            normalized_depth = {
+                "symbol": symbol,
+                "token": token,
+                "buy": buy_levels,
+                "sell": sell_levels,
+                "timestamp": datetime.now(),
+            }
+
+            return normalized_depth
+
+        except Exception as error:
+
+            self.logger.error(
+                f"Snapquote normalization failed: {error}"
+            )
+
+            return None
+    
+    
     def disconnect(self) -> None:
         """
         Disconnect websocket safely.
