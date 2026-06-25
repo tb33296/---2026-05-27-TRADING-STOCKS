@@ -5,6 +5,12 @@ from core.indicators.cvd import CVD
 
 from core.indicators.liquidity_delta import LiquidityDelta
 
+from database.cvd_state_manager import CVDStateManager
+
+from database.db_manager import DatabaseManager
+
+from database.cvd_state_manager import CVDStateManager
+
 
 class OrderFlowRuntime:
     """
@@ -21,7 +27,10 @@ class OrderFlowRuntime:
     - execute trades
     """
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        database_manager: DatabaseManager,
+    ) -> None:
 
         self.logger = LoggingManager.get_logger(__name__)
 
@@ -29,7 +38,21 @@ class OrderFlowRuntime:
 
         self.liquidity_indicators: dict[str, LiquidityDelta] = {}
 
-    def register_cvd(self, indicator: CVD) -> None:
+        self.cvd_state_manager = CVDStateManager(database_manager)
+        
+        self.cvd_state_manager.cleanup_old_rows() # Clean up CVD Rows
+
+    def register_cvd(
+        self,
+        indicator: CVD,
+    ) -> None:
+
+        saved_cvd = self.cvd_state_manager.load_symbol_cvd(indicator.symbol)
+
+        if saved_cvd is not None:
+            indicator.set_cvd(saved_cvd)
+
+            self.logger.info(f"[CVD_RESTORED] {indicator.symbol} cvd={saved_cvd}")
 
         self.cvd_indicators[indicator.symbol] = indicator
 
@@ -56,21 +79,13 @@ class OrderFlowRuntime:
 
             if cvd is not None:
                 cvd.update(price, volume)
+                self.cvd_state_manager.save_symbol_cvd(
+                    symbol=symbol,
+                    cvd=cvd.get_cvd(),
+                    last_price=price,
+                )
                 self.logger.info(
                     f"[CVD] {symbol} price={price} volume={volume} cvd={cvd.get_cvd()}"
-                )
-
-            liquidity = self.liquidity_indicators.get(symbol)
-
-            if liquidity is not None:
-                depth_data = tick.get("depth", {})
-
-                liquidity.update(depth_data)
-                self.logger.info(
-                    f"[MODE3_LIQUIDITY] "
-                    f"{symbol} "
-                    f"delta={liquidity.get_delta()} "
-                    f"ratio={liquidity.get_ratio()}"
                 )
 
         except Exception as error:

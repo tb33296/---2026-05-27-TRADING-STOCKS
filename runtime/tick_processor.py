@@ -18,6 +18,10 @@ from runtime.multifactor_runtime import MultiFactorRuntime
 
 from core.execution.pending_order_manager import PendingOrderManager
 
+from config.config import ACCOUNT_SIZE
+
+from runtime.candidate_selection_engine import CandidateSelectionEngine
+
 
 class TickProcessor:
     """
@@ -44,6 +48,7 @@ class TickProcessor:
         signal_runtime: SignalRuntime,
         multifactor_runtime: MultiFactorRuntime,
         pending_order_manager: PendingOrderManager,
+        candidate_selection_engine: CandidateSelectionEngine,
     ) -> None:
 
         self.logger = LoggingManager.get_logger(__name__)
@@ -67,8 +72,12 @@ class TickProcessor:
         self.total_processed = 0
 
         self.invalid_ticks = 0
-        
+
         self.pending_order_manager = pending_order_manager
+
+        self.account_size = ACCOUNT_SIZE
+
+        self.candidate_selection_engine = candidate_selection_engine
 
     def process_next_tick(self) -> bool:
         """
@@ -97,23 +106,16 @@ class TickProcessor:
                 self.total_processed += 1
 
             self.orderflow_runtime.process_tick(tick)
-            
+
             # ----------------------------------
             # Pending Order Processing
             # ----------------------------------
 
-            ready_orders = (
-                self.pending_order_manager.process_tick(
-                    symbol
-                )
-            )
-            
-            for order in ready_orders:
+            ready_orders = self.pending_order_manager.process_tick(symbol)
 
+            for order in ready_orders:
                 self.logger.info(
-                    f"[EXECUTING_PENDING_ORDER] "
-                    f"{order.symbol} "
-                    f"{order.direction}"
+                    f"[EXECUTING_PENDING_ORDER] {order.symbol} {order.direction}"
                 )
 
                 self.multifactor_runtime.trade_pipeline.execute_pending_order(
@@ -173,15 +175,14 @@ class TickProcessor:
                         f"SLOW_READY={ema_slow.is_ready()} "
                         f"FAST_UPDATES={ema_fast.get_total_updates()} "
                         f"SLOW_UPDATES={ema_slow.get_total_updates()}"
-                        
                     )
                 self.multifactor_runtime.process_trade_opportunity(
                     symbol=candle.symbol,
                     timeframe=candle.timeframe,
                     current_price=candle.close,
-                    account_size=100000.0,
+                    account_size=self.account_size,
                 )
-
+            
             return True
 
         except Exception as error:

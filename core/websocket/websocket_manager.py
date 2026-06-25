@@ -495,6 +495,14 @@ class WebSocketManager:
                 "best_5_sell_data",
                 []
             )
+            self.logger.info(
+                f"[SNAPQUOTE_RAW] "
+                f"{symbol} "
+                f"buy={len(buy_levels)} "
+                f"sell={len(sell_levels)} "
+                f"first_buy={buy_levels[0] if buy_levels else None} "
+                f"first_sell={sell_levels[0] if sell_levels else None}"
+            )
 
             normalized_depth = {
                 "symbol": symbol,

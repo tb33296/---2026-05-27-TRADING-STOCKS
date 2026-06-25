@@ -39,21 +39,21 @@ class LiquidityDelta(IndicatorBase):
         self.ratio = 0.5
 
     def update(self, depth_data: dict) -> None:
-        """
-        Update liquidity metrics.
-
-        Expected:
-
-        {
-            "buy": [...],
-            "sell": [...]
-        }
-        """
 
         try:
-            buy_levels = depth_data.get("buy", [])
+            # -------------------------
+            # Mode 3 (Snap Quote)
+            # -------------------------
 
-            sell_levels = depth_data.get("sell", [])
+            buy_levels = depth_data.get(
+                "best_5_buy_data",
+                depth_data.get("buy", []),
+            )
+
+            sell_levels = depth_data.get(
+                "best_5_sell_data",
+                depth_data.get("sell", []),
+            )
 
             self.bid_quantity = sum(level.get("quantity", 0) for level in buy_levels)
 
@@ -65,10 +65,16 @@ class LiquidityDelta(IndicatorBase):
 
             if total > 0:
                 self.ratio = self.bid_quantity / total
-
             else:
                 self.ratio = 0.5
-
+            self.logger.info(
+                f"[LIQUIDITY_DEBUG] "
+                f"{self.symbol} "
+                f"bid={self.bid_quantity} "
+                f"ask={self.ask_quantity} "
+                f"delta={self.delta} "
+                f"ratio={self.ratio}"
+            )
             self.current_value = self.delta
 
             self.increment_updates()

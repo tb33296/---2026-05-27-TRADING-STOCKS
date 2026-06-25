@@ -6,6 +6,9 @@ from config.config import (
     MAX_TICK_QUEUE_SIZE,
     MAX_DEPTH_QUEUE_SIZE,
 )
+
+from datetime import datetime
+
 from core.execution.pending_order_manager import PendingOrderManager
 
 from config.config import ACTIVE_TIMEFRAMES
@@ -79,6 +82,11 @@ from core.strategy.trade_decision_engine import TradeDecisionEngine
 
 from core.risk.position_sizing_engine import PositionSizingEngine
 
+from runtime.candidate_pool import CandidatePool
+
+from runtime.candidate_selection_engine import CandidateSelectionEngine
+
+
 # from runtime.orderflow_runtime import OrderFlowRuntime
 
 
@@ -109,7 +117,13 @@ class RuntimeEngine:
         self.tick_queue = TickQueue(MAX_TICK_QUEUE_SIZE)
         self.depth_queue = DepthQueue(MAX_DEPTH_QUEUE_SIZE)
 
-        self.orderflow_runtime = OrderFlowRuntime()
+        self.db_manager = DatabaseManager()
+
+        self.db_manager.connect()
+
+        self.orderflow_runtime = OrderFlowRuntime(
+            database_manager=self.db_manager,
+        )
 
         self.indicator_runtime = IndicatorRuntime()
 
@@ -117,11 +131,9 @@ class RuntimeEngine:
 
         self.market_clock = MarketClock()
 
+        self.last_candidate_selection_minute = None
+        
         self.timeframe_manager = TimeframeManager(self.market_clock)
-
-        self.db_manager = DatabaseManager()
-
-        self.db_manager.connect()
 
         self.position_manager = PositionManager()
 
@@ -139,6 +151,13 @@ class RuntimeEngine:
             journal_manager=self.journal_manager,
             pending_order_manager=self.pending_order_manager,
         )
+        
+        self.candidate_pool = CandidatePool()
+
+        self.candidate_selection_engine = CandidateSelectionEngine(
+            candidate_pool=self.candidate_pool,
+            trade_pipeline=self.trade_pipeline,
+        )
 
         self.trade_decision_engine = TradeDecisionEngine()
 
@@ -151,6 +170,7 @@ class RuntimeEngine:
             position_sizing_engine=self.position_sizing_engine,
             trade_pipeline=self.trade_pipeline,
             instrument_manager=self.instrument_manager,
+            candidate_pool=self.candidate_pool,
         )
 
         # self.signal_runtime = SignalRuntime()
@@ -162,6 +182,7 @@ class RuntimeEngine:
             self.signal_runtime,
             self.multifactor_runtime,
             pending_order_manager=self.pending_order_manager,
+            candidate_selection_engine=self.candidate_selection_engine,
         )
         self.trade_manager = TradeManager(
             position_manager=self.position_manager,
@@ -248,13 +269,32 @@ class RuntimeEngine:
         self.logger.info("TradeMonitor worker started")
 
         while self.is_running:
-            self.logger.info("[TRADE_MONITOR_LOOP]")
 
             try:
+
                 self.trading_runtime.process_market()
 
+                current_minute = datetime.now().strftime("%H:%M")
+
+                if current_minute != self.last_candidate_selection_minute:
+
+                    self.last_candidate_selection_minute = current_minute
+
+                    selected = (
+                        self.candidate_selection_engine.process_candidates()
+                    )
+
+                    self.logger.info(
+                        f"[MINUTE_SELECTION] "
+                        f"minute={current_minute} "
+                        f"selected={selected}"
+                    )
+
             except Exception as error:
-                self.logger.error(f"[TRADE_MONITOR_CRASH] {error}")
+
+                self.logger.error(
+                    f"[TRADE_MONITOR_CRASH] {error}"
+                )
 
             time.sleep(1)
 

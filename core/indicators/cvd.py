@@ -29,13 +29,13 @@ class CVD(IndicatorBase):
 
         self.previous_price = None
 
-        self.buy_volume = 0
+        self.buy_volume = 0.0
 
-        self.sell_volume = 0
+        self.sell_volume = 0.0
 
-        self.delta = 0
+        self.delta = 0.0
 
-        self.cvd = 0
+        self.cvd = 0.0
 
     def update(self, price: float, volume: int) -> None:
         """
@@ -75,19 +75,19 @@ class CVD(IndicatorBase):
         except Exception as error:
             self.logger.error(f"CVD update failed: {error}")
 
-    def get_cvd(self) -> int:
+    def get_cvd(self) -> float:
 
         return self.cvd
 
-    def get_delta(self) -> int:
+    def get_delta(self) -> float:
 
         return self.delta
 
-    def get_buy_volume(self) -> int:
+    def get_buy_volume(self) -> float:
 
         return self.buy_volume
 
-    def get_sell_volume(self) -> int:
+    def get_sell_volume(self) -> float:
 
         return self.sell_volume
 
@@ -116,3 +116,15 @@ class CVD(IndicatorBase):
         self.ready = False
 
         self.total_updates = 0
+    
+    
+    def set_cvd(
+        self,
+        value: float,
+    ) -> None:
+
+        self.cvd = value
+
+        self.current_value = value
+
+        self.mark_ready()

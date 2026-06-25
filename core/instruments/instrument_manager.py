@@ -185,18 +185,37 @@ class InstrumentManager:
         with self.lock:
             return self.symbol_index.get(symbol.upper(), [])
     
-    def get_primary_instrument(self, symbol: str) -> Optional[dict[str, Any]]:
-        """
-        Return primary instrument record for symbol.
-        """
+    def get_primary_instrument(
+        self,
+        symbol: str,
+    ) -> Optional[dict[str, Any]]:
 
         instruments = self.get_instruments_by_symbol(symbol)
 
         if not instruments:
             return None
 
+        # Prefer NSE Equity
+
+        for instrument in instruments:
+
+            if (
+                instrument.get("exchange") == "NSE"
+                and instrument.get("segment") == "EQUITY"
+            ):
+                return instrument
+
+        # Then BSE Equity
+
+        for instrument in instruments:
+
+            if (
+                instrument.get("exchange") == "BSE"
+                and instrument.get("segment") == "EQUITY"
+            ):
+                return instrument
+
         return instruments[0]
-    
     
     def get_instruments_by_name(self, name: str) -> list[dict[str, Any]]:
         """

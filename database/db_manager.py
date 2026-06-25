@@ -1,3 +1,5 @@
+# database/db_manager.py
+
 # OPTIONAL FUTURE IMPROVEMENT (LATER)
 
 # Eventually you MAY add helpers:
@@ -180,7 +182,43 @@ class DatabaseManager:
         self.connection.commit()
 
         return cursor
+    
+    def fetch_one(
+        self,
+        query: str,
+        params: tuple = ()
+    ) -> sqlite3.Row | None:
 
+        if self.connection is None:
+            raise RuntimeError("Database not connected")
+
+        self.connection.row_factory = sqlite3.Row
+
+        cursor = self.connection.cursor()
+
+        cursor.execute(query, params)
+
+        return cursor.fetchone()
+
+
+    def fetch_all(
+        self,
+        query: str,
+        params: tuple = ()
+    ) -> list[sqlite3.Row]:
+
+        if self.connection is None:
+            raise RuntimeError("Database not connected")
+
+        self.connection.row_factory = sqlite3.Row
+
+        cursor = self.connection.cursor()
+
+        cursor.execute(query, params)
+
+        return cursor.fetchall()
+    
+    
     def close(self) -> None:
         """
         Close connection.

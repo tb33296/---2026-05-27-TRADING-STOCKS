@@ -1,7 +1,7 @@
 # Folder Tree
 
 ```text
-!! 2026-05-27 TRADING STOCKS (41 folders, 248 files)/
+!! 2026-05-27 TRADING STOCKS (44 folders, 256 files)/
 ├── _Dependency_Report (0 folders, 7 files)/
 │   ├── architecture_report.md (237 lines)
 │   ├── high_risk_modules.txt (89 lines)
@@ -20,12 +20,12 @@
 │   └── websocket (0 folders, 0 files)/
 ├── config (0 folders, 6 files)/
 │   ├── __init__.py (0 lines)
-│   ├── config.py (258 lines)
+│   ├── config.py (272 lines)
 │   ├── risk_config_loader.py (271 lines)
 │   ├── risk_parameters.json (31 lines)
 │   ├── scoring_config_loader.py (232 lines)
 │   └── scoring_weights.json (51 lines)
-├── core (15 folders, 74 files)/
+├── core (15 folders, 75 files)/
 │   ├── auth (0 folders, 2 files)/
 │   │   ├── __init__.py (0 lines)
 │   │   └── auth_manager.py (290 lines)
@@ -44,17 +44,17 @@
 │   ├── indicators (0 folders, 11 files)/
 │   │   ├── atr.py (93 lines)
 │   │   ├── awvap.py (89 lines)
-│   │   ├── cvd.py (118 lines)
+│   │   ├── cvd.py (130 lines)
 │   │   ├── ema.py (70 lines)
 │   │   ├── indicator_base.py (103 lines)
 │   │   ├── indicator_manager.py (149 lines)
-│   │   ├── liquidity_delta.py (120 lines)
+│   │   ├── liquidity_delta.py (126 lines)
 │   │   ├── moving_average.py (151 lines)
 │   │   ├── rvol.py (73 lines)
 │   │   ├── vwap.py (132 lines)
 │   │   └── vwma.py (115 lines)
 │   ├── instruments (0 folders, 4 files)/
-│   │   ├── instrument_manager.py (250 lines)
+│   │   ├── instrument_manager.py (269 lines)
 │   │   ├── instrument_updater.py (181 lines)
 │   │   ├── symbol_registry.py (440 lines)
 │   │   └── token_resolver.py (242 lines)
@@ -85,11 +85,12 @@
 │   │   ├── signal.py (87 lines)
 │   │   ├── signal_manager.py (216 lines)
 │   │   └── vwap_signal.py (233 lines)
-│   ├── strategy (0 folders, 11 files)/
+│   ├── strategy (0 folders, 12 files)/
 │   │   ├── ema_crossover_strategy.py (0 lines)
 │   │   ├── multifactor_decision.py (20 lines)
-│   │   ├── multifactor_strategy.py (331 lines)
+│   │   ├── multifactor_strategy.py (367 lines)
 │   │   ├── orderflow_strategy.py (23 lines)
+│   │   ├── trade_candidate.py (17 lines)
 │   │   ├── trade_context.py (75 lines)
 │   │   ├── trade_decision.py (46 lines)
 │   │   ├── trade_decision_engine.py (86 lines)
@@ -112,7 +113,7 @@
 │   │   ├── reconnect_manager.py (194 lines)
 │   │   ├── subscription_manager.py (140 lines)
 │   │   ├── tick_queue.py (134 lines)
-│   │   └── websocket_manager.py (475 lines)
+│   │   └── websocket_manager.py (564 lines)
 │   ├── __init__.py (0 lines)
 │   └── logging_manager.py (64 lines)
 ├── data (3 folders, 7 files)/
@@ -122,57 +123,66 @@
 │   │   └── OpenAPIScripMaster.json (1 lines)
 │   ├── watchlists (0 folders, 1 files)/
 │   │   └── nifty100.txt (50 lines)
-│   ├── market_data.db (1120 lines)
-│   ├── market_data.db-shm (1 lines)
-│   ├── market_data.db-wal (0 lines)
-│   └── market_data.db_2026_06_17_backup.db (395 lines)
-├── database (0 folders, 3 files)/
+│   ├── market_data.db (2159 lines)
+│   ├── market_data.db-shm (5 lines)
+│   ├── market_data.db-wal (9407 lines)
+│   └── market_data_Backup.db (2188 lines)
+├── database (0 folders, 4 files)/
 │   ├── __init__.py (0 lines)
-│   ├── db_manager.py (190 lines)
+│   ├── cvd_state_manager.py (132 lines)
+│   ├── db_manager.py (228 lines)
 │   └── schema.sql (0 lines)
 ├── execution (0 folders, 1 files)/
 │   └── __init__.py (0 lines)
 ├── instruments (0 folders, 0 files)/
-├── logs (4 folders, 18 files)/
+├── logs (7 folders, 21 files)/
 │   ├── 2026-06-17 (0 folders, 1 files)/
 │   │   └── app.log (3 lines)
 │   ├── 2026-06-18 (0 folders, 1 files)/
 │   │   └── app.log (4 lines)
 │   ├── 2026-06-19 (0 folders, 1 files)/
 │   │   └── app.log (2 lines)
+│   ├── 2026-06-22 (0 folders, 1 files)/
+│   │   └── app.log (4 lines)
+│   ├── 2026-06-23 (0 folders, 1 files)/
+│   │   └── app.log (8 lines)
+│   ├── 2026-06-24 (0 folders, 1 files)/
+│   │   └── app.log (9 lines)
 │   ├── raw_ticks (0 folders, 3 files)/
 │   │   ├── 2026-06-05.jsonl (8 lines)
 │   │   ├── 2026-06-06.jsonl (9 lines)
 │   │   └── 20260605.jsonl (9 lines)
-│   ├── error.log (249 lines)
+│   ├── error.log (281 lines)
 │   ├── raw_tick_capture mode1.json (9 lines)
 │   ├── raw_tick_capture mode2.json (18 lines)
 │   ├── raw_tick_capture.json (18 lines)
 │   ├── raw_tick_capture_mode3.json (89 lines)
 │   ├── raw_tick_capture_mode4.json (211 lines)
-│   ├── system.log (55071 lines)
-│   ├── system.log.1 (102443 lines)
-│   ├── system.log.2 (102700 lines)
-│   ├── system.log.3 (102662 lines)
-│   ├── system.log.4 (102466 lines)
-│   └── system.log.5 (102524 lines)
+│   ├── system.log (62825 lines)
+│   ├── system.log.1 (82724 lines)
+│   ├── system.log.2 (80774 lines)
+│   ├── system.log.3 (82052 lines)
+│   ├── system.log.4 (81996 lines)
+│   └── system.log.5 (81772 lines)
 ├── replay (0 folders, 1 files)/
 │   └── __init__.py (0 lines)
 ├── reports (0 folders, 0 files)/
-├── runtime (0 folders, 19 files)/
+├── runtime (0 folders, 21 files)/
 │   ├── __init__.py (0 lines)
+│   ├── candidate_pool.py (78 lines)
+│   ├── candidate_selection_engine.py (62 lines)
 │   ├── candle_runtime.py (44 lines)
 │   ├── depth_processor.py (151 lines)
 │   ├── indicator_registration.py (140 lines)
 │   ├── indicator_runtime.py (41 lines)
-│   ├── multifactor_runtime.py (290 lines)
+│   ├── multifactor_runtime.py (341 lines)
 │   ├── orderflow_registration.py (66 lines)
-│   ├── orderflow_runtime.py (118 lines)
-│   ├── runtime_engine.py (542 lines)
+│   ├── orderflow_runtime.py (133 lines)
+│   ├── runtime_engine.py (597 lines)
 │   ├── signal_registration.py (95 lines)
 │   ├── signal_runtime.py (122 lines)
 │   ├── signal_trading_runtime.py (0 lines)
-│   ├── tick_processor.py (260 lines)
+│   ├── tick_processor.py (261 lines)
 │   ├── trade_pipeline.py (531 lines)
 │   ├── trading_cycle_engine.py (65 lines)
 │   ├── trading_engine.py (91 lines)
@@ -271,19 +281,20 @@
 ├── .env (11 lines)
 ├── .gitignore (12 lines)
 ├── _CHANGELOG.md (287 lines)
-├── _folderTree.md (280 lines)
+├── _folderTree.md (294 lines)
 ├── _MASTER_ARCHITECTURE.md (879 lines)
 ├── _PROJECT_DOCUMENT_AUDIT_2026-06-03.md (14 lines)
 ├── _PROJECT_STATE.md (495 lines)
-├── _ROADMAP.md (424 lines)
+├── _ROADMAP.md (566 lines)
 ├── _TECH_DEBT 2026_06-03.md (501 lines)
 ├── _TECH_DEBT.md (343 lines)
+├── candidate_engine.txt (1951 lines)
 ├── daily sql.txt (111 lines)
 ├── debug_runtime.py (69 lines)
 ├── generate_project_structure.bat (88 lines)
 ├── loginInfo.py (13 lines)
 ├── main.py (12 lines)
-├── market_data.db (0 lines)
+├── market_data_Backup.db (0 lines)
 ├── PROJECT_DEPENDENCY_ANALYZER.py (667 lines)
 ├── PROMPT_Text.txt (1262 lines)
 ├── pytest.ini (5 lines)

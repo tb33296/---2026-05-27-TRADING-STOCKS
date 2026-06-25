@@ -24,6 +24,9 @@ SIGNAL_START_TIME =  time(9,20) #"09:20"
 NEW_ENTRY_CUTOFF_TIME = time(14,45) #"14:45"
 FORCE_EXIT_TIME = time(15,25) #"15:25"
 
+ACCOUNT_SIZE = 100000
+
+PREFERRED_EXCHANGE = "NSE"
 # ============================================
 # Trading Configuration
 # ============================================
@@ -41,6 +44,8 @@ MAX_DAILY_DRAWDOWN = 3000.0
 PER_TRADE_RISK = 500.0
 
 MAX_CONSECUTIVE_LOSSES = 3
+
+MAX_NEW_TRADES_PER_CANDLE = 3
 
 # ============================================
 # Indicator Configuration
@@ -256,3 +261,12 @@ VWMA_PERIOD = 20
 ATR_PERIOD = 14
 
 RVOL_PERIOD = 20
+
+
+# ----------------------------------
+# CVD Filter
+# ----------------------------------
+
+ENABLE_CVD_ENTRY_FILTER = True
+
+MIN_ABS_CVD_FOR_ENTRY = 50000 #!100000

@@ -19,6 +19,13 @@ from core.instruments.instrument_manager import InstrumentManager
 
 from runtime.orderflow_runtime import OrderFlowRuntime
 
+from datetime import datetime
+
+from runtime.candidate_pool import CandidatePool
+
+from core.strategy.trade_candidate import TradeCandidate
+
+from config.config import ENABLE_CVD_ENTRY_FILTER, MIN_ABS_CVD_FOR_ENTRY
 
 class MultiFactorRuntime:
     """
@@ -44,6 +51,7 @@ class MultiFactorRuntime:
         position_sizing_engine: PositionSizingEngine,
         trade_pipeline: TradePipeline,
         instrument_manager: InstrumentManager,
+        candidate_pool: CandidatePool,
     ) -> None:
 
         self.logger = LoggingManager.get_logger(__name__)
@@ -59,6 +67,8 @@ class MultiFactorRuntime:
         self.instrument_manager = instrument_manager
 
         self.orderflow_runtime = orderflow_runtime
+        
+        self.candidate_pool = candidate_pool
 
         self.strategies: dict[
             tuple[str, str],
@@ -107,7 +117,8 @@ class MultiFactorRuntime:
             liquidity = self.orderflow_runtime.get_liquidity(symbol)
 
             cvd = self.orderflow_runtime.get_cvd(symbol)
-
+            
+            
             strategy = MultiFactorStrategy(
                 ema_fast=ema_fast,
                 ema_slow=ema_slow,
@@ -194,6 +205,34 @@ class MultiFactorRuntime:
         liquidity = self.orderflow_runtime.get_liquidity(symbol)
 
         cvd = self.orderflow_runtime.get_cvd(symbol)
+        
+        # ----------------------------------
+        # CVD Entry Filter
+        # ----------------------------------
+
+        if ENABLE_CVD_ENTRY_FILTER:
+
+            current_cvd = abs(
+                cvd.get_cvd()
+            ) if cvd else 0
+
+            if current_cvd < MIN_ABS_CVD_FOR_ENTRY:
+
+                self.logger.info(
+                    f"[CVD_FILTER_REJECT] "
+                    f"{symbol} "
+                    f"cvd={current_cvd} "
+                    f"required={MIN_ABS_CVD_FOR_ENTRY}"
+                )
+                return
+        
+        self.logger.info(
+            f"[CVD_FILTER_PASS] {symbol} cvd={abs(cvd.get_cvd()) if cvd else 0}"
+        )
+        
+        
+        
+        
 
         if strategy is None:
             return None
@@ -284,7 +323,19 @@ class MultiFactorRuntime:
         self.logger.info(
             f"[TRADE_CANDIDATE] {symbol} {decision.direction} score={decision.score}"
         )
-        return self.trade_pipeline.execute_trade(
+        candidate = TradeCandidate(
             trade_context=trade_context,
             account_size=account_size,
+            ranking_score=(abs(decision.score) + (strategy.rvol.get_value() * 5)),
+            created_time=datetime.now(),
         )
+
+        self.candidate_pool.add(candidate)
+
+        self.logger.info(
+            f"[CANDIDATE_ADDED] "
+            f"{symbol} "
+            f"score={candidate.ranking_score}"
+        )
+
+        return candidate
